@@ -3,6 +3,12 @@ import react from '@vitejs/plugin-react';
 import { VitePWA } from 'vite-plugin-pwa';
 
 export default defineConfig({
+  worker: {
+    format: 'es',
+  },
+  optimizeDeps: {
+    exclude: ['onnxruntime-web'],
+  },
   plugins: [
     react(),
     VitePWA({
@@ -13,12 +19,12 @@ export default defineConfig({
         maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
         runtimeCaching: [
           {
-            urlPattern: /\.(?:onnx|wasm|bin|json)$/i,
+            urlPattern: /\.(?:onnx|wasm|mjs|bin|json)$/i,
             handler: 'CacheFirst',
             options: {
               cacheName: 'auvori-ai-models-v1',
               expiration: {
-                maxEntries: 16,
+                maxEntries: 24,
                 maxAgeSeconds: 60 * 60 * 24 * 30
               }
             }

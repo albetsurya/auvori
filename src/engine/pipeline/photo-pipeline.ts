@@ -1,4 +1,10 @@
 import { ColorRecipe, Preset } from '../../types';
+import {
+  AdaptiveAnalyzeOutcome,
+  AdaptiveAnalyzeRequest,
+  AdaptiveAnalyzer,
+} from '../analysis/adaptive-analysis';
+import { AnalysisResult } from '../analysis/analysis-types';
 import { assignSourceId, getCachedPortraitMask, ImageSourceLike, setCachedPortraitMask } from '../analysis/mask-cache';
 import { computePortraitMaskFromRgba, PortraitMaskResult } from '../analysis/portrait-mask';
 import { buildEffectiveRecipe, isNeutralRecipe } from '../core/pixel-grade';
@@ -87,6 +93,7 @@ export class PhotoPipeline {
   private cpuRenderer: Canvas2DRenderer | null = null;
   private worker: Worker | null = null;
   private workerFailed = false;
+  private adaptiveAnalyzer: AdaptiveAnalyzer | null = null;
 
   private readonly preferWebGL2: boolean;
   private readonly preferWorkerFallback: boolean;
@@ -564,6 +571,31 @@ export class PhotoPipeline {
     return results;
   }
 
+  private getAdaptiveAnalyzer(): AdaptiveAnalyzer {
+    if (!this.adaptiveAnalyzer) {
+      this.adaptiveAnalyzer = new AdaptiveAnalyzer();
+    }
+    return this.adaptiveAnalyzer;
+  }
+
+  getCachedAdaptiveAnalysis(
+    req: Omit<AdaptiveAnalyzeRequest, 'cancelPrevious'>,
+  ): AnalysisResult | null {
+    return this.adaptiveAnalyzer?.getCached(req) ?? null;
+  }
+
+  analyzeAdaptive(req: AdaptiveAnalyzeRequest): Promise<AdaptiveAnalyzeOutcome> {
+    return this.getAdaptiveAnalyzer().analyze(req);
+  }
+
+  cancelAdaptiveAnalysis(): void {
+    this.adaptiveAnalyzer?.cancelPending();
+  }
+
+  probeAiCapabilities() {
+    return this.getAdaptiveAnalyzer().probeCapabilities();
+  }
+
   cancelThumbnailBatch(): void {
     this.activeBatchId++;
     this.worker?.postMessage({ type: 'CANCEL_BATCH', batchId: this.activeBatchId } satisfies ImageWorkerRequest);
@@ -572,6 +604,8 @@ export class PhotoPipeline {
   dispose(): void {
     this.latestPreviewJobId++;
     this.cancelThumbnailBatch();
+    this.adaptiveAnalyzer?.dispose();
+    this.adaptiveAnalyzer = null;
     this.glRenderer?.dispose();
     this.glRenderer = null;
     this.cpuRenderer?.dispose();
