@@ -48,8 +48,14 @@ export const PresetDetailModal: React.FC<PresetDetailModalProps> = ({
   if (!preset) return null;
 
   const traits: string[] = [];
-  if (preset.lookType === 'adaptive') traits.push('Adaptive Flash');
-  if (preset.recipe.relighting) traits.push('Subject Relight');
+  if (preset.lookType === 'adaptive') {
+    traits.push(preset.id === 'night-cinema' ? 'Adaptive Night' : 'Adaptive Flash');
+  }
+  if (preset.recipe.relighting) {
+    traits.push(
+      preset.recipe.relighting.profile === 'night-cinema' ? 'Night Relight' : 'Subject Relight'
+    );
+  }
   if (preset.recipe.toneCurve) traits.push('Tone Curve');
   if (preset.recipe.colorGrading) traits.push('3-Way Grade');
   if (preset.recipe.effects && preset.recipe.effects.bloomStrength > 0) traits.push('Highlight Bloom');
@@ -65,7 +71,11 @@ export const PresetDetailModal: React.FC<PresetDetailModalProps> = ({
 
   const collectionTitle =
     SIGNATURE_COLLECTIONS.find((c) => c.id === preset.collectionId)?.title ??
-    (preset.collectionId === 'direct-flash' ? 'Direct Flash' : undefined);
+    (preset.collectionId === 'direct-flash'
+      ? 'Direct Flash'
+      : preset.collectionId === 'night-cinema'
+        ? 'Night Cinema'
+        : undefined);
   const catLabel = PRESET_CATEGORIES.find((c) => c.id === preset.category)?.label ?? preset.category;
   const subtitleText = collectionTitle
     ? `${collectionTitle.toUpperCase()} · ${(preset.lookType || 'signature').toUpperCase()}`

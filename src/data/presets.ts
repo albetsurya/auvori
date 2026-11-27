@@ -1149,5 +1149,79 @@ export const PRESETS: Preset[] = [
         shadowFloorGuard: 0.85
       }
     })
+  },
+  {
+    id: 'night-cinema',
+    name: 'Night Cinema',
+    category: 'night',
+    isPro: true,
+    badge: 'Adaptive',
+    lookType: 'adaptive',
+    collectionId: 'night-cinema',
+    recipeVersion: 3,
+    accentColor: '#7a92a8',
+    description:
+      'Low-light ambient cinema look with dark-shadow noise stabilization, neon highlight protection, and natural skin balance.',
+    adaptive: {
+      requiresFaceDetection: false,
+      requiresSkinSegmentation: true,
+      requiresSubjectSegmentation: true,
+      requiresLightingAnalysis: true,
+      fallbackStrategy: 'conservative-signature'
+    },
+    recipe: makeRecipe({
+      exposure: 3,
+      contrast: 8,
+      highlights: -10,
+      shadows: 7,
+      whites: 0,
+      blacks: -10,
+      dehaze: 3,
+      sharpen: 6,
+      temperature: -5,
+      tint: 2,
+      saturation: -3,
+      vibrance: 6,
+      shadowCyan: 0,
+      vignette: 14,
+      hsl: {
+        red: { h: 0, s: 4, l: -2 },
+        orange: { h: 0, s: -2, l: 2 },
+        yellow: { h: -4, s: -12, l: -4 },
+        green: { h: 6, s: -20, l: -8 },
+        aqua: { h: 6, s: -8, l: -4 },
+        blue: { h: 4, s: 10, l: -6 }
+      },
+      toneCurve: {
+        blackPoint: 0.0,
+        shadowPivot: -0.022,
+        midtonePivot: 0.028,
+        highlightShoulder: 0.05,
+        whitePoint: 0.995
+      },
+      colorGrading: {
+        shadowTint: [-0.016, -0.008, 0.026],
+        midtoneTint: [0.002, -0.002, 0.006],
+        highlightTint: [0.008, 0.005, -0.006],
+        balance: -0.06
+      },
+      effects: {
+        bloomStrength: 12,
+        bloomThreshold: 0.8,
+        halationStrength: 7,
+        halationThreshold: 0.85
+      },
+      relighting: {
+        profile: 'night-cinema',
+        subjectLift: 36,
+        flashSpecular: 8,
+        backgroundFalloff: 20,
+        falloffRadius: 1.25,
+        skinHighlightGuard: 0.94,
+        shadowFloorGuard: 0.92,
+        shadowNoiseGuard: 0.8,
+        highlightRecovery: 0.72
+      }
+    })
   }
 ];

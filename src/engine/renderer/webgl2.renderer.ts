@@ -3,7 +3,9 @@ import {
   AdaptiveRenderMap,
   buildAdaptiveRenderMap,
   getCachedAdaptiveRenderMap,
-  resolveAdaptiveRelighting
+  resolveAdaptiveRelighting,
+  resolveHighlightRecoveryStrength,
+  resolveShadowDenoiseStrength
 } from '../analysis/adaptive-relighting';
 import { assignSourceId, getCachedPortraitMask, setCachedPortraitMask } from '../analysis/mask-cache';
 import { computePortraitMaskFromRgba, PortraitMaskResult } from '../analysis/portrait-mask';
@@ -618,10 +620,13 @@ export class WebGL2Renderer implements IPhotoRenderer {
       bokehTex = this.bokehFboA.tex;
     }
 
-    // 2. Optional edge-preserving skin smoothing & foreground micro-sharpening prepass
+    // 2. Optional edge-preserving skin smoothing, shadow stabilization & foreground sharpening prepass
     const skinSmoothStrength = Math.min(0.46, (recipe.skinRosy / 45) * 0.46);
     const sharpenAmt = clamp01(recipe.sharpen / 35);
-    const needsPortraitPrepass = skinSmoothStrength > 0.015 || sharpenAmt > 0.015;
+    const shadowDenoiseAmt = resolveShadowDenoiseStrength(recipe.relighting, rlParams);
+    const hlRecoveryAmt = resolveHighlightRecoveryStrength(recipe.relighting, rlParams);
+    const needsPortraitPrepass =
+      skinSmoothStrength > 0.015 || sharpenAmt > 0.015 || shadowDenoiseAmt > 0.015;
     let gradeInputTex: WebGLTexture = this.sourceTex!;
 
     if (needsPortraitPrepass && this.portraitProg) {
@@ -644,6 +649,7 @@ export class WebGL2Renderer implements IPhotoRenderer {
       gl.uniform1i(getUniform(gl, pp, 'uSkinStep'), skinStep);
       gl.uniform1f(getUniform(gl, pp, 'uSkinSmoothStrength'), skinSmoothStrength);
       gl.uniform1f(getUniform(gl, pp, 'uSharpenAmt'), sharpenAmt);
+      gl.uniform1f(getUniform(gl, pp, 'uShadowDenoiseAmt'), shadowDenoiseAmt);
 
       this.drawPass(pp, this.portraitFbo, w, h, false);
       gradeInputTex = this.portraitFbo.tex;
@@ -683,6 +689,7 @@ export class WebGL2Renderer implements IPhotoRenderer {
 
     const activeRelight = Boolean(adaptiveMap && rlParams.active);
     gl.uniform1i(getUniform(gl, gp, 'uHasRelighting'), activeRelight ? 1 : 0);
+    gl.uniform1i(getUniform(gl, gp, 'uRlProfile'), rlParams.profile === 'night-cinema' ? 1 : 0);
     gl.uniform1i(getUniform(gl, gp, 'uRlIsPortrait'), rlParams.isPortrait ? 1 : 0);
     gl.uniform1f(getUniform(gl, gp, 'uRlSubjectLift'), activeRelight ? rlParams.subjectLift : 0);
     gl.uniform1f(getUniform(gl, gp, 'uRlFlashSpecular'), activeRelight ? rlParams.flashSpecular : 0);
@@ -690,6 +697,8 @@ export class WebGL2Renderer implements IPhotoRenderer {
     gl.uniform1f(getUniform(gl, gp, 'uRlSkinHighlightGuard'), rlParams.skinHighlightGuard);
     gl.uniform1f(getUniform(gl, gp, 'uRlShadowFloorGuard'), rlParams.shadowFloorGuard);
     gl.uniform1f(getUniform(gl, gp, 'uRlSkinWarmBalance'), rlParams.skinWarmBalance);
+    gl.uniform1f(getUniform(gl, gp, 'uRlHighlightRecovery'), hlRecoveryAmt);
+    gl.uniform1f(getUniform(gl, gp, 'uRlBgCoolShift'), activeRelight ? rlParams.bgCoolShift : 0);
 
     gl.uniform1f(getUniform(gl, gp, 'uDehazeK'), clamp01(recipe.dehaze / 50) * 0.34);
     gl.uniform1f(getUniform(gl, gp, 'uExpMult'), Math.pow(2, recipe.exposure / 55));

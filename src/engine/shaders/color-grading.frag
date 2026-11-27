@@ -19,8 +19,9 @@ uniform int uHasHsl;
 uniform int uIncludeGrain;
 uniform int uApplyFinalStages;
 
-// P4 Adaptive Relighting (Direct Flash)
+// P4/P5 Adaptive Relighting (Direct Flash & Night Cinema)
 uniform int uHasRelighting;
+uniform int uRlProfile;
 uniform int uRlIsPortrait;
 uniform float uRlSubjectLift;
 uniform float uRlFlashSpecular;
@@ -28,6 +29,8 @@ uniform float uRlBgFalloff;
 uniform float uRlSkinHighlightGuard;
 uniform float uRlShadowFloorGuard;
 uniform float uRlSkinWarmBalance;
+uniform float uRlHighlightRecovery;
+uniform float uRlBgCoolShift;
 
 uniform float uDehazeK;
 uniform float uExpMult;
@@ -279,7 +282,19 @@ void main() {
     rgb += (bokehRgb - rgb) * bMix;
   }
 
-  // 0d. Adaptive Flash Relighting (Layers C & D — exact CPU pixel-grade parity)
+  // 0c-bis. Night Cinema gamut-preserving practical & neon highlight rolloff
+  if (uRlHighlightRecovery > 0.005) {
+    float maxHlC = max(rgb.r, max(rgb.g, rgb.b));
+    float hlStart = 0.80 - 0.06 * uRlHighlightRecovery;
+    if (maxHlC > hlStart) {
+      float span = 1.0 - hlStart;
+      float t = (maxHlC - hlStart) / span;
+      float compressed = hlStart + span * (t / (1.0 + 0.44 * uRlHighlightRecovery * t));
+      rgb *= compressed / maxHlC;
+    }
+  }
+
+  // 0d. Adaptive Relighting (Direct Flash uRlProfile == 0 & Night Cinema uRlProfile == 1)
   if (uHasRelighting == 1) {
     vec3 ad = sampleAdaptiveChannels(vec2(nx, ny));
     float sSubj = ad.r;
@@ -287,50 +302,104 @@ void main() {
     float sSkin = ad.b;
     float rlDepthFade = 1.0 - 0.45 * smoothstep(0.75, 0.96, ny);
     float fgWeight = smoothstep(0.36, 0.80, sSubj) * (0.30 + 0.70 * sFalloff);
-    float bgWeight = smoothstep(0.62, 0.12, sSubj) * rlDepthFade;
+    float bgEdgeLo = (uRlProfile == 1) ? 0.46 : 0.62;
+    float bgWeight = smoothstep(bgEdgeLo, 0.10, sSubj) * rlDepthFade;
     float preLum = clamp01(0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b);
 
-    if (bgWeight > 0.01 && uRlBgFalloff > 0.0) {
-      float bgHlTame = 1.0 - uRlBgFalloff * 0.18 * bgWeight * smoothstep(0.45, 0.92, preLum);
-      float bgShadowKeep = smoothstep(0.02, 0.14, preLum) * uRlShadowFloorGuard + (1.0 - uRlShadowFloorGuard);
-      float rawAtten = 1.0 - uRlBgFalloff * 0.52 * bgWeight * (0.35 + 0.65 * bgShadowKeep);
-      float bgAtten = clamp(rawAtten, 0.55, 1.0) * bgHlTame;
-      rgb *= bgAtten;
-      float bGray = 0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b;
-      float bDesat = uRlBgFalloff * 0.16 * bgWeight;
-      rgb += (vec3(bGray) - rgb) * bDesat;
-    }
-
-    if (fgWeight > 0.01) {
-      float skinMask = (uRlIsPortrait == 1) ? clamp01(sSkin * smoothstep(0.28, 0.68, sSubj)) : 0.0;
-      float hlProtect = 1.0 - uRlSkinHighlightGuard * 0.84 * smoothstep(0.54, 0.88, preLum);
-      float shadowBase = 0.36 + 0.64 * smoothstep(0.018, 0.12, preLum);
-      float shadowLiftWindow = mix(1.0, shadowBase, uRlShadowFloorGuard);
-      float skinCap = 1.0 - 0.52 * skinMask;
-      float gainAmt = uRlSubjectLift * fgWeight * hlProtect * shadowLiftWindow * skinCap;
-
-      float multGain = 1.0 + gainAmt * (0.88 + 0.28 * (1.0 - preLum));
-      rgb *= multGain;
-      float maxMultC = max(rgb.r, max(rgb.g, rgb.b));
-      if (maxMultC > 0.84) {
-        rgb *= softHighlightRoll(maxMultC) / maxMultC;
+    if (uRlProfile == 1) {
+      if (bgWeight > 0.01 && uRlBgFalloff > 0.0) {
+        float bgHlTame = 1.0 - uRlBgFalloff * 0.20 * bgWeight * smoothstep(0.42, 0.90, preLum);
+        float bgShadowKeep = smoothstep(0.03, 0.16, preLum) * uRlShadowFloorGuard + (1.0 - uRlShadowFloorGuard);
+        float rawAtten = 1.0 - uRlBgFalloff * 0.34 * bgWeight * (0.28 + 0.72 * bgShadowKeep);
+        float bgAtten = clamp(rawAtten, 0.68, 1.0) * bgHlTame;
+        rgb *= bgAtten;
+        float bGray = 0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b;
+        float bDesat = uRlBgFalloff * 0.12 * bgWeight * smoothstep(0.12, 0.48, preLum);
+        rgb += (vec3(bGray) - rgb) * bDesat;
+        if (uRlBgCoolShift > 0.002) {
+          float coolEnv = smoothstep(0.08, 0.28, preLum) * (1.0 - smoothstep(0.62, 0.90, preLum)) * bgWeight;
+          rgb = clamp(rgb + vec3(-0.016, -0.002, 0.022) * (uRlBgCoolShift * coolEnv), 0.0, 1.0);
+        }
       }
 
-      float midLum = clamp01(0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b);
-      float specEnv = 4.0 * midLum * (1.0 - midLum) * smoothstep(0.22, 0.60, midLum) * (1.0 - smoothstep(0.72, 0.92, midLum));
-      float specBoost = 1.0 + uRlFlashSpecular * fgWeight * specEnv * (1.0 - 0.42 * skinMask);
-      rgb *= specBoost;
-      float maxSpecC = max(rgb.r, max(rgb.g, rgb.b));
-      if (maxSpecC > 0.84) {
-        rgb *= softHighlightRoll(maxSpecC) / maxSpecC;
+      if (fgWeight > 0.01) {
+        float skinMask = (uRlIsPortrait == 1) ? clamp01(sSkin * smoothstep(0.28, 0.68, sSubj)) : 0.0;
+        float hlProtect = 1.0 - uRlSkinHighlightGuard * 0.88 * smoothstep(0.46, 0.82, preLum);
+        float shadowBase = 0.18 + 0.82 * smoothstep(0.03, 0.16, preLum);
+        float shadowLiftWindow = mix(1.0, shadowBase, uRlShadowFloorGuard);
+        float skinCap = 1.0 - 0.34 * skinMask;
+        float gainAmt = uRlSubjectLift * fgWeight * hlProtect * shadowLiftWindow * skinCap;
+
+        float multGain = 1.0 + gainAmt * (0.76 + 0.34 * (1.0 - preLum));
+        rgb *= multGain;
+        float maxMultC = max(rgb.r, max(rgb.g, rgb.b));
+        if (maxMultC > 0.84) {
+          rgb *= softHighlightRoll(maxMultC) / maxMultC;
+        }
+
+        float midLum = clamp01(0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b);
+        float specEnv = 4.0 * midLum * (1.0 - midLum) * smoothstep(0.20, 0.56, midLum) * (1.0 - smoothstep(0.68, 0.88, midLum));
+        float specBoost = 1.0 + uRlFlashSpecular * fgWeight * specEnv * (1.0 - 0.50 * skinMask);
+        rgb *= specBoost;
+        float maxSpecC = max(rgb.r, max(rgb.g, rgb.b));
+        if (maxSpecC > 0.84) {
+          rgb *= softHighlightRoll(maxSpecC) / maxSpecC;
+        }
+
+        if (skinMask > 0.01 && uRlSkinWarmBalance > 0.0) {
+          float skLum = clamp01(0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b);
+          float midEnv = 4.0 * skLum * (1.0 - skLum);
+          float wStrength = skinMask * uRlSkinWarmBalance * clamp01(gainAmt * 1.8 + 0.20 * fgWeight) * hlProtect;
+          float satRestore = 1.0 + 0.05 * wStrength * midEnv;
+          rgb = clamp(vec3(skLum) + (rgb - vec3(skLum)) * satRestore, 0.0, 1.0);
+          float coolSkinNeed = smoothstep(0.20, 0.02, rgb.r - rgb.b);
+          float warmNudge = skinMask * uRlSkinWarmBalance * coolSkinNeed * midEnv * hlProtect * fgWeight * 0.030;
+          rgb = clamp(rgb + vec3(warmNudge * 0.85, warmNudge * 0.10, -warmNudge * 0.75), 0.0, 1.0);
+        }
+      }
+    } else {
+      if (bgWeight > 0.01 && uRlBgFalloff > 0.0) {
+        float bgHlTame = 1.0 - uRlBgFalloff * 0.18 * bgWeight * smoothstep(0.45, 0.92, preLum);
+        float bgShadowKeep = smoothstep(0.02, 0.14, preLum) * uRlShadowFloorGuard + (1.0 - uRlShadowFloorGuard);
+        float rawAtten = 1.0 - uRlBgFalloff * 0.52 * bgWeight * (0.35 + 0.65 * bgShadowKeep);
+        float bgAtten = clamp(rawAtten, 0.55, 1.0) * bgHlTame;
+        rgb *= bgAtten;
+        float bGray = 0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b;
+        float bDesat = uRlBgFalloff * 0.16 * bgWeight;
+        rgb += (vec3(bGray) - rgb) * bDesat;
       }
 
-      if (skinMask > 0.01 && uRlSkinWarmBalance > 0.0) {
-        float skLum = clamp01(0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b);
-        float midEnv = 4.0 * skLum * (1.0 - skLum);
-        float wStrength = skinMask * uRlSkinWarmBalance * clamp01(gainAmt * 2.0 + 0.20 * fgWeight) * hlProtect;
-        float satRestore = 1.0 + 0.06 * wStrength * midEnv;
-        rgb = clamp(vec3(skLum) + (rgb - vec3(skLum)) * satRestore, 0.0, 1.0);
+      if (fgWeight > 0.01) {
+        float skinMask = (uRlIsPortrait == 1) ? clamp01(sSkin * smoothstep(0.28, 0.68, sSubj)) : 0.0;
+        float hlProtect = 1.0 - uRlSkinHighlightGuard * 0.84 * smoothstep(0.54, 0.88, preLum);
+        float shadowBase = 0.36 + 0.64 * smoothstep(0.018, 0.12, preLum);
+        float shadowLiftWindow = mix(1.0, shadowBase, uRlShadowFloorGuard);
+        float skinCap = 1.0 - 0.52 * skinMask;
+        float gainAmt = uRlSubjectLift * fgWeight * hlProtect * shadowLiftWindow * skinCap;
+
+        float multGain = 1.0 + gainAmt * (0.88 + 0.28 * (1.0 - preLum));
+        rgb *= multGain;
+        float maxMultC = max(rgb.r, max(rgb.g, rgb.b));
+        if (maxMultC > 0.84) {
+          rgb *= softHighlightRoll(maxMultC) / maxMultC;
+        }
+
+        float midLum = clamp01(0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b);
+        float specEnv = 4.0 * midLum * (1.0 - midLum) * smoothstep(0.22, 0.60, midLum) * (1.0 - smoothstep(0.72, 0.92, midLum));
+        float specBoost = 1.0 + uRlFlashSpecular * fgWeight * specEnv * (1.0 - 0.42 * skinMask);
+        rgb *= specBoost;
+        float maxSpecC = max(rgb.r, max(rgb.g, rgb.b));
+        if (maxSpecC > 0.84) {
+          rgb *= softHighlightRoll(maxSpecC) / maxSpecC;
+        }
+
+        if (skinMask > 0.01 && uRlSkinWarmBalance > 0.0) {
+          float skLum = clamp01(0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b);
+          float midEnv = 4.0 * skLum * (1.0 - skLum);
+          float wStrength = skinMask * uRlSkinWarmBalance * clamp01(gainAmt * 2.0 + 0.20 * fgWeight) * hlProtect;
+          float satRestore = 1.0 + 0.06 * wStrength * midEnv;
+          rgb = clamp(vec3(skLum) + (rgb - vec3(skLum)) * satRestore, 0.0, 1.0);
+        }
       }
     }
   }

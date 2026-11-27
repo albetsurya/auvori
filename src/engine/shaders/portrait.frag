@@ -12,6 +12,7 @@ uniform int uHasMask;
 uniform int uSkinStep;
 uniform float uSkinSmoothStrength;
 uniform float uSharpenAmt;
+uniform float uShadowDenoiseAmt;
 
 float computeSkinWeight(vec3 c) {
   float y = 0.299 * c.r + 0.587 * c.g + 0.114 * c.b;
@@ -61,6 +62,7 @@ void main() {
   }
 
   float rawLum = 0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b;
+  float rawMaxC = max(rgb.r, max(rgb.g, rgb.b));
   float rawSkinW = computeSkinWeight(rgb);
   float smoothApplied = 0.0;
 
@@ -109,6 +111,55 @@ void main() {
     rgb += (smoothRgb - rgb) * smoothApplied;
   }
 
+  // Night Cinema noise-aware dark-shadow chroma & luminance stabilization
+  if (uShadowDenoiseAmt > 0.015 && rawLum < 0.24 && rawMaxC < 0.34) {
+    float curLum = 0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b;
+    float darkZone = smoothstep(0.24, 0.04, rawLum) * (1.0 - smoothstep(0.18, 0.34, rawMaxC));
+    float lL = lumAt(x - uSkinStep, y);
+    float lR = lumAt(x + uSkinStep, y);
+    float lU = lumAt(x, y - uSkinStep);
+    float lD = lumAt(x, y + uSkinStep);
+    float edgeMag = abs(lL - lR) + abs(lU - lD);
+    float edgeKeep = 1.0 - smoothstep(0.055, 0.15, edgeMag);
+
+    if (darkZone * edgeKeep > 0.01) {
+      vec3 sumSdRgb = rgb;
+      float sumSdW = 1.0;
+      int s1 = uSkinStep;
+      int s2 = uSkinStep * 2;
+      ivec2 offsets[12] = ivec2[12](
+        ivec2(-s1, 0), ivec2(s1, 0), ivec2(0, -s1), ivec2(0, s1),
+        ivec2(-s1, -s1), ivec2(s1, -s1), ivec2(-s1, s1), ivec2(s1, s1),
+        ivec2(-s2, 0), ivec2(s2, 0), ivec2(0, -s2), ivec2(0, s2)
+      );
+      for (int i = 0; i < 12; i++) {
+        int ox = x + offsets[i].x;
+        int oy = y + offsets[i].y;
+        if (ox < 0 || ox >= uSize.x || oy < 0 || oy >= uSize.y) continue;
+        vec3 nc = texelFetch(uSourceTex, ivec2(ox, oy), 0).rgb;
+        if (max(nc.r, max(nc.g, nc.b)) > 0.36) continue;
+        float nLum = 0.299 * nc.r + 0.587 * nc.g + 0.114 * nc.b;
+        float diff = abs(nLum - rawLum);
+        float wt = max(0.0, 1.0 - diff * 11.5);
+        float sp = i < 4 ? 1.0 : (i < 8 ? 0.8 : 0.6);
+        float w = wt * wt * sp;
+        if (w > 0.0) {
+          sumSdRgb += nc * w;
+          sumSdW += w;
+        }
+      }
+      vec3 sdRgb = sumSdRgb / sumSdW;
+      float sdLum = 0.299 * sdRgb.r + 0.587 * sdRgb.g + 0.114 * sdRgb.b;
+      float dnBase = darkZone * uShadowDenoiseAmt * edgeKeep;
+      float lumaMix = clamp(dnBase * 0.46, 0.0, 0.52);
+      float chromaMix = clamp(dnBase * 1.15, 0.0, 0.88);
+      float newLum = mix(curLum, sdLum, lumaMix);
+      vec3 curC = rgb - vec3(curLum);
+      vec3 sdC = sdRgb - vec3(sdLum);
+      rgb = clamp(vec3(newLum) + mix(curC, sdC, chromaMix), 0.0, 1.0);
+    }
+  }
+
   if (uSharpenAmt > 0.015 && effBgMask < 0.45) {
     float avgL = (
       lumAt(x - uSkinStep, y) +
@@ -119,6 +170,9 @@ void main() {
     float rawDetail = rawLum - avgL;
     float clampedDetail = clamp(rawDetail, -0.055, 0.055);
     float fgSharpW = (1.0 - effBgMask * 2.2) * (1.0 - smoothApplied * 1.4);
+    if (uShadowDenoiseAmt > 0.015) {
+      fgSharpW *= smoothstep(0.14, 0.32, rawLum);
+    }
     if (fgSharpW > 0.0) {
       float dAdd = clampedDetail * uSharpenAmt * 0.72 * fgSharpW;
       rgb = clamp(rgb + dAdd, 0.0, 1.0);

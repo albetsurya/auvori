@@ -90,13 +90,18 @@ export interface OpticalEffectsRecipe {
   halationThreshold: number; // 0.68 to 0.95
 }
 
+export type AdaptiveLookProfile = 'direct-flash' | 'night-cinema';
+
 export interface RelightingRecipe {
-  subjectLift: number;        // 0 to 45 (adaptive subject illumination)
-  flashSpecular: number;      // 0 to 35 (controlled specular crispness)
-  backgroundFalloff: number;  // 0 to 50 (spatial background falloff)
-  falloffRadius: number;      // 0.6 to 1.8
-  skinHighlightGuard: number; // 0 to 1
-  shadowFloorGuard: number;   // 0 to 1
+  profile?: AdaptiveLookProfile;
+  subjectLift: number;         // 0 to 45 (adaptive subject illumination)
+  flashSpecular: number;       // 0 to 35 (controlled specular crispness)
+  backgroundFalloff: number;   // 0 to 50 (spatial background falloff)
+  falloffRadius: number;       // 0.6 to 1.8
+  skinHighlightGuard: number;  // 0 to 1
+  shadowFloorGuard: number;    // 0 to 1
+  shadowNoiseGuard?: number;   // 0 to 1 (dark-shadow chroma & luma noise control)
+  highlightRecovery?: number;  // 0 to 1 (gamut-preserving neon/lamp highlight guard)
 }
 
 export interface AdaptiveRequirements {

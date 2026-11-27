@@ -9,7 +9,9 @@ import {
 } from '../../types';
 import {
   AdaptiveRenderMap,
-  ResolvedRelightingParams
+  ResolvedRelightingParams,
+  resolveHighlightRecoveryStrength,
+  resolveShadowDenoiseStrength
 } from '../analysis/adaptive-relighting';
 import {
   blurFloatMap,
@@ -78,7 +80,13 @@ export function hasActiveOpticalEffects(fx: OpticalEffectsRecipe | undefined): b
 
 export function hasActiveRelighting(rl: RelightingRecipe | undefined): boolean {
   if (!rl) return false;
-  return rl.subjectLift > 0.1 || rl.flashSpecular > 0.1 || rl.backgroundFalloff > 0.1;
+  return (
+    rl.subjectLift > 0.1 ||
+    rl.flashSpecular > 0.1 ||
+    rl.backgroundFalloff > 0.1 ||
+    (rl.shadowNoiseGuard ?? 0) > 0.005 ||
+    (rl.highlightRecovery ?? 0) > 0.005
+  );
 }
 
 function scaleColorGrading(
@@ -116,12 +124,17 @@ function scaleRelighting(
 ): RelightingRecipe | undefined {
   if (!rl || (kTone <= 1e-4 && kContrast <= 1e-4)) return undefined;
   const scaled: RelightingRecipe = {
+    profile: rl.profile,
     subjectLift: rl.subjectLift * kTone,
     flashSpecular: rl.flashSpecular * kContrast,
     backgroundFalloff: rl.backgroundFalloff * kTone,
     falloffRadius: rl.falloffRadius,
     skinHighlightGuard: rl.skinHighlightGuard,
-    shadowFloorGuard: rl.shadowFloorGuard
+    shadowFloorGuard: rl.shadowFloorGuard,
+    shadowNoiseGuard:
+      rl.shadowNoiseGuard !== undefined ? rl.shadowNoiseGuard * kContrast : undefined,
+    highlightRecovery:
+      rl.highlightRecovery !== undefined ? rl.highlightRecovery * kTone : undefined
   };
   return hasActiveRelighting(scaled) ? scaled : undefined;
 }
@@ -613,6 +626,78 @@ function sampleSkinSmoothAndEdge(
   return { sr: sumR * inv, sg: sumG * inv, sb: sumB * inv, edgeMag };
 }
 
+function sampleShadowDenoiseAndEdge(
+  origData: Uint8ClampedArray | Uint8Array,
+  w: number,
+  h: number,
+  x: number,
+  y: number,
+  step: number,
+  r0: number,
+  g0: number,
+  b0: number,
+  rawLum: number
+): { sdR: number; sdG: number; sdB: number; edgeMag: number } {
+  const lumAt = (nx: number, ny: number): number => {
+    const cx = nx < 0 ? 0 : nx >= w ? w - 1 : nx;
+    const cy = ny < 0 ? 0 : ny >= h ? h - 1 : ny;
+    const p = (cy * w + cx) * 4;
+    return (0.299 * origData[p] + 0.587 * origData[p + 1] + 0.114 * origData[p + 2]) / 255;
+  };
+
+  const lL = lumAt(x - step, y);
+  const lR = lumAt(x + step, y);
+  const lU = lumAt(x, y - step);
+  const lD = lumAt(x, y + step);
+  const edgeMag = Math.abs(lL - lR) + Math.abs(lU - lD);
+
+  let sumR = r0;
+  let sumG = g0;
+  let sumB = b0;
+  let sumW = 1;
+
+  const s1 = step;
+  const s2 = step * 2;
+  const offsets: [number, number, number][] = [
+    [-s1, 0, 1.0],
+    [s1, 0, 1.0],
+    [0, -s1, 1.0],
+    [0, s1, 1.0],
+    [-s1, -s1, 0.8],
+    [s1, -s1, 0.8],
+    [-s1, s1, 0.8],
+    [s1, s1, 0.8],
+    [-s2, 0, 0.6],
+    [s2, 0, 0.6],
+    [0, -s2, 0.6],
+    [0, s2, 0.6]
+  ];
+
+  for (let i = 0; i < offsets.length; i++) {
+    const nx = x + offsets[i][0];
+    const ny = y + offsets[i][1];
+    if (nx < 0 || nx >= w || ny < 0 || ny >= h) continue;
+    const p = (ny * w + nx) * 4;
+    const nr = origData[p] / 255;
+    const ng = origData[p + 1] / 255;
+    const nb = origData[p + 2] / 255;
+    if (Math.max(nr, ng, nb) > 0.36) continue;
+    const nLum = 0.299 * nr + 0.587 * ng + 0.114 * nb;
+    const diff = Math.abs(nLum - rawLum);
+    const wt = Math.max(0, 1 - diff * 11.5);
+    const wSq = wt * wt * offsets[i][2];
+    if (wSq > 0) {
+      sumR += nr * wSq;
+      sumG += ng * wSq;
+      sumB += nb * wSq;
+      sumW += wSq;
+    }
+  }
+
+  const inv = 1 / sumW;
+  return { sdR: sumR * inv, sdG: sumG * inv, sdB: sumB * inv, edgeMag };
+}
+
 export interface PixelGradeOptions {
   portraitMask?: Pick<PortraitMaskResult, 'mw' | 'mh' | 'mask'> | null;
   adaptiveMap?: AdaptiveRenderMap | null;
@@ -732,9 +817,15 @@ export function applyRecipeToPixelBuffer(
       ? createBokehBuffer(data, w, h, portraitInfo.mask, portraitInfo.mw, portraitInfo.mh, bokehRadius)
       : null;
 
+  const adaptiveMap = options?.adaptiveMap ?? null;
+  const rl = options?.relightingParams ?? null;
+  const shadowDenoiseAmt = resolveShadowDenoiseStrength(recipe.relighting, rl);
+  const hlRecoveryAmt = resolveHighlightRecoveryStrength(recipe.relighting, rl);
+
   const skinSmoothStrength = Math.min(0.46, (recipe.skinRosy / 45) * 0.46);
   const sharpenAmt = clamp01(recipe.sharpen / 35);
-  const needsOrigCopy = skinSmoothStrength > 0.015 || sharpenAmt > 0.015;
+  const needsOrigCopy =
+    skinSmoothStrength > 0.015 || sharpenAmt > 0.015 || shadowDenoiseAmt > 0.015;
   const origData = needsOrigCopy ? new Uint8ClampedArray(data) : null;
   const skinStep = Math.max(1, Math.round(minDim / 520));
 
@@ -770,8 +861,6 @@ export function applyRecipeToPixelBuffer(
       : null;
   const cg = hasActiveColorGrading(recipe.colorGrading) ? recipe.colorGrading! : null;
   const fx = hasActiveOpticalEffects(recipe.effects) ? recipe.effects! : null;
-  const adaptiveMap = options?.adaptiveMap ?? null;
-  const rl = options?.relightingParams ?? null;
   const hasActiveAdaptiveRl = Boolean(
     rl?.active && adaptiveMap && adaptiveMap.mode !== 'fallback-signature' && hasActiveRelighting(recipe.relighting)
   );
@@ -800,9 +889,10 @@ export function applyRecipeToPixelBuffer(
         effBgMask = (1 - subj) * depthFade;
       }
 
-      // 0b. Edge-preserving skin smoothing & foreground luminance micro-sharpening
+      // 0b. Edge-preserving skin smoothing, Night Cinema shadow stabilization & micro-sharpening
       if (origData) {
         const rawLum = 0.299 * r + 0.587 * g + 0.114 * b;
+        const rawMaxC = Math.max(r, g, b);
         const rawSkinW = computeSkinWeight(r, g, b);
         let smoothApplied = 0;
 
@@ -813,6 +903,37 @@ export function applyRecipeToPixelBuffer(
           r += (sr - r) * smoothApplied;
           g += (sg - g) * smoothApplied;
           b += (sb - b) * smoothApplied;
+        }
+
+        if (shadowDenoiseAmt > 0.015 && rawLum < 0.24 && rawMaxC < 0.34) {
+          const curLum = 0.299 * r + 0.587 * g + 0.114 * b;
+          const darkZone = smoothstep(0.24, 0.04, rawLum) * (1 - smoothstep(0.18, 0.34, rawMaxC));
+          const { sdR, sdG, sdB, edgeMag } = sampleShadowDenoiseAndEdge(
+            origData,
+            w,
+            h,
+            x,
+            y,
+            skinStep,
+            r,
+            g,
+            b,
+            rawLum
+          );
+          const edgeKeep = 1 - smoothstep(0.055, 0.15, edgeMag);
+          if (darkZone * edgeKeep > 0.01) {
+            const sdLum = 0.299 * sdR + 0.587 * sdG + 0.114 * sdB;
+            const dnBase = darkZone * shadowDenoiseAmt * edgeKeep;
+            const lumaMix = Math.min(0.52, Math.max(0, dnBase * 0.46));
+            const chromaMix = Math.min(0.88, Math.max(0, dnBase * 1.15));
+            const newLum = curLum + (sdLum - curLum) * lumaMix;
+            const cr = r - curLum;
+            const cg = g - curLum;
+            const cb = b - curLum;
+            r = clamp01(newLum + cr + (sdR - sdLum - cr) * chromaMix);
+            g = clamp01(newLum + cg + (sdG - sdLum - cg) * chromaMix);
+            b = clamp01(newLum + cb + (sdB - sdLum - cb) * chromaMix);
+          }
         }
 
         if (sharpenAmt > 0.015 && effBgMask < 0.45) {
@@ -831,7 +952,10 @@ export function applyRecipeToPixelBuffer(
             (4 * 255);
           const rawDetail = rawLum - avgL;
           const clampedDetail = Math.max(-0.055, Math.min(0.055, rawDetail));
-          const fgSharpW = (1 - effBgMask * 2.2) * (1 - smoothApplied * 1.4);
+          let fgSharpW = (1 - effBgMask * 2.2) * (1 - smoothApplied * 1.4);
+          if (shadowDenoiseAmt > 0.015) {
+            fgSharpW *= smoothstep(0.14, 0.32, rawLum);
+          }
           if (fgSharpW > 0) {
             const dAdd = clampedDetail * sharpenAmt * 0.72 * fgSharpW;
             r = clamp01(r + dAdd);
@@ -849,74 +973,177 @@ export function applyRecipeToPixelBuffer(
         b += (bb - b) * bMix;
       }
 
-      // 0d. Adaptive Flash Relighting (Layers C & D — matches GLSL uHasRelighting path)
+      // 0c-bis. Night Cinema gamut-preserving practical & neon highlight rolloff
+      if (hlRecoveryAmt > 0.005) {
+        const maxHlC = Math.max(r, g, b);
+        const hlStart = 0.8 - 0.06 * hlRecoveryAmt;
+        if (maxHlC > hlStart) {
+          const span = 1 - hlStart;
+          const t = (maxHlC - hlStart) / span;
+          const compressed = hlStart + span * (t / (1 + 0.44 * hlRecoveryAmt * t));
+          const scale = compressed / maxHlC;
+          r *= scale;
+          g *= scale;
+          b *= scale;
+        }
+      }
+
+      // 0d. Adaptive Relighting (Direct Flash & Night Cinema — matches GLSL uHasRelighting path)
       if (hasActiveAdaptiveRl && adaptiveMap && rl) {
         const [sSubj, sFalloff, sSkin] = sampleAdaptiveChannels(adaptiveMap, (x + 0.5) * invW, ny);
         const rlDepthFade = 1 - 0.45 * smoothstep(0.75, 0.96, ny);
-        const fgWeight = smoothstep(0.36, 0.80, sSubj) * (0.30 + 0.70 * sFalloff);
-        const bgWeight = smoothstep(0.62, 0.12, sSubj) * rlDepthFade;
+        const fgWeight = smoothstep(0.36, 0.8, sSubj) * (0.3 + 0.7 * sFalloff);
+        const bgEdgeLo = rl.profile === 'night-cinema' ? 0.46 : 0.62;
+        const bgWeight = smoothstep(bgEdgeLo, 0.1, sSubj) * rlDepthFade;
         const preLum = clamp01(0.299 * r + 0.587 * g + 0.114 * b);
 
-        if (bgWeight > 0.01 && rl.backgroundFalloff > 0) {
-          const bgHlTame = 1 - rl.backgroundFalloff * 0.18 * bgWeight * smoothstep(0.45, 0.92, preLum);
-          const bgShadowKeep =
-            smoothstep(0.02, 0.14, preLum) * rl.shadowFloorGuard + (1 - rl.shadowFloorGuard);
-          const rawAtten = 1 - rl.backgroundFalloff * 0.52 * bgWeight * (0.35 + 0.65 * bgShadowKeep);
-          const bgAtten = Math.max(0.55, Math.min(1, rawAtten)) * bgHlTame;
-          r *= bgAtten;
-          g *= bgAtten;
-          b *= bgAtten;
-          const bGray = 0.299 * r + 0.587 * g + 0.114 * b;
-          const bDesat = rl.backgroundFalloff * 0.16 * bgWeight;
-          r += (bGray - r) * bDesat;
-          g += (bGray - g) * bDesat;
-          b += (bGray - b) * bDesat;
-        }
-
-        if (fgWeight > 0.01) {
-          const skinMask = rl.isPortrait ? clamp01(sSkin * smoothstep(0.28, 0.68, sSubj)) : 0;
-          const hlProtect = 1 - rl.skinHighlightGuard * 0.84 * smoothstep(0.54, 0.88, preLum);
-          const shadowBase = 0.36 + 0.64 * smoothstep(0.018, 0.12, preLum);
-          const shadowLiftWindow = 1 + (shadowBase - 1) * rl.shadowFloorGuard;
-          const skinCap = 1 - 0.52 * skinMask;
-          const gainAmt = rl.subjectLift * fgWeight * hlProtect * shadowLiftWindow * skinCap;
-
-          const multGain = 1 + gainAmt * (0.88 + 0.28 * (1 - preLum));
-          r *= multGain;
-          g *= multGain;
-          b *= multGain;
-          const maxMultC = Math.max(r, g, b);
-          if (maxMultC > 0.84) {
-            const rScale = softHighlightRoll(maxMultC) / maxMultC;
-            r *= rScale;
-            g *= rScale;
-            b *= rScale;
+        if (rl.profile === 'night-cinema') {
+          if (bgWeight > 0.01 && rl.backgroundFalloff > 0) {
+            const bgHlTame = 1 - rl.backgroundFalloff * 0.2 * bgWeight * smoothstep(0.42, 0.9, preLum);
+            const bgShadowKeep =
+              smoothstep(0.03, 0.16, preLum) * rl.shadowFloorGuard + (1 - rl.shadowFloorGuard);
+            const rawAtten = 1 - rl.backgroundFalloff * 0.34 * bgWeight * (0.28 + 0.72 * bgShadowKeep);
+            const bgAtten = Math.max(0.68, Math.min(1, rawAtten)) * bgHlTame;
+            r *= bgAtten;
+            g *= bgAtten;
+            b *= bgAtten;
+            const bGray = 0.299 * r + 0.587 * g + 0.114 * b;
+            const bDesat = rl.backgroundFalloff * 0.12 * bgWeight * smoothstep(0.12, 0.48, preLum);
+            r += (bGray - r) * bDesat;
+            g += (bGray - g) * bDesat;
+            b += (bGray - b) * bDesat;
+            if (rl.bgCoolShift > 0.002) {
+              const coolEnv =
+                smoothstep(0.08, 0.28, preLum) * (1 - smoothstep(0.62, 0.9, preLum)) * bgWeight;
+              const cs = rl.bgCoolShift * coolEnv;
+              r = clamp01(r - 0.016 * cs);
+              g = clamp01(g - 0.002 * cs);
+              b = clamp01(b + 0.022 * cs);
+            }
           }
 
-          const midLum = clamp01(0.299 * r + 0.587 * g + 0.114 * b);
-          const specEnv =
-            4 * midLum * (1 - midLum) * smoothstep(0.22, 0.6, midLum) * (1 - smoothstep(0.72, 0.92, midLum));
-          const specBoost = 1 + rl.flashSpecular * fgWeight * specEnv * (1 - 0.42 * skinMask);
-          r *= specBoost;
-          g *= specBoost;
-          b *= specBoost;
-          const maxSpecC = Math.max(r, g, b);
-          if (maxSpecC > 0.84) {
-            const sScale = softHighlightRoll(maxSpecC) / maxSpecC;
-            r *= sScale;
-            g *= sScale;
-            b *= sScale;
+          if (fgWeight > 0.01) {
+            const skinMask = rl.isPortrait ? clamp01(sSkin * smoothstep(0.28, 0.68, sSubj)) : 0;
+            const hlProtect = 1 - rl.skinHighlightGuard * 0.88 * smoothstep(0.46, 0.82, preLum);
+            const shadowBase = 0.18 + 0.82 * smoothstep(0.03, 0.16, preLum);
+            const shadowLiftWindow = 1 + (shadowBase - 1) * rl.shadowFloorGuard;
+            const skinCap = 1 - 0.34 * skinMask;
+            const gainAmt = rl.subjectLift * fgWeight * hlProtect * shadowLiftWindow * skinCap;
+
+            const multGain = 1 + gainAmt * (0.76 + 0.34 * (1 - preLum));
+            r *= multGain;
+            g *= multGain;
+            b *= multGain;
+            const maxMultC = Math.max(r, g, b);
+            if (maxMultC > 0.84) {
+              const rScale = softHighlightRoll(maxMultC) / maxMultC;
+              r *= rScale;
+              g *= rScale;
+              b *= rScale;
+            }
+
+            const midLum = clamp01(0.299 * r + 0.587 * g + 0.114 * b);
+            const specEnv =
+              4 *
+              midLum *
+              (1 - midLum) *
+              smoothstep(0.2, 0.56, midLum) *
+              (1 - smoothstep(0.68, 0.88, midLum));
+            const specBoost = 1 + rl.flashSpecular * fgWeight * specEnv * (1 - 0.5 * skinMask);
+            r *= specBoost;
+            g *= specBoost;
+            b *= specBoost;
+            const maxSpecC = Math.max(r, g, b);
+            if (maxSpecC > 0.84) {
+              const sScale = softHighlightRoll(maxSpecC) / maxSpecC;
+              r *= sScale;
+              g *= sScale;
+              b *= sScale;
+            }
+
+            if (skinMask > 0.01 && rl.skinWarmBalance > 0) {
+              const skLum = clamp01(0.299 * r + 0.587 * g + 0.114 * b);
+              const midEnv = 4 * skLum * (1 - skLum);
+              const wStrength =
+                skinMask * rl.skinWarmBalance * clamp01(gainAmt * 1.8 + 0.2 * fgWeight) * hlProtect;
+              const satRestore = 1 + 0.05 * wStrength * midEnv;
+              r = clamp01(skLum + (r - skLum) * satRestore);
+              g = clamp01(skLum + (g - skLum) * satRestore);
+              b = clamp01(skLum + (b - skLum) * satRestore);
+              const coolSkinNeed = smoothstep(0.2, 0.02, r - b);
+              const warmNudge =
+                skinMask * rl.skinWarmBalance * coolSkinNeed * midEnv * hlProtect * fgWeight * 0.03;
+              r = clamp01(r + warmNudge * 0.85);
+              g = clamp01(g + warmNudge * 0.1);
+              b = clamp01(b - warmNudge * 0.75);
+            }
+          }
+        } else {
+          if (bgWeight > 0.01 && rl.backgroundFalloff > 0) {
+            const bgHlTame = 1 - rl.backgroundFalloff * 0.18 * bgWeight * smoothstep(0.45, 0.92, preLum);
+            const bgShadowKeep =
+              smoothstep(0.02, 0.14, preLum) * rl.shadowFloorGuard + (1 - rl.shadowFloorGuard);
+            const rawAtten = 1 - rl.backgroundFalloff * 0.52 * bgWeight * (0.35 + 0.65 * bgShadowKeep);
+            const bgAtten = Math.max(0.55, Math.min(1, rawAtten)) * bgHlTame;
+            r *= bgAtten;
+            g *= bgAtten;
+            b *= bgAtten;
+            const bGray = 0.299 * r + 0.587 * g + 0.114 * b;
+            const bDesat = rl.backgroundFalloff * 0.16 * bgWeight;
+            r += (bGray - r) * bDesat;
+            g += (bGray - g) * bDesat;
+            b += (bGray - b) * bDesat;
           }
 
-          if (skinMask > 0.01 && rl.skinWarmBalance > 0) {
-            const skLum = clamp01(0.299 * r + 0.587 * g + 0.114 * b);
-            const midEnv = 4 * skLum * (1 - skLum);
-            const wStrength =
-              skinMask * rl.skinWarmBalance * clamp01(gainAmt * 2.0 + 0.2 * fgWeight) * hlProtect;
-            const satRestore = 1 + 0.06 * wStrength * midEnv;
-            r = clamp01(skLum + (r - skLum) * satRestore);
-            g = clamp01(skLum + (g - skLum) * satRestore);
-            b = clamp01(skLum + (b - skLum) * satRestore);
+          if (fgWeight > 0.01) {
+            const skinMask = rl.isPortrait ? clamp01(sSkin * smoothstep(0.28, 0.68, sSubj)) : 0;
+            const hlProtect = 1 - rl.skinHighlightGuard * 0.84 * smoothstep(0.54, 0.88, preLum);
+            const shadowBase = 0.36 + 0.64 * smoothstep(0.018, 0.12, preLum);
+            const shadowLiftWindow = 1 + (shadowBase - 1) * rl.shadowFloorGuard;
+            const skinCap = 1 - 0.52 * skinMask;
+            const gainAmt = rl.subjectLift * fgWeight * hlProtect * shadowLiftWindow * skinCap;
+
+            const multGain = 1 + gainAmt * (0.88 + 0.28 * (1 - preLum));
+            r *= multGain;
+            g *= multGain;
+            b *= multGain;
+            const maxMultC = Math.max(r, g, b);
+            if (maxMultC > 0.84) {
+              const rScale = softHighlightRoll(maxMultC) / maxMultC;
+              r *= rScale;
+              g *= rScale;
+              b *= rScale;
+            }
+
+            const midLum = clamp01(0.299 * r + 0.587 * g + 0.114 * b);
+            const specEnv =
+              4 *
+              midLum *
+              (1 - midLum) *
+              smoothstep(0.22, 0.6, midLum) *
+              (1 - smoothstep(0.72, 0.92, midLum));
+            const specBoost = 1 + rl.flashSpecular * fgWeight * specEnv * (1 - 0.42 * skinMask);
+            r *= specBoost;
+            g *= specBoost;
+            b *= specBoost;
+            const maxSpecC = Math.max(r, g, b);
+            if (maxSpecC > 0.84) {
+              const sScale = softHighlightRoll(maxSpecC) / maxSpecC;
+              r *= sScale;
+              g *= sScale;
+              b *= sScale;
+            }
+
+            if (skinMask > 0.01 && rl.skinWarmBalance > 0) {
+              const skLum = clamp01(0.299 * r + 0.587 * g + 0.114 * b);
+              const midEnv = 4 * skLum * (1 - skLum);
+              const wStrength =
+                skinMask * rl.skinWarmBalance * clamp01(gainAmt * 2.0 + 0.2 * fgWeight) * hlProtect;
+              const satRestore = 1 + 0.06 * wStrength * midEnv;
+              r = clamp01(skLum + (r - skLum) * satRestore);
+              g = clamp01(skLum + (g - skLum) * satRestore);
+              b = clamp01(skLum + (b - skLum) * satRestore);
+            }
           }
         }
       }

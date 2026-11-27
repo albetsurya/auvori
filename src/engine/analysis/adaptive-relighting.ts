@@ -5,7 +5,7 @@
  * synchronous reference Canvas2D, and full-resolution export.
  */
 
-import type { RelightingRecipe } from '../../types';
+import type { AdaptiveLookProfile, RelightingRecipe } from '../../types';
 import { blurFloatMap } from './portrait-mask';
 import type { AnalysisResult, MaskBuffer } from './analysis-types';
 
@@ -16,6 +16,7 @@ export type AdaptiveFlashMode =
 
 export interface ResolvedRelightingParams {
   active: boolean;
+  profile: AdaptiveLookProfile;
   mode: AdaptiveFlashMode;
   isPortrait: boolean;
   /** Scene-calibrated subject exposure lift strength [0..0.48]. */
@@ -28,8 +29,14 @@ export interface ResolvedRelightingParams {
   skinHighlightGuard: number;
   /** Deep black clothing / hair detail floor protection factor [0..1]. */
   shadowFloorGuard: number;
-  /** Conservative warm stability preventing chalky skin whitening [0..1]. */
+  /** Conservative warm stability preventing chalky/cool-cast skin distortion [0..1]. */
   skinWarmBalance: number;
+  /** Night Cinema: noise-aware dark shadow stabilization factor [0..1]. */
+  shadowNoiseGuard: number;
+  /** Night Cinema: ratio-preserving practical/neon highlight recovery [0..1]. */
+  highlightRecovery: number;
+  /** Night Cinema: restrained cool nocturnal slate shift on non-monochrome backgrounds [0..1]. */
+  bgCoolShift: number;
   /** Transparent non-technical UX status key & label. */
   statusKind: 'ready-portrait' | 'ready-subject' | 'fallback-low-confidence' | 'fallback-offline';
   statusLabel: string;
@@ -51,6 +58,24 @@ function smoothstep(edge0: number, edge1: number, x: number): number {
   return t * t * (3 - 2 * t);
 }
 
+/** Shared GPU/CPU resolver for dark-shadow noise stabilization strength [0..1]. */
+export function resolveShadowDenoiseStrength(
+  relighting: RelightingRecipe | undefined,
+  rl: ResolvedRelightingParams | null | undefined,
+): number {
+  const base = clamp01(relighting?.shadowNoiseGuard ?? 0);
+  return clamp01(Math.max(base * 0.72, rl?.shadowNoiseGuard ?? 0));
+}
+
+/** Shared GPU/CPU resolver for gamut-preserving practical/neon highlight rolloff [0..1]. */
+export function resolveHighlightRecoveryStrength(
+  relighting: RelightingRecipe | undefined,
+  rl: ResolvedRelightingParams | null | undefined,
+): number {
+  const base = clamp01(relighting?.highlightRecovery ?? 0);
+  return clamp01(Math.max(base * 0.80, rl?.highlightRecovery ?? 0));
+}
+
 /**
  * Resolves Layer A scene lighting & Layer B confidence gating into deterministic
  * relighting scalars shared across GPU and CPU renderers.
@@ -62,6 +87,7 @@ export function resolveAdaptiveRelighting(
   if (!relighting) {
     return {
       active: false,
+      profile: 'direct-flash',
       mode: 'fallback-signature',
       isPortrait: false,
       subjectLift: 0,
@@ -70,21 +96,28 @@ export function resolveAdaptiveRelighting(
       skinHighlightGuard: 0.85,
       shadowFloorGuard: 0.88,
       skinWarmBalance: 0,
+      shadowNoiseGuard: 0,
+      highlightRecovery: 0,
+      bgCoolShift: 0,
       statusKind: 'fallback-low-confidence',
       statusLabel: 'Signature Fallback',
     };
   }
 
+  const profile: AdaptiveLookProfile = relighting.profile ?? 'direct-flash';
   const rawLift = Math.max(0, Math.min(45, relighting.subjectLift)) / 45;
   const rawSpec = Math.max(0, Math.min(35, relighting.flashSpecular)) / 35;
   const rawBg = Math.max(0, Math.min(50, relighting.backgroundFalloff)) / 50;
   const hlGuard = clamp01(relighting.skinHighlightGuard);
   const shGuard = clamp01(relighting.shadowFloorGuard);
+  const baseNoiseGuard = clamp01(relighting.shadowNoiseGuard ?? 0);
+  const baseHlRecovery = clamp01(relighting.highlightRecovery ?? 0);
 
   // Degraded / offline without AI model cache -> honest signature fallback
   if (!analysis || analysis.status !== 'complete' || analysis.backend === 'heuristic-only') {
     return {
       active: false,
+      profile,
       mode: 'fallback-signature',
       isPortrait: false,
       subjectLift: 0,
@@ -93,6 +126,9 @@ export function resolveAdaptiveRelighting(
       skinHighlightGuard: hlGuard,
       shadowFloorGuard: shGuard,
       skinWarmBalance: 0,
+      shadowNoiseGuard: profile === 'night-cinema' ? baseNoiseGuard * 0.72 : 0,
+      highlightRecovery: profile === 'night-cinema' ? baseHlRecovery * 0.80 : 0,
+      bgCoolShift: 0,
       statusKind: 'fallback-offline',
       statusLabel: 'Signature Fallback · Offline Mode',
     };
@@ -103,7 +139,100 @@ export function resolveAdaptiveRelighting(
   const bgLum = lighting.backgroundLuminance;
   const clip = lighting.highlightClippingRatio;
 
-  // Confident human portrait mode (YuNet faces + confident PP-HumanSeg / subject mask)
+  if (profile === 'night-cinema') {
+    // Low-light severity scales dark-shadow noise smoothing & neon highlight rolloff cleanly,
+    // including in landscape / low-confidence mode where local mask relighting stays inactive.
+    const darkSeverity = lighting.isLowLight
+      ? 1.0
+      : 0.62 + 0.38 * smoothstep(0.22, 0.62, lighting.darkShadowRatio);
+    const nightNoiseGuard = clamp01(baseNoiseGuard * darkSeverity);
+    const clipSeverity = 0.76 + 0.24 * smoothstep(0.015, 0.16, clip);
+    const nightHlRecovery = clamp01(baseHlRecovery * clipSeverity);
+
+    if (
+      analysis.faces.length > 0 &&
+      analysis.confidentForAdaptivePortrait &&
+      analysis.subjectMask.source !== 'none'
+    ) {
+      // Layer A (Night Portrait): preserve face visibility without lifting deep shadow floors into noise,
+      // restrain extra gain on stage spotlights / neon key light, gently settle bright backgrounds.
+      const brightRoll = 1 - 0.64 * smoothstep(0.42, 0.72, subjLum) - 0.32 * smoothstep(0.10, 0.35, clip);
+      const lowLightGain = lighting.isLowLight ? 1.18 : lighting.isBacklitPortrait ? 1.14 : 0.88;
+      const liftMod = Math.max(0.22, Math.min(1.22, brightRoll * lowLightGain));
+
+      // Keep dark night backgrounds rich & deep; calm distracting lit walls/shopfronts behind subject,
+      // while restraining attenuation on bright daylight/white-studio backgrounds.
+      const darkBgPreserve = 0.24 + 0.76 * smoothstep(0.08, 0.38, bgLum);
+      const brightBgDamp = 1 - 0.78 * smoothstep(0.60, 0.88, bgLum);
+      const bgMod = Math.max(0.08, Math.min(0.90, darkBgPreserve * brightBgDamp));
+      const coolBg = lighting.isMonochrome ? 0 : rawBg * bgMod;
+      const specBrightDamp = 1 - 0.55 * smoothstep(0.46, 0.78, subjLum);
+
+      return {
+        active: rawLift > 0.002 || rawBg > 0.002 || rawSpec > 0.002,
+        profile,
+        mode: 'adaptive-portrait',
+        isPortrait: true,
+        subjectLift: rawLift * 0.29 * liftMod,
+        flashSpecular: rawSpec * 0.10 * specBrightDamp,
+        backgroundFalloff: rawBg * 0.24 * bgMod,
+        skinHighlightGuard: hlGuard,
+        shadowFloorGuard: shGuard,
+        skinWarmBalance: lighting.isMonochrome ? 0 : 1,
+        shadowNoiseGuard: nightNoiseGuard,
+        highlightRecovery: nightHlRecovery,
+        bgCoolShift: coolBg,
+        statusKind: 'ready-portrait',
+        statusLabel: 'Adaptive Night Ready',
+      };
+    }
+
+    if (analysis.confidentForSubjectMask && analysis.subjectMask.source !== 'none') {
+      const brightDamp = 1 - 0.68 * smoothstep(0.42, 0.74, subjLum) - 0.34 * smoothstep(0.10, 0.34, clip);
+      const liftMod = Math.max(0.18, Math.min(0.90, brightDamp));
+      const darkBgPreserve = 0.22 + 0.78 * smoothstep(0.08, 0.40, bgLum);
+      const brightBgDamp = 1 - 0.80 * smoothstep(0.58, 0.88, bgLum);
+      const bgMod = Math.max(0.06, Math.min(0.84, darkBgPreserve * brightBgDamp));
+
+      return {
+        active: rawLift > 0.002 || rawBg > 0.002 || rawSpec > 0.002,
+        profile,
+        mode: 'conservative-subject',
+        isPortrait: false,
+        subjectLift: rawLift * 0.19 * liftMod,
+        flashSpecular: rawSpec * 0.08 * Math.max(0.35, brightDamp),
+        backgroundFalloff: rawBg * 0.22 * bgMod,
+        skinHighlightGuard: hlGuard,
+        shadowFloorGuard: shGuard,
+        skinWarmBalance: 0,
+        shadowNoiseGuard: nightNoiseGuard,
+        highlightRecovery: nightHlRecovery,
+        bgCoolShift: lighting.isMonochrome ? 0 : rawBg * bgMod * 0.75,
+        statusKind: 'ready-subject',
+        statusLabel: 'Subject Night Ready',
+      };
+    }
+
+    return {
+      active: false,
+      profile,
+      mode: 'fallback-signature',
+      isPortrait: false,
+      subjectLift: 0,
+      flashSpecular: 0,
+      backgroundFalloff: 0,
+      skinHighlightGuard: hlGuard,
+      shadowFloorGuard: shGuard,
+      skinWarmBalance: 0,
+      shadowNoiseGuard: nightNoiseGuard,
+      highlightRecovery: nightHlRecovery,
+      bgCoolShift: 0,
+      statusKind: 'fallback-low-confidence',
+      statusLabel: 'Signature Fallback · Balanced Tone',
+    };
+  }
+
+  // Confident human portrait mode (YuNet faces + confident PP-HumanSeg / subject mask) — Direct Flash
   if (
     analysis.faces.length > 0 &&
     analysis.confidentForAdaptivePortrait &&
@@ -127,6 +256,7 @@ export function resolveAdaptiveRelighting(
 
     return {
       active: rawLift > 0.002 || rawBg > 0.002 || rawSpec > 0.002,
+      profile: 'direct-flash',
       mode: 'adaptive-portrait',
       isPortrait: true,
       subjectLift: rawLift * 0.42 * liftMod,
@@ -135,6 +265,9 @@ export function resolveAdaptiveRelighting(
       skinHighlightGuard: hlGuard,
       shadowFloorGuard: shGuard,
       skinWarmBalance: lighting.isMonochrome ? 0 : 1,
+      shadowNoiseGuard: 0,
+      highlightRecovery: 0,
+      bgCoolShift: 0,
       statusKind: 'ready-portrait',
       statusLabel: 'Adaptive Flash Ready',
     };
@@ -150,6 +283,7 @@ export function resolveAdaptiveRelighting(
 
     return {
       active: rawLift > 0.002 || rawBg > 0.002 || rawSpec > 0.002,
+      profile: 'direct-flash',
       mode: 'conservative-subject',
       isPortrait: false,
       subjectLift: rawLift * 0.24 * liftMod,
@@ -158,6 +292,9 @@ export function resolveAdaptiveRelighting(
       skinHighlightGuard: hlGuard,
       shadowFloorGuard: shGuard,
       skinWarmBalance: 0,
+      shadowNoiseGuard: 0,
+      highlightRecovery: 0,
+      bgCoolShift: 0,
       statusKind: 'ready-subject',
       statusLabel: 'Subject Flash Ready',
     };
@@ -166,6 +303,7 @@ export function resolveAdaptiveRelighting(
   // Low subject confidence / empty landscape -> no local relighting
   return {
     active: false,
+    profile: 'direct-flash',
     mode: 'fallback-signature',
     isPortrait: false,
     subjectLift: 0,
@@ -174,6 +312,9 @@ export function resolveAdaptiveRelighting(
     skinHighlightGuard: hlGuard,
     shadowFloorGuard: shGuard,
     skinWarmBalance: 0,
+    shadowNoiseGuard: 0,
+    highlightRecovery: 0,
+    bgCoolShift: 0,
     statusKind: 'fallback-low-confidence',
     statusLabel: 'Signature Fallback · Balanced Tone',
   };

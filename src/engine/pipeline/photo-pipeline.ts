@@ -460,7 +460,7 @@ export class PhotoPipeline {
                 transformRevision: req.transformRevision
               },
               adaptiveMap: workerAdaptivePayload,
-              relightingParams: workerAdaptivePayload ? rlParams : null,
+              relightingParams: req.recipe.relighting ? rlParams : null,
               includeGrain: req.includeGrain
             },
             transferPayload.transfer
