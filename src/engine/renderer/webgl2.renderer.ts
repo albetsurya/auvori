@@ -277,6 +277,7 @@ export class WebGL2Renderer implements IPhotoRenderer {
     }
 
     const createForFormat = (asFloat: boolean): FboTarget | null => {
+      gl.activeTexture(gl.TEXTURE0);
       const tex = this.createLinearTex(gl);
       gl.bindTexture(gl.TEXTURE_2D, tex);
       if (asFloat) {
@@ -288,11 +289,14 @@ export class WebGL2Renderer implements IPhotoRenderer {
       const fbo = gl.createFramebuffer();
       if (!fbo) {
         gl.deleteTexture(tex);
+        gl.bindTexture(gl.TEXTURE_2D, null);
         return null;
       }
       gl.bindFramebuffer(gl.FRAMEBUFFER, fbo);
       gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, tex, 0);
       const status = gl.checkFramebufferStatus(gl.FRAMEBUFFER);
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      gl.bindTexture(gl.TEXTURE_2D, null);
       if (status !== gl.FRAMEBUFFER_COMPLETE) {
         gl.deleteFramebuffer(fbo);
         gl.deleteTexture(tex);
@@ -327,27 +331,29 @@ export class WebGL2Renderer implements IPhotoRenderer {
 
     let uploadTarget: TexImageSource = source as TexImageSource;
     if (srcW !== w || srcH !== h) {
-      if (!this.stagingCanvas) {
-        this.stagingCanvas = this.createCanvas(w, h);
-      }
-      if (this.stagingCanvas.width !== w || this.stagingCanvas.height !== h) {
-        this.stagingCanvas.width = w;
-        this.stagingCanvas.height = h;
-      }
-      const sCtx = this.stagingCanvas.getContext('2d') as
+      const stagingCanvas = this.createCanvas(w, h);
+      const sCtx = stagingCanvas.getContext('2d') as
         | CanvasRenderingContext2D
         | OffscreenCanvasRenderingContext2D
         | null;
       if (sCtx) {
+        sCtx.imageSmoothingQuality = 'high';
         sCtx.drawImage(source as CanvasImageSource, 0, 0, w, h);
-        uploadTarget = this.stagingCanvas as TexImageSource;
+        uploadTarget = stagingCanvas as TexImageSource;
       }
     }
 
+    if (this.sourceTex && (this.uploadedSourceW !== w || this.uploadedSourceH !== h)) {
+      gl.deleteTexture(this.sourceTex);
+      this.sourceTex = this.createLinearTex(gl);
+    }
+
+    gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, this.sourceTex);
     gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 0);
     gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, 0);
     gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA8, gl.RGBA, gl.UNSIGNED_BYTE, uploadTarget);
+    gl.bindTexture(gl.TEXTURE_2D, null);
 
     this.uploadedSourceKey = sourceKey;
     this.uploadedSourceW = w;
@@ -412,6 +418,7 @@ export class WebGL2Renderer implements IPhotoRenderer {
       for (let i = 0; i < maskRes.mask.length; i++) {
         bytes[i] = Math.round(clamp01(maskRes.mask[i]) * 255);
       }
+      gl.activeTexture(gl.TEXTURE0);
       gl.bindTexture(gl.TEXTURE_2D, this.maskTex);
       gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
       gl.texImage2D(
@@ -425,6 +432,7 @@ export class WebGL2Renderer implements IPhotoRenderer {
         gl.UNSIGNED_BYTE,
         bytes
       );
+      gl.bindTexture(gl.TEXTURE_2D, null);
       this.uploadedMaskKey = serializedMaskKey;
       this.uploadedMaskW = maskRes.mw;
       this.uploadedMaskH = maskRes.mh;
@@ -547,6 +555,7 @@ export class WebGL2Renderer implements IPhotoRenderer {
       if (adaptiveMap.mode === 'fallback-signature') {
         adaptiveMap = null;
       } else if (this.uploadedAdaptiveKey !== adaptiveMap.cacheKey) {
+        gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, this.adaptiveTex);
         gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
         gl.texImage2D(
@@ -560,6 +569,7 @@ export class WebGL2Renderer implements IPhotoRenderer {
           gl.UNSIGNED_BYTE,
           adaptiveMap.rgbaData
         );
+        gl.bindTexture(gl.TEXTURE_2D, null);
         this.uploadedAdaptiveKey = adaptiveMap.cacheKey;
         this.uploadedAdaptiveW = adaptiveMap.width;
         this.uploadedAdaptiveH = adaptiveMap.height;
@@ -598,6 +608,10 @@ export class WebGL2Renderer implements IPhotoRenderer {
       gl.bindTexture(gl.TEXTURE_2D, this.maskTex);
       gl.uniform1i(getUniform(gl, bp, 'uMaskTex'), 1);
 
+      gl.activeTexture(gl.TEXTURE2);
+      gl.bindTexture(gl.TEXTURE_2D, null);
+      gl.uniform1i(getUniform(gl, bp, 'uInputTex'), 2);
+
       gl.uniform1i(getUniform(gl, bp, 'uMode'), 0);
       gl.uniform1f(getUniform(gl, bp, 'uNormalize'), 0.0);
       this.drawPass(bp, this.bokehFboA, bw, bh, false);
@@ -616,6 +630,13 @@ export class WebGL2Renderer implements IPhotoRenderer {
         gl.uniform1i(getUniform(gl, bp, 'uInputTex'), 2);
         this.drawPass(bp, this.bokehFboA, bw, bh, false);
       }
+
+      gl.activeTexture(gl.TEXTURE2);
+      gl.bindTexture(gl.TEXTURE_2D, null);
+      gl.activeTexture(gl.TEXTURE1);
+      gl.bindTexture(gl.TEXTURE_2D, null);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, null);
 
       bokehTex = this.bokehFboA.tex;
     }
@@ -652,6 +673,10 @@ export class WebGL2Renderer implements IPhotoRenderer {
       gl.uniform1f(getUniform(gl, pp, 'uShadowDenoiseAmt'), shadowDenoiseAmt);
 
       this.drawPass(pp, this.portraitFbo, w, h, false);
+      gl.activeTexture(gl.TEXTURE1);
+      gl.bindTexture(gl.TEXTURE_2D, null);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, null);
       gradeInputTex = this.portraitFbo.tex;
     }
 
@@ -750,6 +775,14 @@ export class WebGL2Renderer implements IPhotoRenderer {
     }
 
     this.drawPass(gp, this.gradeFbo, w, h, false);
+    gl.activeTexture(gl.TEXTURE3);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    gl.activeTexture(gl.TEXTURE2);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    gl.activeTexture(gl.TEXTURE1);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, null);
 
     let outputTex = this.gradeFbo.tex;
 
@@ -781,6 +814,10 @@ export class WebGL2Renderer implements IPhotoRenderer {
       gl.bindTexture(gl.TEXTURE_2D, this.gradeFbo.tex);
       gl.uniform1i(getUniform(gl, ep, 'uSourceTex'), 0);
 
+      gl.activeTexture(gl.TEXTURE1);
+      gl.bindTexture(gl.TEXTURE_2D, null);
+      gl.uniform1i(getUniform(gl, ep, 'uInputTex'), 1);
+
       gl.uniform1i(getUniform(gl, ep, 'uMode'), 0);
       this.drawPass(ep, this.effectsFboA, ew, eh, false);
 
@@ -796,6 +833,11 @@ export class WebGL2Renderer implements IPhotoRenderer {
         gl.uniform1i(getUniform(gl, ep, 'uInputTex'), 1);
         this.drawPass(ep, this.effectsFboA, ew, eh, false);
       }
+
+      gl.activeTexture(gl.TEXTURE1);
+      gl.bindTexture(gl.TEXTURE_2D, null);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, null);
 
       const cp = this.effectsCompositeProg;
       gl.useProgram(cp.program);
@@ -817,6 +859,10 @@ export class WebGL2Renderer implements IPhotoRenderer {
       gl.uniform1f(getUniform(gl, cp, 'uGrainAmt'), (recipe.grain * 1.1) / 255);
 
       this.drawPass(cp, this.finalFbo, w, h, false);
+      gl.activeTexture(gl.TEXTURE1);
+      gl.bindTexture(gl.TEXTURE_2D, null);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, null);
       outputTex = this.finalFbo.tex;
     }
 
@@ -848,6 +894,11 @@ export class WebGL2Renderer implements IPhotoRenderer {
     gl.bindTexture(gl.TEXTURE_2D, tex);
     gl.uniform1i(getUniform(gl, bp, 'uTex'), 0);
     this.drawPass(bp, null, w, h, true);
+    gl.activeTexture(gl.TEXTURE0);
+    gl.bindTexture(gl.TEXTURE_2D, null);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+    gl.useProgram(null);
+    gl.bindVertexArray(null);
     gl.flush();
 
     if (targetCanvas !== this.glCanvas) {

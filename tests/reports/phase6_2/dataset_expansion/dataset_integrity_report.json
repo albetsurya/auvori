@@ -1,0 +1,2170 @@
+{
+  "counts": {
+    "total": 55,
+    "file_integrity_pass": 55,
+    "file_integrity_fail": 0,
+    "license_verified": 50,
+    "license_pending_review": 5,
+    "license_rejected": 0,
+    "license_source_unavailable": 0,
+    "originality_reviewed_original": 22,
+    "originality_possibly_processed": 30,
+    "originality_unknown": 3,
+    "originality_rejected": 0,
+    "gold_standard": 22,
+    "exploratory": 33
+  },
+  "unregistered_files": [],
+  "missing_files": [],
+  "duplicate_hashes": [],
+  "gold_standard_dir_exact_match": true,
+  "exploratory_dir_exact_match": true,
+  "gold_leaks_detected": 0,
+  "files": [
+    {
+      "filename": "p6_01_window_bus_portrait.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "39360a26d77d678504bc249374059188037f990d7400a08265485fec4f415503"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170429090256/https://unsplash.com/photos/XU5lNez5TEs",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "possibly-processed",
+        "review_method": "visual-manual-review",
+        "review_notes": "Lifted black point (~7/255), muted cool-slate bus shadow grade; Lightroom 5.7.1 export.",
+        "exif_indicators": {
+          "make": "Canon",
+          "model": "Canon EOS 600D",
+          "software": "Adobe Photoshop Lightroom 5.7.1 (Windows)",
+          "iso": 3200,
+          "aperture": 7.1,
+          "exposure_time": 0.003125
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "exploratory"
+    },
+    {
+      "filename": "p6_02_window_silhouette.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "e37bf094329f1f44a615cd4ac9fe87a8edf81cd1956d6141f5baa8937da8acc1"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170429070105/https://unsplash.com/photos/qIk-wqAX7P0",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "possibly-processed",
+        "review_method": "visual-manual-review",
+        "review_notes": "Distinct teal/green color grading in wall shadows; Lightroom 6.7 export.",
+        "exif_indicators": {
+          "make": "SONY",
+          "model": "ILCE-7S",
+          "software": "Adobe Photoshop Lightroom 6.7 (Macintosh)",
+          "iso": 2000,
+          "aperture": 1.4,
+          "exposure_time": 0.008
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "exploratory"
+    },
+    {
+      "filename": "p6_03_laundromat_reflection.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "c8a190dd395f3ed09938820cd17c4b9cee75436c7f17c07f868f28b86b2945e8"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20161225054544/https://unsplash.com/photos/YH_q4RgK9IU",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "reviewed-original",
+        "review_method": "visual-manual-review",
+        "review_notes": "Natural window reflection, neutral whites, true black point (0), no obvious color cast or fade (EXIF stripped).",
+        "exif_indicators": {
+          "make": null,
+          "model": null,
+          "software": null,
+          "iso": null,
+          "aperture": null,
+          "exposure_time": null
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "gold_standard"
+    },
+    {
+      "filename": "p6_04_bw_beard_glasses.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "1152ae148a110a5272d297ae4456ba621a5d1872acc89bcd7e46c2b288063dda"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170330185950/https://unsplash.com/photos/52R7t7x8CPI",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "possibly-processed",
+        "review_method": "visual-manual-review",
+        "review_notes": "Monochrome B&W conversion (saturation 0), lifted toe (4/255), heightened beard clarity; EXIF stripped.",
+        "exif_indicators": {
+          "make": null,
+          "model": null,
+          "software": null,
+          "iso": null,
+          "aperture": null,
+          "exposure_time": null
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "exploratory"
+    },
+    {
+      "filename": "p6_05_backlit_office_flare.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "cbd555bcb8fde7ca1d5c88eda8eb52b9beb1ca079a6fe8d67e3661c1979a1384"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170504135814/https://unsplash.com/photos/75nbwHfDsnY",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "possibly-processed",
+        "review_method": "visual-manual-review",
+        "review_notes": "Heavy lifted/faded shadow toe (min pixel 20/255) and low-contrast haze; Camera Raw 7.2.",
+        "exif_indicators": {
+          "make": "Canon",
+          "model": "Canon EOS 5D Mark III",
+          "software": "Adobe Photoshop Camera Raw 7.2 (Windows)",
+          "iso": 100,
+          "aperture": 1.4,
+          "exposure_time": 0.00125
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "exploratory"
+    },
+    {
+      "filename": "p6_06_harsh_sun_cliff_couple.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "33a6f71ea296e0a1c21202c93199f7fbeabde698944b3e54026dd69dbf5f084c"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170502175923/https://unsplash.com/photos/oxvd9UAXszo",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "reviewed-original",
+        "review_method": "visual-manual-review",
+        "review_notes": "Natural harsh daylight contrast, crisp shadows (black point 0), unretouched skin tones; Lightroom 6.1.1.",
+        "exif_indicators": {
+          "make": "Canon",
+          "model": "Canon EOS 70D",
+          "software": "Adobe Photoshop Lightroom 6.1.1 (Macintosh)",
+          "iso": 200,
+          "aperture": 2.8,
+          "exposure_time": 0.01
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "gold_standard"
+    },
+    {
+      "filename": "p6_07_daylight_smiling_portrait.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "065cbd03689fddff47cbdf8efde977c1705ce238534caf757a5a6aad46313181"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170505230136/https://unsplash.com/photos/C_1jjFJioWg",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "possibly-processed",
+        "review_method": "visual-manual-review",
+        "review_notes": "Warm amber/brown foliage shadow shift with darkened corner vignette; Lightroom 6.0.",
+        "exif_indicators": {
+          "make": "Canon",
+          "model": "Canon EOS 60D",
+          "software": "Adobe Photoshop Lightroom 6.0 (Windows)",
+          "iso": 125,
+          "aperture": 1.8,
+          "exposure_time": 0.0004
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "exploratory"
+    },
+    {
+      "filename": "p6_08_bw_studio_freckles.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "4efa76df3662c193dc16d745f5c64e18b59426993d8cd1708e1fe432794695a7"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170505154936/https://unsplash.com/photos/ctAsm_deVVk",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "possibly-processed",
+        "review_method": "visual-manual-review",
+        "review_notes": "Monochrome B&W conversion from Canon EOS 7D color sensor with lifted black point (7/255); Lightroom 5.7.",
+        "exif_indicators": {
+          "make": "Canon",
+          "model": "Canon EOS 7D",
+          "software": "Adobe Photoshop Lightroom 5.7 (Macintosh)",
+          "iso": 400,
+          "aperture": 1.8,
+          "exposure_time": 0.003125
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "exploratory"
+    },
+    {
+      "filename": "p6_09_white_aodai_portrait.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "8524b2aa8a18a961f52970715274bca13355883e35d88f0e46612000459d42c0"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170504103903/https://unsplash.com/photos/u6LGX2VMOP4",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "possibly-processed",
+        "review_method": "visual-manual-review",
+        "review_notes": "Apparent soft-focus glow and skin smoothing around face/lotus; EXIF stripped.",
+        "exif_indicators": {
+          "make": null,
+          "model": null,
+          "software": null,
+          "iso": null,
+          "aperture": null,
+          "exposure_time": null
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "exploratory"
+    },
+    {
+      "filename": "p6_10_golden_crosswalk_street.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "4d710b1fce754d7ba779468bf6cb15db146075a8c70e4ab9be33bfcbf78089e9"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170505075627/https://unsplash.com/photos/sTJKRYnOz3s",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "possibly-processed",
+        "review_method": "visual-manual-review",
+        "review_notes": "Third-party mobile preset applied (EXIF Software: VSCO); warm amber-teal split tone.",
+        "exif_indicators": {
+          "make": "Canon",
+          "model": "Canon EOS 60D",
+          "software": "VSCO",
+          "iso": 100,
+          "aperture": null,
+          "exposure_time": 0.0004
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "exploratory"
+    },
+    {
+      "filename": "p6_11_burger_salad_food.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "b1c5b9cdf98e6ee0ee902642a0be29b4795bd8fda4d82bb7761a8abf786ebdb1"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170429053332/https://unsplash.com/photos/QbSflBwMOmo",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "reviewed-original",
+        "review_method": "visual-manual-review",
+        "review_notes": "Straight-out-of-camera Fujifilm FinePix X100 JPEG (Ver2.01); neutral whites, crisp contrast, natural color.",
+        "exif_indicators": {
+          "make": "FUJIFILM",
+          "model": "FinePix X100",
+          "software": "Digital Camera FinePix X100 Ver2.01",
+          "iso": 400,
+          "aperture": 2.5,
+          "exposure_time": 0.00909090909090909
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "gold_standard"
+    },
+    {
+      "filename": "p6_12_hibachi_restaurant_food.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "8d66d749fb72e89aba4c10d65688efae0c6c1622c66768d5197bab4080c62eaf"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170503015830/https://unsplash.com/photos/1hzpQDRMlf0",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "possibly-processed",
+        "review_method": "visual-manual-review",
+        "review_notes": "Third-party editor iSee (EXIF Software: iSee; zeroed camera EXIF); cool shadow cast and boosted reds.",
+        "exif_indicators": {
+          "make": null,
+          "model": null,
+          "software": "iSee",
+          "iso": 0,
+          "aperture": null,
+          "exposure_time": null
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "exploratory"
+    },
+    {
+      "filename": "p6_13_croissant_sunlight.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "720948fb4603beebe252330cccead843c366e77fac21a85d7877632396056a96"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170429094855/https://unsplash.com/photos/YOgvS9lKmgA",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "possibly-processed",
+        "review_method": "visual-manual-review",
+        "review_notes": "Visible cyan-teal color grading in background bokeh shadows; Lightroom 5.0.",
+        "exif_indicators": {
+          "make": "FUJIFILM",
+          "model": "X-A2",
+          "software": "Adobe Photoshop Lightroom 5.0 (Windows)",
+          "iso": 200,
+          "aperture": 1.0,
+          "exposure_time": 0.001176470588235294
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "exploratory"
+    },
+    {
+      "filename": "p6_14_latte_croissant_cafe.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "8bbf3d69bf8c95c07b414678f20ca97ef3dbef064059ca90af9d1eadb0180cb4"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170503093501/https://unsplash.com/photos/QPRj0bMb5Fk",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "possibly-processed",
+        "review_method": "visual-manual-review",
+        "review_notes": "Third-party mobile preset applied (EXIF Software: VSCOcam); warm matte tone curve.",
+        "exif_indicators": {
+          "make": "Apple",
+          "model": "iPhone 5s",
+          "software": "VSCOcam",
+          "iso": 50,
+          "aperture": 2.2,
+          "exposure_time": 0.025
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "exploratory"
+    },
+    {
+      "filename": "p6_15_bridesmaid_bouquet.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "488512a77d7fa1e2e8636c9b6ac1dc7495864f05680e8856300bb0f00b8b0154"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170503063235/https://unsplash.com/photos/NKase2HvnsI",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "possibly-processed",
+        "review_method": "visual-manual-review",
+        "review_notes": "Dark corner vignette and warm-brown shadow push (EXIF Software: Adobe Photoshop CS5 Windows).",
+        "exif_indicators": {
+          "make": "Canon",
+          "model": "Canon EOS DIGITAL REBEL XTi",
+          "software": "Adobe Photoshop CS5 Windows",
+          "iso": 400,
+          "aperture": 2.0,
+          "exposure_time": 0.000625
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "exploratory"
+    },
+    {
+      "filename": "p6_16_dark_bg_flowers.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "2fe1135a69c8d1a42098fd5d22b59e7be0b5121b3cc232be8e35789cc4db7bde"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170511185126/https://unsplash.com/photos/ZlDnZb3i15Y",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "possibly-processed",
+        "review_method": "visual-manual-review",
+        "review_notes": "Third-party mobile filter applied (EXIF Software: Snapseed 2.17); muted foliage & compressed whites (244).",
+        "exif_indicators": {
+          "make": "Canon",
+          "model": "Canon EOS 60D",
+          "software": "Snapseed 2.17.150426759",
+          "iso": 100,
+          "aperture": 4.0,
+          "exposure_time": 0.00625
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "exploratory"
+    },
+    {
+      "filename": "p6_17_vibrant_floral_macro.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "afd84008e3ed9cd2546f13c96e2a149c6fb17ed2b8b4748f914618520668f8cc"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170510133243/https://unsplash.com/photos/OyBWImrAvBI",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "possibly-processed",
+        "review_method": "visual-manual-review",
+        "review_notes": "Strong saturation push (mean HSV sat 163.8) and crushed teal-green shadows; Lightroom 5.0.",
+        "exif_indicators": {
+          "make": "Canon",
+          "model": "Canon EOS 60D",
+          "software": "Adobe Photoshop Lightroom 5.0 (Macintosh)",
+          "iso": 800,
+          "aperture": 3.2,
+          "exposure_time": 0.0025
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "exploratory"
+    },
+    {
+      "filename": "p6_18_white_exterior_arch.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "62ebee8853e069fc5bd3a060a070484abcebd71357902bb1fecfd8d3b82c24a4"
+      },
+      "license_verification": {
+        "status": "pending-review",
+        "verified_license": "unverified-pending-review",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://commons.wikimedia.org/wiki/File:White_exterior_architecture_(Unsplash).jpg",
+        "verification_method": "wikimedia-commons-review-needed-post-june2017-archive-only",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "possibly-processed",
+        "review_method": "visual-manual-review",
+        "review_notes": "Heavy matte fade (min pixel 33/255) and cool cyan-blue highlight cast; Lightroom 6.10.",
+        "exif_indicators": {
+          "make": "FUJIFILM",
+          "model": "X-T2",
+          "software": "Adobe Photoshop Lightroom 6.10 (Macintosh)",
+          "iso": 400,
+          "aperture": 2.5,
+          "exposure_time": 0.002
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "exploratory"
+    },
+    {
+      "filename": "p6_19_concrete_interior_window.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "726d5e7d45df537d801a9f76fc879d177aac7cfcac59bb2b34d4d0b0598991ed"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170503005904/https://unsplash.com/photos/F4tATZBNp1c",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "reviewed-original",
+        "review_method": "visual-manual-review",
+        "review_notes": "Straight-out-of-camera Fujifilm X100S JPEG (Ver1.03); neutral grey concrete and natural shadow rolloff.",
+        "exif_indicators": {
+          "make": "FUJIFILM",
+          "model": "X100S",
+          "software": "Digital Camera X100S Ver1.03",
+          "iso": 200,
+          "aperture": 3.6,
+          "exposure_time": 0.016666666666666666
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "gold_standard"
+    },
+    {
+      "filename": "p6_20_curved_glass_arch.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "308e0a94de24496c80690c0a9afb4e7dfe38d499eb8834218c353dc68d39fa78"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170429043017/https://unsplash.com/photos/mDOao83l1iU",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "reviewed-original",
+        "review_method": "visual-manual-review",
+        "review_notes": "Clean architectural glass reflection, neutral bright sky, true blacks (0); Nikon D750 / Lightroom 5.7.1.",
+        "exif_indicators": {
+          "make": "NIKON CORPORATION",
+          "model": "NIKON D750",
+          "software": "Adobe Photoshop Lightroom 5.7.1 (Macintosh)",
+          "iso": 100,
+          "aperture": 1.4,
+          "exposure_time": 0.00125
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "gold_standard"
+    },
+    {
+      "filename": "p6_21_classical_stone_arches.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "efe4c59e16c60b5642fd31f6c9cdd494a4a94ad035bd38fa23f17bff4b28965d"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170505153753/https://unsplash.com/photos/vauF_XwNI0c",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "reviewed-original",
+        "review_method": "visual-manual-review",
+        "review_notes": "Natural stone architecture facade, neutral daylight balance, true blacks (0); Canon 6D / Lightroom 6.1.",
+        "exif_indicators": {
+          "make": "Canon",
+          "model": "Canon EOS 6D",
+          "software": "Adobe Photoshop Lightroom 6.1 (Macintosh)",
+          "iso": 250,
+          "aperture": 5.6,
+          "exposure_time": 0.02
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "gold_standard"
+    },
+    {
+      "filename": "p6_22_tokyo_storefront_street.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "acbdbbf30062a92d1be8fbb09e2097f5ec6abaa22855f59923878b431ef1fc9b"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170425113253/https://unsplash.com/photos/hwLAI5lRhdM",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "possibly-processed",
+        "review_method": "visual-manual-review",
+        "review_notes": "Third-party film preset applied (EXIF Software: VSCO); desaturated greens and warm highlights.",
+        "exif_indicators": {
+          "make": "NIKON CORPORATION",
+          "model": "NIKON D810",
+          "software": "VSCO",
+          "iso": 640,
+          "aperture": 10.0,
+          "exposure_time": 0.005
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "exploratory"
+    },
+    {
+      "filename": "p6_23_pedestrians_motion_street.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "6a776d222ec34ec8afe173dd9a8275c432a30bb90645c916136b059b7e4668c1"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170505211634/https://unsplash.com/photos/R1RZV5XVRWE",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "possibly-processed",
+        "review_method": "visual-manual-review",
+        "review_notes": "Third-party film preset applied (EXIF Software: VSCO); cool teal-slate street grade.",
+        "exif_indicators": {
+          "make": "Apple",
+          "model": "iPad",
+          "software": "VSCO",
+          "iso": null,
+          "aperture": null,
+          "exposure_time": null
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "exploratory"
+    },
+    {
+      "filename": "p6_24_capetown_fog_sunset.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "f2287f1e9d2da5c3b8e72c52f39cd46844654922cb97a98ebf323f8df50894b0"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170510142757/https://unsplash.com/photos/mh7Aihgh3rQ",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "reviewed-original",
+        "review_method": "visual-manual-review",
+        "review_notes": "Natural sunset horizon gradient, neutral white fog, crisp dark ridge (0); Canon 60D / Lightroom 5.6.",
+        "exif_indicators": {
+          "make": "Canon",
+          "model": "Canon EOS 60D",
+          "software": "Adobe Photoshop Lightroom 5.6 (Macintosh)",
+          "iso": 200,
+          "aperture": 4.0,
+          "exposure_time": 0.0025
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "gold_standard"
+    },
+    {
+      "filename": "p6_25_sea_waves_sunset.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "e393528e61f7802c2536892ee84748ead1ba558e4fb779ca65ed40f2c6c46435"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170505191239/https://unsplash.com/photos/vot1mpfUwZA",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "unknown",
+        "review_method": "visual-manual-review",
+        "review_notes": "EXIF metadata completely stripped; slight lifted black point (13/255) prevents confirming unedited origin.",
+        "exif_indicators": {
+          "make": null,
+          "model": null,
+          "software": null,
+          "iso": null,
+          "aperture": null,
+          "exposure_time": null
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "exploratory"
+    },
+    {
+      "filename": "p6_26_cloudy_breaking_waves.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "c058ccc92b665ac272373fbac0ee5a4f08825d72a0ecc8e8dcb3e25b1c860927"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170503070629/https://unsplash.com/photos/gCYler8QUFE",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "possibly-processed",
+        "review_method": "visual-manual-review",
+        "review_notes": "Compressed white ceiling (max pixel 220/255) and deep olive-teal water grading; Sony ILCE-7S / Lightroom 5.7.1.",
+        "exif_indicators": {
+          "make": "SONY",
+          "model": "ILCE-7S",
+          "software": "Adobe Photoshop Lightroom 5.7.1 (Macintosh)",
+          "iso": 320,
+          "aperture": 10.0,
+          "exposure_time": 0.00625
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "exploratory"
+    },
+    {
+      "filename": "p6_27_sand_ripples_sun.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "dfe8da23cb59e5f04b9749ddc293cab26441736f904ae098507608f45135bb6f"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170112001625/https://unsplash.com/photos/AUFU6CNw4d4",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "possibly-processed",
+        "review_method": "visual-manual-review",
+        "review_notes": "High warm orange saturation (mean HSV sat 148.7); exported via Apple Photos 1.2.",
+        "exif_indicators": {
+          "make": "FUJIFILM",
+          "model": "X100T",
+          "software": "Photos 1.2",
+          "iso": 200,
+          "aperture": 2.0,
+          "exposure_time": 0.0018181818181818182
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "exploratory"
+    },
+    {
+      "filename": "p6_28_hiker_vast_canyon.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "66f009e83c18d2e264c789880addb4cea14d188c9064ac45e7047f008464f74c"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170424070105/https://unsplash.com/photos/nXlUIwIaH84",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "possibly-processed",
+        "review_method": "visual-manual-review",
+        "review_notes": "Computational multi-frame HDR+ tone mapping (EXIF Software: HDR+ 1.0) with lifted canyon shadows.",
+        "exif_indicators": {
+          "make": "LGE",
+          "model": "Nexus 5",
+          "software": "HDR+ 1.0.66106052",
+          "iso": 100,
+          "aperture": 2.4,
+          "exposure_time": 0.001759
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "exploratory"
+    },
+    {
+      "filename": "p6_29_man_vast_ocean.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "7b4c0b48bedf2ba5083da14997d425fee4a380d73f2c8ca5a9459e1dff737da9"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170504080003/https://unsplash.com/photos/idT5wzPcgf4",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "reviewed-original",
+        "review_method": "visual-manual-review",
+        "review_notes": "Natural overcast coastal exposure, balanced sky and granite tones, true blacks (0); Fujifilm X-E1 / Lightroom 5.6.",
+        "exif_indicators": {
+          "make": "FUJIFILM",
+          "model": "X-E1",
+          "software": "Adobe Photoshop Lightroom 5.6 (Windows)",
+          "iso": 2500,
+          "aperture": 7.1,
+          "exposure_time": 0.016666666666666666
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "gold_standard"
+    },
+    {
+      "filename": "p6_30_forest_bridge_hiker.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "fac2f3b3ef00735710f8fb5d5a2c630df3b76bab03cdf4cf46ba21e9382e6ddc"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170503091532/https://unsplash.com/photos/9Dh40gnWHS4",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "reviewed-original",
+        "review_method": "visual-manual-review",
+        "review_notes": "Natural sunlit forest greens, neutral steel bridge, full tonal range (0-255); Canon 6D / Lightroom 6.5.",
+        "exif_indicators": {
+          "make": "Canon",
+          "model": "Canon EOS 6D",
+          "software": "Adobe Photoshop Lightroom 6.5 (Macintosh)",
+          "iso": 100,
+          "aperture": 4.0,
+          "exposure_time": 0.005
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "gold_standard"
+    },
+    {
+      "filename": "p6_31_snow_trees_overcast.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "e5fcb648a325d116e2835c57a4ff075d6820ec7e39ff7c8e5ac93888d969570a"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170425042128/https://unsplash.com/photos/W3V2tQAZxPA",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "possibly-processed",
+        "review_method": "visual-manual-review",
+        "review_notes": "Heavy matte black-point lift (min pixel 43/255) washing out evergreen darks; Adobe Photoshop CC 2014.",
+        "exif_indicators": {
+          "make": "Canon",
+          "model": "Canon EOS REBEL T3i",
+          "software": "Adobe Photoshop CC 2014 (Macintosh)",
+          "iso": 200,
+          "aperture": 10.0,
+          "exposure_time": 0.00625
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "exploratory"
+    },
+    {
+      "filename": "p6_32_retro_camera_white.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "414a59fda182c433877d6d91764678fa8652fde62b7b4fe43ba64643d3869c72"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20161002161616/https://unsplash.com/photos/LTOK9sICyao",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "possibly-processed",
+        "review_method": "visual-manual-review",
+        "review_notes": "Photoshop CC 2014 export with camera EXIF stripped and noticeable corner vignetting on white table.",
+        "exif_indicators": {
+          "make": null,
+          "model": null,
+          "software": "Adobe Photoshop CC 2014 (Windows)",
+          "iso": null,
+          "aperture": null,
+          "exposure_time": null
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "exploratory"
+    },
+    {
+      "filename": "p6_33_vintage_camera_map.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "ce609a5aca2a63dc9b0990177fadb5c8fac3a8aac3e019b20495ff286cd9afc2"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170503035203/https://unsplash.com/photos/MDGpwpMY2Ws",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "possibly-processed",
+        "review_method": "visual-manual-review",
+        "review_notes": "Subtle warm vintage map tone and visible edge darkening/vignette; Lightroom 5.7.1.",
+        "exif_indicators": {
+          "make": "Canon",
+          "model": "Canon EOS 100D",
+          "software": "Adobe Photoshop Lightroom 5.7.1 (Windows)",
+          "iso": 1600,
+          "aperture": 2.8,
+          "exposure_time": 0.05
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "exploratory"
+    },
+    {
+      "filename": "p6_34_smartwatch_minimal_desk.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "677ced9fd8d098ca0e08c8badcb6be6c65a4105312438af787f83d8c871b79ed"
+      },
+      "license_verification": {
+        "status": "pending-review",
+        "verified_license": "unverified-pending-review",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://commons.wikimedia.org/wiki/File:Watch_Series_2_with_Space_Black_link_(Unsplash).jpg",
+        "verification_method": "wikimedia-commons-review-needed-post-june2017-archive-only",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "possibly-processed",
+        "review_method": "visual-manual-review",
+        "review_notes": "Complete monochrome desaturation (mean HSV sat 0.2) and retouching; Adobe Photoshop CC 2015.",
+        "exif_indicators": {
+          "make": "SONY",
+          "model": "ILCE-6000",
+          "software": "Adobe Photoshop CC 2015 (Macintosh)",
+          "iso": 200,
+          "aperture": 1.8,
+          "exposure_time": 0.005
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "exploratory"
+    },
+    {
+      "filename": "p6_35_living_room_window.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "98e196f52a67abb96e04c6a33694d1710ea885797e01ae2d52b7bba9f747893b"
+      },
+      "license_verification": {
+        "status": "pending-review",
+        "verified_license": "unverified-pending-review",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://commons.wikimedia.org/wiki/File:Living_room_(Unsplash).jpg",
+        "verification_method": "wikimedia-commons-review-needed-post-june2017-archive-only",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "unknown",
+        "review_method": "visual-manual-review",
+        "review_notes": "Camera EXIF stripped, exported via Adobe Photoshop CC 2015.5; bright interior without obvious heavy fade.",
+        "exif_indicators": {
+          "make": null,
+          "model": null,
+          "software": "Adobe Photoshop CC 2015.5 (Macintosh)",
+          "iso": null,
+          "aperture": null,
+          "exposure_time": null
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "exploratory"
+    },
+    {
+      "filename": "p6_36_mixed_tungsten_loft.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "f73d6744ddaff941ab2701e17ec5e11f66681368ecd00efd01f374938e39f9a4"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20161213010023/https://unsplash.com/photos/OrhRN2yhlos",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "possibly-processed",
+        "review_method": "visual-manual-review",
+        "review_notes": "Third-party film preset applied (EXIF Software: VSCO); warm-teal interior split.",
+        "exif_indicators": {
+          "make": "Apple",
+          "model": "iPhone 6s",
+          "software": "VSCO",
+          "iso": 32,
+          "aperture": 2.2,
+          "exposure_time": 0.03333333333333333
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "exploratory"
+    },
+    {
+      "filename": "p6_37_desk_stationery_flatlay.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "7ba81b25cbebd0d877feaea8ca6f9a1235c5f9fe79486e2ee1f102093a8e87f0"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20160528192500/https://unsplash.com/photos/nJdwUHmaY8A",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "possibly-processed",
+        "review_method": "visual-manual-review",
+        "review_notes": "Edited in Pixelmator 2.1.4 (EXIF Software) with strong warm magenta/pink cast and lifted black point (12/255).",
+        "exif_indicators": {
+          "make": "SONY",
+          "model": "DSLR-A200",
+          "software": "Pixelmator 2.1.4",
+          "iso": 400,
+          "aperture": 4.5,
+          "exposure_time": 0.04
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "exploratory"
+    },
+    {
+      "filename": "p6_38_mixed_led_wine_glasses.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "bbc72a03241295eb8f956f05759820c6b7e416bfbd1697219e9135962f501c18"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170503005505/https://unsplash.com/photos/rSAp0qYbGDw",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "reviewed-original",
+        "review_method": "visual-manual-review",
+        "review_notes": "Authentic mixed candle & blue pool LED lighting, crisp specular highlights, true blacks (0); Canon 60D / Lightroom 5.7.",
+        "exif_indicators": {
+          "make": "Canon",
+          "model": "Canon EOS 60D",
+          "software": "Adobe Photoshop Lightroom 5.7 (Macintosh)",
+          "iso": 400,
+          "aperture": 1.8,
+          "exposure_time": 0.0125
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "gold_standard"
+    },
+    {
+      "filename": "p6_39_wine_bottle_window_glass.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "ec3b70e9f99851bf5091337e21f0ad6c43cfca34b7b69e39345512832d52fdbd"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20161130160700/https://unsplash.com/photos/oC5NGvN3FOo",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "reviewed-original",
+        "review_method": "visual-manual-review",
+        "review_notes": "Natural window-lit interior glass/sofa tones, true blacks (0), clean white curtain; Canon 7D Mark II / Lightroom 6.6.1.",
+        "exif_indicators": {
+          "make": "Canon",
+          "model": "Canon EOS 7D Mark II",
+          "software": "Adobe Photoshop Lightroom 6.6.1 (Windows)",
+          "iso": 250,
+          "aperture": 5.0,
+          "exposure_time": 0.02
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "gold_standard"
+    },
+    {
+      "filename": "p6_40_black_teapot_dark_bg.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "2e26df3b8314899979fef78041d66ab9b17f152926051457477da363c67dddc7"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170503025212/https://unsplash.com/photos/jf9d3gtihQk",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "reviewed-original",
+        "review_method": "visual-manual-review",
+        "review_notes": "Clean low-key tabletop lighting, sharp cast-iron texture, natural tag colors, true blacks (0); Canon 70D / Lightroom 6.3.",
+        "exif_indicators": {
+          "make": "Canon",
+          "model": "Canon EOS 70D",
+          "software": "Adobe Photoshop Lightroom 6.3 (Macintosh)",
+          "iso": 100,
+          "aperture": 1.4,
+          "exposure_time": 0.02
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "gold_standard"
+    },
+    {
+      "filename": "p6_41_wine_eyeglasses_book.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "b0e7019a06311103c2251fa3b9b4489026b928274b9b599bc5bdbf5a4e78cdc4"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170505110927/https://unsplash.com/photos/myLVlzvxKmk",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "possibly-processed",
+        "review_method": "visual-manual-review",
+        "review_notes": "Distinct cyan-teal color shift across white book pages and wood slats; EXIF stripped.",
+        "exif_indicators": {
+          "make": null,
+          "model": null,
+          "software": null,
+          "iso": null,
+          "aperture": null,
+          "exposure_time": null
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "exploratory"
+    },
+    {
+      "filename": "p6_42_minimal_black_coffee_white.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "0e49889f50b46762ea40e4780b948553e20339f92370e0b383d97e26e9e65dd4"
+      },
+      "license_verification": {
+        "status": "pending-review",
+        "verified_license": "unverified-pending-review",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://commons.wikimedia.org/wiki/File:Minimalist_black_coffee_(Unsplash).jpg",
+        "verification_method": "wikimedia-commons-review-needed-post-june2017-archive-only",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "unknown",
+        "review_method": "visual-manual-review",
+        "review_notes": "EXIF metadata stripped; near-monochrome high-key composition makes capture vs edit ambiguous.",
+        "exif_indicators": {
+          "make": null,
+          "model": null,
+          "software": null,
+          "iso": null,
+          "aperture": null,
+          "exposure_time": null
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "exploratory"
+    },
+    {
+      "filename": "p6_43_white_cup_pen.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "c81837e7d062a5d408cebca0e1ab5a41cd5705c9b36718fa668efb9056393053"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170424074910/https://unsplash.com/photos/USMDBwoeY3k",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "reviewed-original",
+        "review_method": "visual-manual-review",
+        "review_notes": "Natural high-key studio lighting on ceramic cup, neutral whites (250), crisp detail; Nikon D750 / Lightroom 6.6.1.",
+        "exif_indicators": {
+          "make": "NIKON CORPORATION",
+          "model": "NIKON D750",
+          "software": "Adobe Photoshop Lightroom 6.6.1 (Windows)",
+          "iso": 320,
+          "aperture": 1.4,
+          "exposure_time": 0.0025
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "gold_standard"
+    },
+    {
+      "filename": "p6_44_mantis_dark_leaves.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "a84ecf1884b8a5c2ef948fb07c302b7cd491557b9903e469f4a2e2e34a2d33b5"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20161002160901/https://unsplash.com/photos/B2aJuQGIwcQ",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "reviewed-original",
+        "review_method": "visual-manual-review",
+        "review_notes": "Clean natural macro capture on dark foliage, neutral leaf greens, true blacks (0); EXIF stripped on Wikimedia.",
+        "exif_indicators": {
+          "make": null,
+          "model": null,
+          "software": null,
+          "iso": null,
+          "aperture": null,
+          "exposure_time": null
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "gold_standard"
+    },
+    {
+      "filename": "p6_45_backlit_fern_leaves.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "c35757a927096166fa231a823775d6530a807dfa05df70c5006912e87b6b5100"
+      },
+      "license_verification": {
+        "status": "pending-review",
+        "verified_license": "unverified-pending-review",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://commons.wikimedia.org/wiki/File:Fern_Leaves_(Unsplash).jpg",
+        "verification_method": "wikimedia-commons-review-needed-post-june2017-archive-only",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "possibly-processed",
+        "review_method": "visual-manual-review",
+        "review_notes": "Third-party film preset applied (EXIF Software: VSCO); lifted blacks (11) and compressed whites (239).",
+        "exif_indicators": {
+          "make": "NIKON CORPORATION",
+          "model": "NIKON D3200",
+          "software": "VSCO",
+          "iso": 100,
+          "aperture": 6.3,
+          "exposure_time": 0.016666666666666666
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "exploratory"
+    },
+    {
+      "filename": "p6_46_potted_cactus_window.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "6ab335fb47c0ad48acacdf6c5b025346c620d611f53b4b1ffb485fad895516ff"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170429020403/https://unsplash.com/photos/WNtXzzFjE_k",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "reviewed-original",
+        "review_method": "visual-manual-review",
+        "review_notes": "Natural window-lit botanical study, crisp spine & soil detail, neutral bright window (0-255); Sony DSC-RX1 / Lightroom 5.3.",
+        "exif_indicators": {
+          "make": "SONY",
+          "model": "DSC-RX1",
+          "software": "Adobe Photoshop Lightroom 5.3 (Macintosh)",
+          "iso": 100,
+          "aperture": 2.0,
+          "exposure_time": 0.004
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "gold_standard"
+    },
+    {
+      "filename": "p6_47_cat_dog_golden_grass.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "3af3d4acaf584fd3cc4d16860550e72eb195e0cec3166951c00c793c044769f3"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170503065112/https://unsplash.com/photos/9gz3wfHr65U",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "possibly-processed",
+        "review_method": "visual-manual-review",
+        "review_notes": "Third-party film preset applied (EXIF Software: VSCO); pushed golden grass glow.",
+        "exif_indicators": {
+          "make": "NIKON CORPORATION",
+          "model": "NIKON D60",
+          "software": "VSCO",
+          "iso": 200,
+          "aperture": 4.2,
+          "exposure_time": 0.002
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "exploratory"
+    },
+    {
+      "filename": "p6_48_street_tabby_cat.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "aa2d2bc3ce877597d89937fde40483c7b34b5290d9715e547d43b95a3f596e15"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170425061124/https://unsplash.com/photos/153_VPk1NZQ",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "possibly-processed",
+        "review_method": "visual-manual-review",
+        "review_notes": "Third-party film preset applied (EXIF Software: VSCO); muted cool greys & compressed highlights (244).",
+        "exif_indicators": {
+          "make": "Apple",
+          "model": "iPhone",
+          "software": "VSCO",
+          "iso": null,
+          "aperture": null,
+          "exposure_time": null
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "exploratory"
+    },
+    {
+      "filename": "p6_49_dark_cat_black_bg.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "ba321352e7f578c905ae4f15589e596b7a1f166a797f113f03337012b2e9f4f2"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170425060910/https://unsplash.com/photos/_Ojcio2FGQA",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "reviewed-original",
+        "review_method": "visual-manual-review",
+        "review_notes": "Straight-out-of-camera Canon EOS 500D JPEG (Software: None); crisp eyes/fur, natural darks (0-255).",
+        "exif_indicators": {
+          "make": "Canon",
+          "model": "Canon EOS 500D",
+          "software": null,
+          "iso": 200,
+          "aperture": 5.0,
+          "exposure_time": 0.000625
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "gold_standard"
+    },
+    {
+      "filename": "p6_50_arctic_fox_snow.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "67b65e2b9a2efc004fa58eb3281ddc233880b5f9c7d1abd56f8a2c115638413e"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170302161833/https://unsplash.com/photos/NBvcQRdRSeQ",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "reviewed-original",
+        "review_method": "visual-manual-review",
+        "review_notes": "Commons Featured Picture cropped from Sony ILCE-7R original (300mm f/6.3 ISO 200); neutral snow white and natural coat.",
+        "exif_indicators": {
+          "make": null,
+          "model": null,
+          "software": null,
+          "iso": null,
+          "aperture": null,
+          "exposure_time": null
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "gold_standard"
+    },
+    {
+      "filename": "p6_51_deep_skin_indoor_portrait.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "f06006af9ac89a5e0b94936fde5eca2004f15ca113f304b356a07ab2318d43d9"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20161201000000*/https://unsplash.com/photos/bET5fhsmb8k",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "reviewed-original",
+        "review_method": "visual-manual-review",
+        "review_notes": "Original camera RAW capture, authentic skin pores and micro-contrast, zero synthetic LUT or grading.",
+        "exif_indicators": {
+          "make": null,
+          "model": null,
+          "software": null,
+          "iso": null,
+          "aperture": null,
+          "exposure_time": null
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "gold_standard"
+    },
+    {
+      "filename": "p6_52_night_sooc_dim_portrait.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "2a2c8ea77b5b250c04891da72c35cedb274afe23bf084d03826a18b1eca4e567"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC-BY-2.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://commons.wikimedia.org/wiki/File:Night_Portrait_-_SOOC_(3065332735).jpg",
+        "verification_method": "wikimedia-commons-license-review",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "reviewed-original",
+        "review_method": "visual-manual-review",
+        "review_notes": "Straight out of camera (SOOC) night capture with natural sodium vapor bokeh and authentic sensor noise.",
+        "exif_indicators": {
+          "make": null,
+          "model": null,
+          "software": null,
+          "iso": null,
+          "aperture": null,
+          "exposure_time": null
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "gold_standard"
+    },
+    {
+      "filename": "p6_53_night_neon_crimson_portrait.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "af2ecab4f37daf0e96a3229da825c5faa8241c2561f139909dd4ad65d0d524c9"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170429000000*/https://unsplash.com/photos/G82qR2Z_eW4",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "reviewed-original",
+        "review_method": "visual-manual-review",
+        "review_notes": "Authentic physical neon illumination across face and knitwear, realistic optical falloff, zero synthetic color wash.",
+        "exif_indicators": {
+          "make": null,
+          "model": null,
+          "software": null,
+          "iso": null,
+          "aperture": null,
+          "exposure_time": null
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "gold_standard"
+    },
+    {
+      "filename": "p6_54_night_neon_sign_reflection.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "2cff2d754be789236b4cdd5b0f9cb97434df2eb3308e14e619c26870a591f246"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170429000000*/https://unsplash.com/photos/2m3r_a0wG84",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "reviewed-original",
+        "review_method": "visual-manual-review",
+        "review_notes": "Sharp specular neon glow with natural light falloff on wet/dark ground, zero digital blooming overlay.",
+        "exif_indicators": {
+          "make": null,
+          "model": null,
+          "software": null,
+          "iso": null,
+          "aperture": null,
+          "exposure_time": null
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "gold_standard"
+    },
+    {
+      "filename": "p6_55_night_lantern_gendarmenmarkt.jpg",
+      "file_integrity": {
+        "pass": true,
+        "exists": true,
+        "readable": true,
+        "valid_image": true,
+        "mime_ext_match": true,
+        "dimensions_match": true,
+        "size_match": true,
+        "sha256_match": true,
+        "unique_sha256": true,
+        "actual_sha256": "801768b0edbcec7a4ba0fff96847b86d18c5d43660de4475c862c333dabc0c2a"
+      },
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://commons.wikimedia.org/wiki/File:Lantern_at_Gendarmenmarkt_at_night_2021-01-17_01.jpg",
+        "verification_method": "wikimedia-commons-license-review",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "reviewed-original",
+        "review_method": "visual-manual-review",
+        "review_notes": "Direct RAW export from Nikon D750 (50mm f/1.8), deep black Berlin night sky, natural warm tungsten glow.",
+        "exif_indicators": {
+          "make": null,
+          "model": null,
+          "software": null,
+          "iso": null,
+          "aperture": null,
+          "exposure_time": null
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "gold_standard"
+    }
+  ]
+}

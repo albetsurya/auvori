@@ -1,0 +1,97 @@
+{
+  "seoul-cafe": {
+    "name": "Seoul Caf\u00e9",
+    "mae": 0.031134982638888888,
+    "max_diff": 1.0,
+    "channel_mae": {
+      "r": 0.0306640625,
+      "g": 0.03337239583333333,
+      "b": 0.029368489583333334
+    },
+    "gpu_luma_mean": 0.47225524045138884,
+    "cpu_luma_mean": 0.47237232883986924,
+    "gpu_luma_std": 0.23927232437170418,
+    "cpu_luma_std": 0.23931206395692017,
+    "luma_std_diff": 3.973958521599763e-05,
+    "gpu_hl_clip_pct": 0.0,
+    "cpu_hl_clip_pct": 0.0,
+    "gpu_sh_pct": 0.0,
+    "cpu_sh_pct": 0.0
+  },
+  "classic-chrome": {
+    "name": "Classic Chrome",
+    "mae": 0.03152777777777778,
+    "max_diff": 1.0,
+    "channel_mae": {
+      "r": 0.03254557291666667,
+      "g": 0.03218098958333333,
+      "b": 0.029856770833333334
+    },
+    "gpu_luma_mean": 0.4307855672998365,
+    "cpu_luma_mean": 0.4309082831903595,
+    "gpu_luma_std": 0.22787282815487633,
+    "cpu_luma_std": 0.22792080670789125,
+    "luma_std_diff": 4.7978553014915715e-05,
+    "gpu_hl_clip_pct": 0.0,
+    "cpu_hl_clip_pct": 0.0,
+    "gpu_sh_pct": 0.0,
+    "cpu_sh_pct": 0.0
+  },
+  "porcelain-bloom": {
+    "name": "Porcelain Bloom",
+    "mae": 0.94328125,
+    "max_diff": 52.0,
+    "channel_mae": {
+      "r": 1.1553059895833333,
+      "g": 0.9298828125,
+      "b": 0.7446549479166666
+    },
+    "gpu_luma_mean": 0.44875277188010615,
+    "cpu_luma_mean": 0.45066486279616014,
+    "gpu_luma_std": 0.20383158378154573,
+    "cpu_luma_std": 0.20528509829266112,
+    "luma_std_diff": 0.001453514511115389,
+    "gpu_hl_clip_pct": 0.0,
+    "cpu_hl_clip_pct": 0.0,
+    "gpu_sh_pct": 0.0,
+    "cpu_sh_pct": 0.0
+  },
+  "velvet-noir": {
+    "name": "Velvet Noir",
+    "mae": 1.0539105902777777,
+    "max_diff": 60.0,
+    "channel_mae": {
+      "r": 1.3497526041666668,
+      "g": 1.0567903645833334,
+      "b": 0.7551888020833334
+    },
+    "gpu_luma_mean": 0.31577784602226305,
+    "cpu_luma_mean": 0.3178740526960784,
+    "gpu_luma_std": 0.22846033338901736,
+    "cpu_luma_std": 0.23036264428002556,
+    "luma_std_diff": 0.001902310891008202,
+    "gpu_hl_clip_pct": 0.0,
+    "cpu_hl_clip_pct": 0.0,
+    "gpu_sh_pct": 0.0,
+    "cpu_sh_pct": 0.0
+  },
+  "direct-flash": {
+    "name": "Direct Flash",
+    "mae": 0.030681423611111112,
+    "max_diff": 2.0,
+    "channel_mae": {
+      "r": 0.031588541666666664,
+      "g": 0.034029947916666664,
+      "b": 0.02642578125
+    },
+    "gpu_luma_mean": 0.40778352093545756,
+    "cpu_luma_mean": 0.4079054403339461,
+    "gpu_luma_std": 0.2326350904780753,
+    "cpu_luma_std": 0.23267415683546036,
+    "luma_std_diff": 3.906635738507025e-05,
+    "gpu_hl_clip_pct": 0.0,
+    "cpu_hl_clip_pct": 0.0,
+    "gpu_sh_pct": 0.0,
+    "cpu_sh_pct": 0.0
+  }
+}

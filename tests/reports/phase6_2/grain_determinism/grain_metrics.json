@@ -1,0 +1,173 @@
+{
+  "gpu_repeated_determinism": {
+    "pass": true,
+    "diffCount": 0,
+    "totalPixels": 153600
+  },
+  "cpu_repeated_determinism": {
+    "pass": true,
+    "diffCount": 0,
+    "totalPixels": 153600
+  },
+  "aspect_metrics": {
+    "portrait": {
+      "gpu": {
+        "mean_residual": 0.00513671875,
+        "std_residual": 4.150396055342648,
+        "mae_residual": 3.4161393229166666,
+        "shadow_std": 2.86160148614724,
+        "midtone_std": 5.241427698053382,
+        "highlight_std": 3.499848247421088,
+        "autocorr_lag1_x": 0.004522631540822759,
+        "autocorr_lag1_y": 0.0037212829367012502,
+        "spatial_block_std_spread": 0.6774954352150441
+      },
+      "cpu": {
+        "mean_residual": 0.0057421875,
+        "std_residual": 4.150165451796195,
+        "mae_residual": 3.4158984375,
+        "shadow_std": 2.863396592084651,
+        "midtone_std": 5.240643408436678,
+        "highlight_std": 3.500327028742838,
+        "autocorr_lag1_x": 0.004568569641065805,
+        "autocorr_lag1_y": 0.003992418163918994,
+        "spatial_block_std_spread": 0.6773519670514924
+      },
+      "cross_path_mae": 0.039811197916666666,
+      "luma_std_diff": 0.00023060354645387804
+    },
+    "landscape": {
+      "gpu": {
+        "mean_residual": -0.00275390625,
+        "std_residual": 3.9153692180836575,
+        "mae_residual": 3.1131575520833334,
+        "shadow_std": 2.011227351917632,
+        "midtone_std": 5.2434907119204395,
+        "highlight_std": 3.0832848198718006,
+        "autocorr_lag1_x": 0.007901835035344548,
+        "autocorr_lag1_y": 0.00668457110319176,
+        "spatial_block_std_spread": 1.3244171215495193
+      },
+      "cpu": {
+        "mean_residual": -0.0026627604166666666,
+        "std_residual": 3.915901336128158,
+        "mae_residual": 3.113938802083333,
+        "shadow_std": 2.010807663248841,
+        "midtone_std": 5.245720568197232,
+        "highlight_std": 3.0841650804111613,
+        "autocorr_lag1_x": 0.008208601012692728,
+        "autocorr_lag1_y": 0.006734317954857134,
+        "spatial_block_std_spread": 1.3252678235814743
+      },
+      "cross_path_mae": 0.041276041666666666,
+      "luma_std_diff": 0.0005321180445005957
+    },
+    "square": {
+      "gpu": {
+        "mean_residual": -0.001953125,
+        "std_residual": 2.8240658186031595,
+        "mae_residual": 1.976875,
+        "shadow_std": 1.9588018535622247,
+        "midtone_std": 5.20012416735956,
+        "highlight_std": 3.178338733267927,
+        "autocorr_lag1_x": 0.004752232762763489,
+        "autocorr_lag1_y": 0.002870547964278864,
+        "spatial_block_std_spread": 1.293936089641063
+      },
+      "cpu": {
+        "mean_residual": -0.0022395833333333334,
+        "std_residual": 2.8233301083885247,
+        "mae_residual": 1.9758333333333333,
+        "shadow_std": 1.957847777106079,
+        "midtone_std": 5.1991983695374975,
+        "highlight_std": 3.171933488678976,
+        "autocorr_lag1_x": 0.004528665887118599,
+        "autocorr_lag1_y": 0.002927606739003801,
+        "spatial_block_std_spread": 1.293349110798902
+      },
+      "cross_path_mae": 0.015520833333333333,
+      "luma_std_diff": 0.0007357102146348105
+    }
+  },
+  "ladder_metrics": {
+    "0%": {
+      "mean_residual": 0.0,
+      "std_residual": 0.0,
+      "mae_residual": 0.0,
+      "shadow_std": 0.0,
+      "midtone_std": 0.0,
+      "highlight_std": 0.0,
+      "autocorr_lag1_x": 0.0,
+      "autocorr_lag1_y": 0.0,
+      "spatial_block_std_spread": 0.0
+    },
+    "25%": {
+      "mean_residual": -0.09166976562499998,
+      "std_residual": 0.7007817369525973,
+      "mae_residual": 0.5249294010416666,
+      "shadow_std": 0.5492843411051318,
+      "midtone_std": 0.7864974906767853,
+      "highlight_std": 0.6142287116988603,
+      "autocorr_lag1_x": 0.07866361058440513,
+      "autocorr_lag1_y": 0.07826235554786629,
+      "spatial_block_std_spread": 0.07870763146910625
+    },
+    "50%": {
+      "mean_residual": -0.03225802083333333,
+      "std_residual": 1.5653446422386175,
+      "mae_residual": 1.2932683203125,
+      "shadow_std": 1.1159937954762027,
+      "midtone_std": 1.8127871312892327,
+      "highlight_std": 1.3782576264572957,
+      "autocorr_lag1_x": 0.016178535922977265,
+      "autocorr_lag1_y": 0.016656441829876995,
+      "spatial_block_std_spread": 0.22053931587892583
+    },
+    "75%": {
+      "mean_residual": -0.01319712890625,
+      "std_residual": 2.621473513544322,
+      "mae_residual": 2.1837631315104167,
+      "shadow_std": 1.7827408870868455,
+      "midtone_std": 3.0578012021592724,
+      "highlight_std": 2.374220521214632,
+      "autocorr_lag1_x": 0.00864952007735913,
+      "autocorr_lag1_y": 0.007763736205625756,
+      "spatial_block_std_spread": 0.408604935258263
+    },
+    "100%": {
+      "mean_residual": -0.0023438736979166644,
+      "std_residual": 3.8084526940083654,
+      "mae_residual": 3.168948860677083,
+      "shadow_std": 2.498589878427762,
+      "midtone_std": 4.469439474292659,
+      "highlight_std": 3.5353703364813014,
+      "autocorr_lag1_x": 0.006188556128061879,
+      "autocorr_lag1_y": 0.005679680964717096,
+      "spatial_block_std_spread": 0.6366041002480848
+    }
+  },
+  "multi_res_metrics": {
+    "preview_320": {
+      "mean_residual": -0.0043951877934272346,
+      "std_residual": 4.13140825406483,
+      "mae_residual": 3.5215095363849764,
+      "shadow_std": 3.4422629118968744,
+      "midtone_std": 4.598198373097758,
+      "highlight_std": 3.4563355616600377,
+      "autocorr_lag1_x": 0.003363600730029649,
+      "autocorr_lag1_y": 0.0050222180978137165,
+      "spatial_block_std_spread": 0.36135217218861554
+    },
+    "export_1080": {
+      "mean_residual": 0.00787403677983539,
+      "std_residual": 4.109544099587822,
+      "mae_residual": 3.50458456404321,
+      "shadow_std": 3.4443055101815463,
+      "midtone_std": 4.621921252174013,
+      "highlight_std": 3.4326987059880527,
+      "autocorr_lag1_x": 0.0008418031491511136,
+      "autocorr_lag1_y": 0.0006031369382704187,
+      "spatial_block_std_spread": 0.3462637604733898
+    }
+  }
+}

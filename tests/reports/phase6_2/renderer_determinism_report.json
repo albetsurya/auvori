@@ -1,0 +1,58 @@
+{
+  "testA_rosy": {
+    "diffCount": 0,
+    "maxDiff": 0,
+    "mae": 0,
+    "totalPixels": 153120,
+    "pass": true
+  },
+  "testA_porcelain": {
+    "diffCount": 0,
+    "maxDiff": 0,
+    "mae": 0,
+    "totalPixels": 153120,
+    "pass": true
+  },
+  "testB_interleaved": {
+    "diffCount": 0,
+    "maxDiff": 0,
+    "mae": 0,
+    "totalPixels": 153120,
+    "pass": true
+  },
+  "testC_featureToggle": {
+    "diffCount": 0,
+    "maxDiff": 0,
+    "mae": 0,
+    "totalPixels": 153120,
+    "pass": true
+  },
+  "testD_presetSwitch": {
+    "diffCount": 0,
+    "maxDiff": 0,
+    "mae": 0,
+    "totalPixels": 153120,
+    "pass": true
+  },
+  "testE_resolutionSwitch": {
+    "diffCount": 0,
+    "maxDiff": 0,
+    "mae": 0,
+    "totalPixels": 68160,
+    "pass": true
+  },
+  "testF_lifecycle": {
+    "diffCount": 0,
+    "maxDiff": 0,
+    "mae": 0,
+    "totalPixels": 153120,
+    "pass": true
+  },
+  "testG_errorRecovery": {
+    "diffCount": 0,
+    "maxDiff": 0,
+    "mae": 0,
+    "totalPixels": 153120,
+    "pass": true
+  }
+}

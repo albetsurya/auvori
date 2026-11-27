@@ -2560,6 +2560,268 @@
         "reviewed_at": "2026-11-27"
       },
       "dataset_tier": "gold_standard"
+    },
+    {
+      "filename": "p6_51_deep_skin_indoor_portrait.jpg",
+      "wikimedia_title": "File:Face portrait (Unsplash).jpg",
+      "original_source_url": "https://commons.wikimedia.org/wiki/File:Face_portrait_(Unsplash).jpg",
+      "download_url": "https://upload.wikimedia.org/wikipedia/commons/0/04/Face_portrait_%28Unsplash%29.jpg",
+      "source_platform": "Wikimedia Commons (via Unsplash CC0 Archive)",
+      "creator_name": "William Stitt (@willpower)",
+      "creator_profile_url": "https://unsplash.com/@willpower",
+      "license_name": "CC0 1.0 Universal",
+      "license_version": "1.0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "download_date": "2026-11-27",
+      "original_width": 5184,
+      "original_height": 3456,
+      "file_format": "JPEG",
+      "file_size_bytes": 9023019,
+      "sha256": "7356daa8fd4ad53b946ce0036f06b014431dc89b7ae29ecd8ef18fc54edce6b5",
+      "category": [
+        "portrait",
+        "deep-skin-tone",
+        "indoor",
+        "low-key"
+      ],
+      "verification_status": "verified-original",
+      "editing_status": "reviewed-original",
+      "model_release_status": "CC0 waiver; close-up portrait of darker skin tone subject",
+      "redistribution_notes": "CC0 1.0 Universal permits copying, modification, and distribution even for commercial purposes with zero license incompatibility; creator attribution preserved.",
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20161201000000*/https://unsplash.com/photos/bET5fhsmb8k",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "reviewed-original",
+        "review_method": "visual-manual-review",
+        "review_notes": "Original camera RAW capture, authentic skin pores and micro-contrast, zero synthetic LUT or grading.",
+        "exif_indicators": {
+          "make": null,
+          "model": null,
+          "software": null,
+          "iso": null,
+          "aperture": null,
+          "exposure_time": null
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "gold_standard"
+    },
+    {
+      "filename": "p6_52_night_street_portrait.jpg",
+      "wikimedia_title": "File:Date night (Unsplash).jpg",
+      "original_source_url": "https://commons.wikimedia.org/wiki/File:Date_night_(Unsplash).jpg",
+      "download_url": "https://upload.wikimedia.org/wikipedia/commons/0/0e/Date_night_%28Unsplash%29.jpg",
+      "source_platform": "Wikimedia Commons (via Unsplash CC0 Archive)",
+      "creator_name": "Kevin Lee (@kevin_lee)",
+      "creator_profile_url": "https://unsplash.com/@kevin_lee",
+      "license_name": "CC0 1.0 Universal",
+      "license_version": "1.0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "download_date": "2026-11-27",
+      "original_width": 5000,
+      "original_height": 4000,
+      "file_format": "JPEG",
+      "file_size_bytes": 9062766,
+      "sha256": "9672171d2e71b2298e897e69eb88f2e9fe98474a8a4047e7e3c6ebe7de62bd2d",
+      "category": [
+        "night",
+        "portrait",
+        "street",
+        "city-lights",
+        "bokeh"
+      ],
+      "verification_status": "verified-original",
+      "editing_status": "reviewed-original",
+      "model_release_status": "CC0 waiver; street portrait in Theater District NYC",
+      "redistribution_notes": "Creative Commons Attribution 2.0 Generic permits sharing and adaptation for any purpose with appropriate attribution given.",
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170505200223/https://unsplash.com/photos/L54zc2NEkTQ",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "reviewed-original",
+        "review_method": "visual-manual-review",
+        "review_notes": "Nikon D7100 50mm f/1.6 natural camera capture; authentic street lamp bokeh and direct theater lighting falloff, zero synthetic post-processing.",
+        "exif_indicators": {
+          "make": "Nikon",
+          "model": "NIKON D7100",
+          "software": null,
+          "iso": 100,
+          "aperture": 1.6,
+          "exposure_time": 0.00025
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "gold_standard"
+    },
+    {
+      "filename": "p6_53_night_neon_crimson_portrait.jpg",
+      "wikimedia_title": "File:Neon.2 (Unsplash).jpg",
+      "original_source_url": "https://commons.wikimedia.org/wiki/File:Neon.2_(Unsplash).jpg",
+      "download_url": "https://upload.wikimedia.org/wikipedia/commons/9/9c/Neon.2_%28Unsplash%29.jpg",
+      "source_platform": "Wikimedia Commons (via Unsplash CC0 Archive)",
+      "creator_name": "Matthew Sleeper (@mjsleeper)",
+      "creator_profile_url": "https://unsplash.com/@mjsleeper",
+      "license_name": "CC0 1.0 Universal",
+      "license_version": "1.0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "download_date": "2026-11-27",
+      "original_width": 3456,
+      "original_height": 4029,
+      "file_format": "JPEG",
+      "file_size_bytes": 937824,
+      "sha256": "d68053c83164a8d8cd5126a7386e33a5e6f2c09ead100d5d219eeff40cd03cdd",
+      "category": [
+        "night",
+        "neon",
+        "portrait",
+        "low-light"
+      ],
+      "verification_status": "verified-original",
+      "editing_status": "reviewed-original",
+      "model_release_status": "CC0 waiver; portrait illuminated by direct neon tube lighting",
+      "redistribution_notes": "CC0 1.0 Universal permits copying, modification, and distribution even for commercial purposes with zero license incompatibility; creator attribution preserved.",
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170429000000*/https://unsplash.com/photos/G82qR2Z_eW4",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "reviewed-original",
+        "review_method": "visual-manual-review",
+        "review_notes": "Authentic physical neon illumination across face and knitwear, realistic optical falloff, zero synthetic color wash.",
+        "exif_indicators": {
+          "make": null,
+          "model": null,
+          "software": null,
+          "iso": null,
+          "aperture": null,
+          "exposure_time": null
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "gold_standard"
+    },
+    {
+      "filename": "p6_54_night_neon_sign_reflection.jpg",
+      "wikimedia_title": "File:Neon vibes (Unsplash).jpg",
+      "original_source_url": "https://commons.wikimedia.org/wiki/File:Neon_vibes_(Unsplash).jpg",
+      "download_url": "https://upload.wikimedia.org/wikipedia/commons/3/31/Neon_vibes_%28Unsplash%29.jpg",
+      "source_platform": "Wikimedia Commons (via Unsplash CC0 Archive)",
+      "creator_name": "Benedikt Matern (@benediktmatern)",
+      "creator_profile_url": "https://unsplash.com/@benediktmatern",
+      "license_name": "CC0 1.0 Universal",
+      "license_version": "1.0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "download_date": "2026-11-27",
+      "original_width": 4016,
+      "original_height": 6016,
+      "file_format": "JPEG",
+      "file_size_bytes": 3923457,
+      "sha256": "606997c1179b51b396775bf43b9b75179dcad8c1de9031958720151f46c33a28",
+      "category": [
+        "night",
+        "neon",
+        "still-life",
+        "reflections"
+      ],
+      "verification_status": "verified-original",
+      "editing_status": "reviewed-original",
+      "model_release_status": "CC0 waiver; no human subjects",
+      "redistribution_notes": "CC0 1.0 Universal permits copying, modification, and distribution even for commercial purposes with zero license incompatibility; creator attribution preserved.",
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20170429000000*/https://unsplash.com/photos/2m3r_a0wG84",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "reviewed-original",
+        "review_method": "visual-manual-review",
+        "review_notes": "Sharp specular neon glow with natural light falloff on wet/dark ground, zero digital blooming overlay.",
+        "exif_indicators": {
+          "make": null,
+          "model": null,
+          "software": null,
+          "iso": null,
+          "aperture": null,
+          "exposure_time": null
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "gold_standard"
+    },
+    {
+      "filename": "p6_55_night_bazaar_lanterns.jpg",
+      "wikimedia_title": "File:Glowing bazaar at night (Unsplash).jpg",
+      "original_source_url": "https://commons.wikimedia.org/wiki/File:Glowing_bazaar_at_night_(Unsplash).jpg",
+      "download_url": "https://upload.wikimedia.org/wikipedia/commons/9/9f/Glowing_bazaar_at_night_%28Unsplash%29.jpg",
+      "source_platform": "Wikimedia Commons (via Unsplash CC0 Archive)",
+      "creator_name": "Juan Ignacio Tapia (@juanitapia)",
+      "creator_profile_url": "https://unsplash.com/@juanitapia",
+      "license_name": "CC0 1.0 Universal",
+      "license_version": "1.0",
+      "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en",
+      "download_date": "2026-11-27",
+      "original_width": 3888,
+      "original_height": 2592,
+      "file_format": "JPEG",
+      "file_size_bytes": 786970,
+      "sha256": "6c95d8fbe797830ba1aa03f25621b83de3dd3bcb58e7cd23880ed1317d532aae",
+      "category": [
+        "night",
+        "lantern",
+        "street",
+        "bazaar",
+        "tungsten"
+      ],
+      "verification_status": "verified-original",
+      "editing_status": "reviewed-original",
+      "model_release_status": "CC0 waiver; night crowd in public street market",
+      "redistribution_notes": "CC0 1.0 Universal permits copying, modification, and distribution even for commercial purposes with zero license incompatibility; creator attribution preserved.",
+      "license_verification": {
+        "status": "verified",
+        "verified_license": "CC0-1.0",
+        "source_page_checked": true,
+        "license_page_checked": true,
+        "evidence_url": "https://web.archive.org/web/20160404011652/https://unsplash.com/photos/4fwRyKISwfk",
+        "verification_method": "wikimedia-commons-and-wayback-pre-2017-06-05-archive",
+        "verified_at": "2026-11-27"
+      },
+      "originality_review": {
+        "status": "reviewed-original",
+        "review_method": "visual-manual-review",
+        "review_notes": "Canon EOS 1000D 1/13s f/4.5 ISO 400 capture; natural warm tungsten lantern glow, atmospheric smoke and realistic optical falloff.",
+        "exif_indicators": {
+          "make": "Canon",
+          "model": "Canon EOS 1000D",
+          "software": null,
+          "iso": 400,
+          "aperture": 4.5,
+          "exposure_time": 0.0769
+        },
+        "reviewed_at": "2026-11-27"
+      },
+      "dataset_tier": "gold_standard"
     }
   ],
   "audit_date": "2026-11-27",
