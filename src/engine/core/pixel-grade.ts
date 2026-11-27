@@ -1,4 +1,12 @@
-import { ColorRecipe, HslBandAdjustment, HslMix, ManualAdjustments } from '../../types';
+import {
+  ColorGrading3Way,
+  ColorRecipe,
+  HslBandAdjustment,
+  HslMix,
+  ManualAdjustments,
+  OpticalEffectsRecipe,
+  RelightingRecipe
+} from '../../types';
 import {
   blurFloatMap,
   computePortraitMaskFromRgba,
@@ -7,6 +15,12 @@ import {
   sampleMask,
   smoothstep
 } from '../analysis/portrait-mask';
+import {
+  buildMonotoneToneCurveKnots,
+  evalMonotoneToneCurve,
+  isNeutralToneCurve,
+  scaleToneCurve
+} from './tone-curve';
 
 export const clamp01 = (v: number): number => (v < 0 ? 0 : v > 1 ? 1 : v);
 export const clamp255 = (v: number): number => (v < 0 ? 0 : v > 255 ? 255 : v);
@@ -44,8 +58,101 @@ export function buildEffectiveHsl(hsl: Partial<HslMix> | undefined, k: number): 
   return { red, orange, yellow, green, aqua, blue };
 }
 
+export function hasActiveColorGrading(cg: ColorGrading3Way | undefined): boolean {
+  if (!cg) return false;
+  return (
+    cg.shadowTint.some((v) => Math.abs(v) > 1e-4) ||
+    cg.midtoneTint.some((v) => Math.abs(v) > 1e-4) ||
+    cg.highlightTint.some((v) => Math.abs(v) > 1e-4)
+  );
+}
+
+export function hasActiveOpticalEffects(fx: OpticalEffectsRecipe | undefined): boolean {
+  if (!fx) return false;
+  return fx.bloomStrength > 0.1 || fx.halationStrength > 0.1;
+}
+
+export function hasActiveRelighting(rl: RelightingRecipe | undefined): boolean {
+  if (!rl) return false;
+  return rl.subjectLift > 0.1 || rl.flashSpecular > 0.1 || rl.backgroundFalloff > 0.1;
+}
+
+function scaleColorGrading(
+  cg: ColorGrading3Way | undefined,
+  k: number
+): ColorGrading3Way | undefined {
+  if (!cg || k <= 1e-4) return undefined;
+  const scaled: ColorGrading3Way = {
+    shadowTint: [cg.shadowTint[0] * k, cg.shadowTint[1] * k, cg.shadowTint[2] * k],
+    midtoneTint: [cg.midtoneTint[0] * k, cg.midtoneTint[1] * k, cg.midtoneTint[2] * k],
+    highlightTint: [cg.highlightTint[0] * k, cg.highlightTint[1] * k, cg.highlightTint[2] * k],
+    balance: cg.balance
+  };
+  return hasActiveColorGrading(scaled) ? scaled : undefined;
+}
+
+function scaleOpticalEffects(
+  fx: OpticalEffectsRecipe | undefined,
+  k: number
+): OpticalEffectsRecipe | undefined {
+  if (!fx || k <= 1e-4) return undefined;
+  const scaled: OpticalEffectsRecipe = {
+    bloomStrength: fx.bloomStrength * k,
+    bloomThreshold: fx.bloomThreshold,
+    halationStrength: fx.halationStrength * k,
+    halationThreshold: fx.halationThreshold
+  };
+  return hasActiveOpticalEffects(scaled) ? scaled : undefined;
+}
+
+function scaleRelighting(
+  rl: RelightingRecipe | undefined,
+  kTone: number,
+  kContrast: number
+): RelightingRecipe | undefined {
+  if (!rl || (kTone <= 1e-4 && kContrast <= 1e-4)) return undefined;
+  const scaled: RelightingRecipe = {
+    subjectLift: rl.subjectLift * kTone,
+    flashSpecular: rl.flashSpecular * kContrast,
+    backgroundFalloff: rl.backgroundFalloff * kTone,
+    falloffRadius: rl.falloffRadius,
+    skinHighlightGuard: rl.skinHighlightGuard,
+    shadowFloorGuard: rl.shadowFloorGuard
+  };
+  return hasActiveRelighting(scaled) ? scaled : undefined;
+}
+
+/**
+ * Nonlinear intensity blending curve values per effect family for Signature & Adaptive Looks.
+ * All curves guarantee f(0) = 0 (pure original preservation) and f(1) = 1 (full look).
+ */
+export function computeEffectBlendFactors(intensity: number): {
+  kTone: number;
+  kContrast: number;
+  kColor: number;
+  kSkin: number;
+  kOptical: number;
+} {
+  const k = Math.max(0, Math.min(100, intensity)) / 100;
+  if (k <= 0) {
+    return { kTone: 0, kContrast: 0, kColor: 0, kSkin: 0, kOptical: 0 };
+  }
+  if (k >= 1) {
+    return { kTone: 1, kContrast: 1, kColor: 1, kSkin: 1, kOptical: 1 };
+  }
+  return {
+    kTone: Math.pow(k, 0.92),
+    kContrast: k * k * (3 - 2 * k) * 0.35 + k * 0.65,
+    kColor: k,
+    kSkin: Math.pow(k, 1.15),
+    kOptical: Math.pow(k, 1.3)
+  };
+}
+
 /**
  * Canonical single-source-of-truth recipe merger used by both WebGL2 GPU and Canvas2D CPU renderers.
+ * Legacy presets without layered extensions keep exact linear P0 scaling for bit-exact golden parity.
+ * Layered Signature/Adaptive recipes apply nonlinear per-effect-family blending curves.
  */
 export function buildEffectiveRecipe(
   recipe: ColorRecipe,
@@ -53,36 +160,84 @@ export function buildEffectiveRecipe(
   manual: ManualAdjustments
 ): ColorRecipe {
   const k = Math.max(0, Math.min(100, intensity)) / 100;
+  const isLayered = Boolean(
+    recipe.toneCurve || recipe.colorGrading || recipe.effects || recipe.relighting
+  );
+
+  if (!isLayered) {
+    return {
+      exposure: recipe.exposure * k + manual.exposure,
+      contrast: recipe.contrast * k + manual.contrast,
+      highlights: recipe.highlights * k,
+      shadows: recipe.shadows * k,
+      whites: recipe.whites * k,
+      blacks: recipe.blacks * k,
+      dehaze: recipe.dehaze * k,
+      sharpen: recipe.sharpen * k,
+      temperature: recipe.temperature * k + manual.temperature,
+      tint: recipe.tint * k,
+      saturation: recipe.saturation * k + manual.saturation,
+      vibrance: recipe.vibrance * k,
+      shadowCyan: recipe.shadowCyan * k,
+      shadowWarm: recipe.shadowWarm * k,
+      skinBright: recipe.skinBright * k,
+      skinRosy: Math.min(45, recipe.skinRosy * k + manual.skinRosy),
+      bgDarken: Math.min(55, recipe.bgDarken * k + manual.bgDarken),
+      bgBokeh: Math.min(45, recipe.bgBokeh * k + manual.bgBokeh),
+      fade: recipe.fade * k,
+      grain: Math.min(45, recipe.grain * k + manual.grain),
+      vignette: recipe.vignette * k,
+      hsl: buildEffectiveHsl(recipe.hsl, k)
+    };
+  }
+
+  const { kTone, kContrast, kColor, kSkin, kOptical } = computeEffectBlendFactors(intensity);
+
   return {
-    exposure: recipe.exposure * k + manual.exposure,
-    contrast: recipe.contrast * k + manual.contrast,
-    highlights: recipe.highlights * k,
-    shadows: recipe.shadows * k,
-    whites: recipe.whites * k,
-    blacks: recipe.blacks * k,
-    dehaze: recipe.dehaze * k,
-    sharpen: recipe.sharpen * k,
-    temperature: recipe.temperature * k + manual.temperature,
-    tint: recipe.tint * k,
-    saturation: recipe.saturation * k + manual.saturation,
-    vibrance: recipe.vibrance * k,
-    shadowCyan: recipe.shadowCyan * k,
-    shadowWarm: recipe.shadowWarm * k,
-    skinBright: recipe.skinBright * k,
-    skinRosy: Math.min(45, recipe.skinRosy * k + manual.skinRosy),
-    bgDarken: Math.min(55, recipe.bgDarken * k + manual.bgDarken),
-    bgBokeh: Math.min(45, recipe.bgBokeh * k + manual.bgBokeh),
-    fade: recipe.fade * k,
-    grain: Math.min(45, recipe.grain * k + manual.grain),
-    vignette: recipe.vignette * k,
-    hsl: buildEffectiveHsl(recipe.hsl, k)
+    exposure: recipe.exposure * kTone + manual.exposure,
+    contrast: recipe.contrast * kContrast + manual.contrast,
+    highlights: recipe.highlights * kTone,
+    shadows: recipe.shadows * kTone,
+    whites: recipe.whites * kTone,
+    blacks: recipe.blacks * kTone,
+    dehaze: recipe.dehaze * kContrast,
+    sharpen: recipe.sharpen * kContrast,
+    temperature: recipe.temperature * kColor + manual.temperature,
+    tint: recipe.tint * kColor,
+    saturation: recipe.saturation * kColor + manual.saturation,
+    vibrance: recipe.vibrance * kColor,
+    shadowCyan: recipe.shadowCyan * kColor,
+    shadowWarm: recipe.shadowWarm * kColor,
+    skinBright: recipe.skinBright * kSkin,
+    skinRosy: Math.min(45, recipe.skinRosy * kSkin + manual.skinRosy),
+    bgDarken: Math.min(55, recipe.bgDarken * kTone + manual.bgDarken),
+    bgBokeh: Math.min(45, recipe.bgBokeh * kOptical + manual.bgBokeh),
+    fade: recipe.fade * kTone,
+    grain: Math.min(45, recipe.grain * kOptical + manual.grain),
+    vignette: recipe.vignette * kTone,
+    hsl: buildEffectiveHsl(recipe.hsl, kColor),
+    toneCurve: scaleToneCurve(recipe.toneCurve, kTone),
+    colorGrading: scaleColorGrading(recipe.colorGrading, kColor),
+    effects: scaleOpticalEffects(recipe.effects, kOptical),
+    relighting: scaleRelighting(recipe.relighting, kTone, kContrast)
   };
 }
 
 export function isNeutralRecipe(recipe: ColorRecipe): boolean {
   if (recipe.hsl) return false;
+  if (!isNeutralToneCurve(recipe.toneCurve)) return false;
+  if (hasActiveColorGrading(recipe.colorGrading)) return false;
+  if (hasActiveOpticalEffects(recipe.effects)) return false;
+  if (hasActiveRelighting(recipe.relighting)) return false;
   return Object.entries(recipe).every(
-    ([key, val]) => key === 'hsl' || typeof val !== 'number' || Math.abs(val) < 0.01
+    ([key, val]) =>
+      key === 'hsl' ||
+      key === 'toneCurve' ||
+      key === 'colorGrading' ||
+      key === 'effects' ||
+      key === 'relighting' ||
+      typeof val !== 'number' ||
+      Math.abs(val) < 0.01
   );
 }
 
@@ -105,7 +260,8 @@ export function applyHslMix(r: number, g: number, b: number, hsl: HslMix): [numb
   const l = (maxC + minC) * 0.5;
   const s = l > 0.5 ? d / Math.max(1e-5, 2 - maxC - minC) : d / Math.max(1e-5, maxC + minC);
 
-  const guard = smoothstep(0.025, 0.13, s) * smoothstep(0.04, 0.14, l) * (1 - smoothstep(0.9, 0.98, l));
+  const guard =
+    smoothstep(0.025, 0.13, s) * smoothstep(0.04, 0.14, l) * (1 - smoothstep(0.9, 0.98, l));
   if (guard <= 0.001) return [r, g, b];
 
   let h6 = 0;
@@ -272,6 +428,123 @@ function sampleBokehRgb(
   ];
 }
 
+/**
+ * Downsampled separable 2-pass optical glow buffer for Highlight Bloom (.rgb) and Analog Halation (.hal).
+ * Radius scales proportionally with image minDimension so preview and full-res export match consistently.
+ */
+export function createOpticalEffectsBuffer(
+  gradedData: Uint8ClampedArray | Uint8Array,
+  w: number,
+  h: number,
+  fx: OpticalEffectsRecipe
+): { ew: number; eh: number; rgba: Float32Array } {
+  const scale = Math.max(w, h) > 220 ? 0.5 : 1;
+  const ew = Math.max(16, Math.round(w * scale));
+  const eh = Math.max(16, Math.round(h * scale));
+  const count = ew * eh;
+
+  const chR = new Float32Array(count);
+  const chG = new Float32Array(count);
+  const chB = new Float32Array(count);
+  const chH = new Float32Array(count);
+
+  const bloomHi = Math.min(0.99, fx.bloomThreshold + 0.22);
+  const halHi = Math.min(0.99, fx.halationThreshold + 0.18);
+  const step = Math.max(1, Math.round(Math.min(w, h) / 140));
+
+  const lumAt = (px: number, py: number): number => {
+    const cx = px < 0 ? 0 : px >= w ? w - 1 : px;
+    const cy = py < 0 ? 0 : py >= h ? h - 1 : py;
+    const o = (cy * w + cx) * 4;
+    return (0.299 * gradedData[o] + 0.587 * gradedData[o + 1] + 0.114 * gradedData[o + 2]) / 255;
+  };
+
+  for (let ey = 0; ey < eh; ey++) {
+    const sy = Math.min(h - 1, Math.round((ey + 0.5) * (h / eh)));
+    for (let ex = 0; ex < ew; ex++) {
+      const sx = Math.min(w - 1, Math.round((ex + 0.5) * (w / ew)));
+      const p = (sy * w + sx) * 4;
+      const r = gradedData[p] / 255;
+      const g = gradedData[p + 1] / 255;
+      const b = gradedData[p + 2] / 255;
+      const lum = 0.299 * r + 0.587 * g + 0.114 * b;
+
+      const idx = ey * ew + ex;
+      if (fx.bloomStrength > 0.1 && lum > fx.bloomThreshold) {
+        const bEmit = smoothstep(fx.bloomThreshold, bloomHi, lum);
+        chR[idx] = r * bEmit;
+        chG[idx] = g * bEmit;
+        chB[idx] = b * bEmit;
+      }
+
+      if (fx.halationStrength > 0.1 && lum > fx.halationThreshold) {
+        const avgN =
+          0.25 *
+          (lumAt(sx - step, sy) +
+            lumAt(sx + step, sy) +
+            lumAt(sx, sy - step) +
+            lumAt(sx, sy + step));
+        const edgeContrast = Math.max(0, lum - avgN);
+        const hEmit =
+          smoothstep(fx.halationThreshold, halHi, lum) *
+          (0.55 + 0.45 * smoothstep(0.015, 0.16, edgeContrast));
+        chH[idx] = hEmit;
+      }
+    }
+  }
+
+  const minDim = Math.min(w, h);
+  const rawR = Math.round(minDim * 0.012 * scale);
+  const scaledR = Math.min(48, Math.max(1, rawR));
+
+  const bR = fx.bloomStrength > 0.1 ? blurFloatMap(chR, ew, eh, scaledR, 2) : chR;
+  const bG = fx.bloomStrength > 0.1 ? blurFloatMap(chG, ew, eh, scaledR, 2) : chG;
+  const bB = fx.bloomStrength > 0.1 ? blurFloatMap(chB, ew, eh, scaledR, 2) : chB;
+  const bH = fx.halationStrength > 0.1 ? blurFloatMap(chH, ew, eh, scaledR, 2) : chH;
+
+  const rgba = new Float32Array(count * 4);
+  for (let i = 0; i < count; i++) {
+    const o = i * 4;
+    rgba[o] = clamp01(bR[i]);
+    rgba[o + 1] = clamp01(bG[i]);
+    rgba[o + 2] = clamp01(bB[i]);
+    rgba[o + 3] = clamp01(bH[i]);
+  }
+  return { ew, eh, rgba };
+}
+
+function sampleOpticalEffects(
+  buf: { ew: number; eh: number; rgba: Float32Array },
+  nx: number,
+  ny: number
+): [number, number, number, number] {
+  const gx = clamp01(nx) * (buf.ew - 1);
+  const gy = clamp01(ny) * (buf.eh - 1);
+  const x0 = Math.floor(gx);
+  const y0 = Math.floor(gy);
+  const x1 = x0 + 1 < buf.ew ? x0 + 1 : x0;
+  const y1 = y0 + 1 < buf.eh ? y0 + 1 : y0;
+  const fx = gx - x0;
+  const fy = gy - y0;
+
+  const i00 = (y0 * buf.ew + x0) * 4;
+  const i10 = (y0 * buf.ew + x1) * 4;
+  const i01 = (y1 * buf.ew + x0) * 4;
+  const i11 = (y1 * buf.ew + x1) * 4;
+
+  const w00 = (1 - fx) * (1 - fy);
+  const w10 = fx * (1 - fy);
+  const w01 = (1 - fx) * fy;
+  const w11 = fx * fy;
+
+  return [
+    buf.rgba[i00] * w00 + buf.rgba[i10] * w10 + buf.rgba[i01] * w01 + buf.rgba[i11] * w11,
+    buf.rgba[i00 + 1] * w00 + buf.rgba[i10 + 1] * w10 + buf.rgba[i01 + 1] * w01 + buf.rgba[i11 + 1] * w11,
+    buf.rgba[i00 + 2] * w00 + buf.rgba[i10 + 2] * w10 + buf.rgba[i01 + 2] * w01 + buf.rgba[i11 + 2] * w11,
+    buf.rgba[i00 + 3] * w00 + buf.rgba[i10 + 3] * w10 + buf.rgba[i01 + 3] * w01 + buf.rgba[i11 + 3] * w11
+  ];
+}
+
 function sampleSkinSmoothAndEdge(
   origData: Uint8ClampedArray | Uint8Array,
   w: number,
@@ -341,6 +614,58 @@ export interface PixelGradeOptions {
   includeGrain?: boolean;
 }
 
+function applyFinalStages(
+  rIn: number,
+  gIn: number,
+  bIn: number,
+  x: number,
+  y: number,
+  halfW: number,
+  halfH: number,
+  invMaxDistSq: number,
+  fadeLift: number,
+  vigStrength: number,
+  grainAmt: number
+): [number, number, number] {
+  let r = rIn;
+  let g = gIn;
+  let b = bIn;
+
+  // 11. Matte Film Fade
+  if (fadeLift > 0) {
+    const scale = 1 - fadeLift;
+    r = r * scale + fadeLift;
+    g = g * scale + fadeLift;
+    b = b * scale + fadeLift;
+  }
+
+  // 12. Soft Vignette
+  if (vigStrength > 0) {
+    const dx = x - halfW;
+    const dy = y - halfH;
+    const distNorm = Math.min(1, (dx * dx + dy * dy) * invMaxDistSq);
+    const vFactor = 1 - vigStrength * 0.58 * Math.pow(distNorm, 1.15);
+    r *= vFactor;
+    g *= vFactor;
+    b *= vFactor;
+  }
+
+  // 13. Midtone-weighted 2D spatial film grain
+  if (grainAmt > 0) {
+    const pLum = 0.299 * r + 0.587 * g + 0.114 * b;
+    const midFade = 4 * pLum * (1 - pLum);
+    let hVal = ((x * 374761393 + y * 668265263) ^ 0x5bf03635) | 0;
+    hVal = Math.imul(hVal ^ (hVal >>> 13), 1274126177);
+    hVal = (hVal ^ (hVal >>> 16)) >>> 0;
+    const noise = ((hVal / 4294967295) - 0.5) * grainAmt * midFade;
+    r += noise;
+    g += noise;
+    b += noise;
+  }
+
+  return [r, g, b];
+}
+
 /**
  * Pure, DOM-free RGBA pixel-buffer processor (runs identically on main thread and inside Web Workers).
  */
@@ -399,6 +724,12 @@ export function applyRecipeToPixelBuffer(
   const vigStrength = recipe.vignette / 100;
 
   const hslMix = recipe.hsl && buildEffectiveHsl(recipe.hsl, 1);
+  const curveKnots =
+    recipe.toneCurve && !isNeutralToneCurve(recipe.toneCurve)
+      ? buildMonotoneToneCurveKnots(recipe.toneCurve)
+      : null;
+  const cg = hasActiveColorGrading(recipe.colorGrading) ? recipe.colorGrading! : null;
+  const fx = hasActiveOpticalEffects(recipe.effects) ? recipe.effects! : null;
 
   const halfW = w * 0.5;
   const halfH = h * 0.5;
@@ -408,8 +739,6 @@ export function applyRecipeToPixelBuffer(
 
   for (let y = 0; y < h; y++) {
     const ny = (y + 0.5) * invH;
-    const dy = y - halfH;
-    const dySq = dy * dy;
     const depthFade = 1 - 0.78 * smoothstep(0.68, 0.94, ny);
 
     for (let x = 0; x < w; x++) {
@@ -560,6 +889,24 @@ export function applyRecipeToPixelBuffer(
         b = clamp01(b + k * b * (1 - b) * (2 * b - 1));
       }
 
+      // 4b. Monotonic Cubic Tone Curve (Signature Looks)
+      if (curveKnots) {
+        const cr = evalMonotoneToneCurve(r, curveKnots);
+        const cgVal = evalMonotoneToneCurve(g, curveKnots);
+        const cb = evalMonotoneToneCurve(b, curveKnots);
+        const cLum = clamp01(0.299 * r + 0.587 * g + 0.114 * b);
+        const tLum = evalMonotoneToneCurve(cLum, curveKnots);
+        const ratio = cLum > 1e-4 ? tLum / cLum : 1;
+        const lr = clamp01(r * ratio);
+        const lg = clamp01(g * ratio);
+        const lb = clamp01(b * ratio);
+        const preSkin = computeSkinWeight(r, g, b);
+        const lumaMix = 0.22 + preSkin * 0.48;
+        r = cr + (lr - cr) * lumaMix;
+        g = cgVal + (lg - cgVal) * lumaMix;
+        b = cb + (lb - cb) * lumaMix;
+      }
+
       // 5. 6-Band HSL Color Mix (Red, Orange, Yellow, Green, Aqua, Blue)
       if (hslMix) {
         [r, g, b] = applyHslMix(r, g, b, hslMix);
@@ -568,7 +915,7 @@ export function applyRecipeToPixelBuffer(
       const skinWeight = computeSkinWeight(r, g, b);
       lum = clamp01(0.299 * r + 0.587 * g + 0.114 * b);
 
-      // 6. Portrait-aware Background Darkening (upper/distant background, protecting foreground tables & subject)
+      // 6. Portrait-aware Background Darkening
       if (bgDarkAmt > 0 && portraitInfo) {
         if (effBgMask > 0.01) {
           const bgExposure = 1 - bgDarkAmt * 0.62 * effBgMask;
@@ -612,6 +959,26 @@ export function applyRecipeToPixelBuffer(
         b = clamp01(b - sWarm * 0.42 * shadowWeight);
       }
 
+      // 8b. 3-Way Color Grading (Shadows / Midtones / Highlights)
+      if (cg) {
+        const cgLum = clamp01(0.299 * r + 0.587 * g + 0.114 * b);
+        const pivot = 0.5 + cg.balance * 0.25;
+        const darkGuard = smoothstep(0.015, 0.1, cgLum);
+        const hlGuard = 1 - smoothstep(0.95, 1.0, cgLum);
+        const wSh = (1 - smoothstep(0.05, pivot + 0.15, cgLum)) * darkGuard;
+        const wHl = smoothstep(Math.max(0.15, pivot - 0.15), 0.94, cgLum) * hlGuard;
+        const wMid = 4 * cgLum * (1 - cgLum) * (1 - skinWeight * 0.45);
+        r = softHighlightRoll(
+          clamp01(r + wSh * cg.shadowTint[0] + wMid * cg.midtoneTint[0] + wHl * cg.highlightTint[0])
+        );
+        g = softHighlightRoll(
+          clamp01(g + wSh * cg.shadowTint[1] + wMid * cg.midtoneTint[1] + wHl * cg.highlightTint[1])
+        );
+        b = softHighlightRoll(
+          clamp01(b + wSh * cg.shadowTint[2] + wMid * cg.midtoneTint[2] + wHl * cg.highlightTint[2])
+        );
+      }
+
       // 9. Clean Skin Brightening & Healthy Rosy Flush ("Wajah Merona")
       if (skinWeight > 0) {
         if (skinBoost > 0) {
@@ -640,7 +1007,7 @@ export function applyRecipeToPixelBuffer(
         }
       }
 
-      // 10. Bounded Saturation & Vibrance (clamped [0, 1] + dark noise guard)
+      // 10. Bounded Saturation & Vibrance
       r = clamp01(r);
       g = clamp01(g);
       b = clamp01(b);
@@ -658,40 +1025,71 @@ export function applyRecipeToPixelBuffer(
         b = clamp01(gray + (b - gray) * effSat);
       }
 
-      // 11. Matte Film Fade
-      if (fadeLift > 0) {
-        const scale = 1 - fadeLift;
-        r = r * scale + fadeLift;
-        g = g * scale + fadeLift;
-        b = b * scale + fadeLift;
+      if (fx) {
+        data[idx] = clamp255(Math.round(r * 255));
+        data[idx + 1] = clamp255(Math.round(g * 255));
+        data[idx + 2] = clamp255(Math.round(b * 255));
+      } else {
+        const [fr, fg, fb] = applyFinalStages(
+          r,
+          g,
+          b,
+          x,
+          y,
+          halfW,
+          halfH,
+          invMaxDistSq,
+          fadeLift,
+          vigStrength,
+          grainAmt
+        );
+        data[idx] = clamp255(Math.round(fr * 255));
+        data[idx + 1] = clamp255(Math.round(fg * 255));
+        data[idx + 2] = clamp255(Math.round(fb * 255));
       }
+    }
+  }
 
-      // 12. Soft Vignette
-      if (vigStrength > 0) {
-        const dx = x - halfW;
-        const distNorm = Math.min(1, (dx * dx + dySq) * invMaxDistSq);
-        const vFactor = 1 - vigStrength * 0.58 * Math.pow(distNorm, 1.15);
-        r *= vFactor;
-        g *= vFactor;
-        b *= vFactor;
+  // 10b + 11..13. Optical Bloom & Analog Halation + Fade, Vignette, Grain
+  if (fx) {
+    const fxBuf = createOpticalEffectsBuffer(data, w, h, fx);
+    const bloomK = (fx.bloomStrength / 40) * 0.42;
+    const halK = (fx.halationStrength / 35) * 0.58;
+
+    for (let y = 0; y < h; y++) {
+      const ny = (y + 0.5) * invH;
+      for (let x = 0; x < w; x++) {
+        const idx = (y * w + x) * 4;
+        let r = data[idx] / 255;
+        let g = data[idx + 1] / 255;
+        let b = data[idx + 2] / 255;
+
+        const [er, eg, eb, eh] = sampleOpticalEffects(fxBuf, (x + 0.5) * invW, ny);
+        const addR = er * bloomK + eh * halK * 1.0;
+        const addG = eg * bloomK + eh * halK * 0.28;
+        const addB = eb * bloomK + eh * halK * 0.06;
+
+        r = softHighlightRoll(r + addR * (1 - 0.65 * r));
+        g = softHighlightRoll(g + addG * (1 - 0.65 * g));
+        b = softHighlightRoll(b + addB * (1 - 0.65 * b));
+
+        const [fr, fg, fb] = applyFinalStages(
+          r,
+          g,
+          b,
+          x,
+          y,
+          halfW,
+          halfH,
+          invMaxDistSq,
+          fadeLift,
+          vigStrength,
+          grainAmt
+        );
+        data[idx] = clamp255(Math.round(fr * 255));
+        data[idx + 1] = clamp255(Math.round(fg * 255));
+        data[idx + 2] = clamp255(Math.round(fb * 255));
       }
-
-      // 13. Midtone-weighted 2D spatial film grain
-      if (grainAmt > 0) {
-        const pLum = 0.299 * r + 0.587 * g + 0.114 * b;
-        const midFade = 4 * pLum * (1 - pLum);
-        let hVal = ((x * 374761393 + y * 668265263) ^ 0x5bf03635) | 0;
-        hVal = Math.imul(hVal ^ (hVal >>> 13), 1274126177);
-        hVal = (hVal ^ (hVal >>> 16)) >>> 0;
-        const noise = ((hVal / 4294967295) - 0.5) * grainAmt * midFade;
-        r += noise;
-        g += noise;
-        b += noise;
-      }
-
-      data[idx] = clamp255(Math.round(r * 255));
-      data[idx + 1] = clamp255(Math.round(g * 255));
-      data[idx + 2] = clamp255(Math.round(b * 255));
     }
   }
 }

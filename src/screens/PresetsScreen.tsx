@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { Crown, Heart, Search } from 'lucide-react';
-import { PRESET_CATEGORIES, PRESETS } from '../data/presets';
-import { LicenseState, Preset, PresetCategory } from '../types';
+import { Crown, Heart, Search, Sparkles } from 'lucide-react';
+import { PRESET_CATEGORIES, PRESETS, SIGNATURE_COLLECTIONS } from '../data/presets';
+import { CuratedCollectionId, LicenseState, Preset, PresetCategory } from '../types';
 import { Card } from '../components/ui/Card';
 import { FilterChip } from '../components/ui/Chip';
 import { Input } from '../components/ui/Input';
@@ -12,8 +12,10 @@ import { SamplePhotoId } from '../lib/samplePhoto';
 interface PresetsScreenProps {
   license: LicenseState;
   category: PresetCategory;
+  collectionId?: CuratedCollectionId | null;
   favoriteIds: string[];
   onChangeCategory: (cat: PresetCategory) => void;
+  onChangeCollection?: (col: CuratedCollectionId | null) => void;
   onToggleFavorite: (presetId: string) => void;
   onSelectPresetDetail: (preset: Preset) => void;
 }
@@ -21,21 +23,30 @@ interface PresetsScreenProps {
 export const PresetsScreen: React.FC<PresetsScreenProps> = ({
   license,
   category,
+  collectionId = null,
   favoriteIds,
   onChangeCategory,
+  onChangeCollection,
   onToggleFavorite,
   onSelectPresetDetail
 }) => {
   const [query, setQuery] = useState('');
   const [previews, setPreviews] = useState<Record<string, string>>({});
 
+  const activeCollection = useMemo(
+    () => SIGNATURE_COLLECTIONS.find((c) => c.id === collectionId) ?? null,
+    [collectionId]
+  );
+
   const visiblePresets = useMemo(() => {
     const q = query.trim().toLowerCase();
     return PRESETS.filter((p) => {
       if (p.id === 'original') return false;
+      if (collectionId && p.collectionId !== collectionId) return false;
       if (category === 'free' && p.isPro) return false;
       if (category === 'favorites' && !favoriteIds.includes(p.id)) return false;
       if (
+        !collectionId &&
         category !== 'all' &&
         category !== 'free' &&
         category !== 'favorites' &&
@@ -43,12 +54,17 @@ export const PresetsScreen: React.FC<PresetsScreenProps> = ({
       ) {
         return false;
       }
-      if (q && !p.name.toLowerCase().includes(q) && !p.category.toLowerCase().includes(q)) {
+      if (
+        q &&
+        !p.name.toLowerCase().includes(q) &&
+        !p.category.toLowerCase().includes(q) &&
+        !(p.description || '').toLowerCase().includes(q)
+      ) {
         return false;
       }
       return true;
     });
-  }, [category, favoriteIds, query]);
+  }, [category, collectionId, favoriteIds, query]);
 
   useEffect(() => {
     let active = true;
@@ -76,10 +92,12 @@ export const PresetsScreen: React.FC<PresetsScreenProps> = ({
         <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
           <div className="space-y-1">
             <h1 className="text-[28px] sm:text-[32px] leading-tight font-semibold text-textPrimary tracking-tight">
-              Find your signature tone.
+              {activeCollection ? activeCollection.title : 'Find your signature tone.'}
             </h1>
             <p className="text-xs sm:text-sm text-textSecondary">
-              Curated color recipes designed for natural skin &amp; editorial depth.
+              {activeCollection
+                ? activeCollection.description
+                : 'Curated color science designed for natural skin, analog curves & editorial depth.'}
             </p>
           </div>
 
@@ -87,22 +105,52 @@ export const PresetsScreen: React.FC<PresetsScreenProps> = ({
             <Input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search presets (e.g. Rosy, Seoul, Portra)..."
+              placeholder="Search looks (e.g. Porcelain, Velvet, Halation)..."
               leftIcon={<Search className="w-4 h-4" strokeWidth={1.8} />}
             />
           </div>
         </div>
 
+        {/* Curated Signature Collections Strip */}
+        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
+          <FilterChip
+            selected={!collectionId && category === 'all'}
+            onClick={() => {
+              onChangeCollection?.(null);
+              onChangeCategory('all');
+            }}
+          >
+            All Looks
+          </FilterChip>
+          {SIGNATURE_COLLECTIONS.map((col) => (
+            <FilterChip
+              key={col.id}
+              selected={collectionId === col.id}
+              onClick={() => {
+                onChangeCategory('all');
+                onChangeCollection?.(collectionId === col.id ? null : col.id);
+              }}
+            >
+              <Sparkles className="w-3.5 h-3.5" strokeWidth={1.8} />
+              {col.title}
+            </FilterChip>
+          ))}
+        </div>
+
+        {/* Category Filter Strip */}
         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
           {PRESET_CATEGORIES.map((cat) => (
             <FilterChip
               key={cat.id}
-              selected={category === cat.id}
-              onClick={() => onChangeCategory(cat.id)}
+              selected={!collectionId && category === cat.id}
+              onClick={() => {
+                onChangeCollection?.(null);
+                onChangeCategory(cat.id);
+              }}
             >
               {cat.id === 'favorites' && (
                 <Heart
-                  className={`w-3.5 h-3.5 ${category === 'favorites' ? 'fill-current' : ''}`}
+                  className={`w-3.5 h-3.5 ${!collectionId && category === 'favorites' ? 'fill-current' : ''}`}
                   strokeWidth={1.8}
                 />
               )}
@@ -118,11 +166,11 @@ export const PresetsScreen: React.FC<PresetsScreenProps> = ({
             </div>
             <div className="space-y-1">
               <h3 className="text-sm font-semibold text-textPrimary">
-                {category === 'favorites' ? 'Your favorites will live here.' : 'No presets found'}
+                {category === 'favorites' ? 'Your favorites will live here.' : 'No looks found'}
               </h3>
               <p className="text-xs text-textSecondary">
                 {category === 'favorites'
-                  ? 'Tap the heart on any preset to build your personal studio collection.'
+                  ? 'Tap the heart on any look to build your personal studio collection.'
                   : 'Try another filter or search keyword.'}
               </p>
             </div>
@@ -130,11 +178,12 @@ export const PresetsScreen: React.FC<PresetsScreenProps> = ({
               variant="soft"
               onClick={() => {
                 setQuery('');
+                onChangeCollection?.(null);
                 onChangeCategory('all');
               }}
               className="px-4 text-xs"
             >
-              Explore all presets
+              Explore all looks
             </Button>
           </Card>
         ) : (
@@ -187,12 +236,12 @@ export const PresetsScreen: React.FC<PresetsScreenProps> = ({
                       </span>
                     ) : null}
                   </div>
-                  <div className="p-3 bg-surface border-t border-border/60">
+                  <div className="p-3 bg-surface border-t border-border/60 space-y-0.5">
                     <div className="text-xs font-semibold text-textPrimary truncate">
                       {preset.name}
                     </div>
-                    <div className="text-[11px] text-textSecondary capitalize mt-0.5">
-                      {preset.category}
+                    <div className="text-[11px] text-textSecondary truncate">
+                      {preset.description || preset.category}
                     </div>
                   </div>
                 </Card>

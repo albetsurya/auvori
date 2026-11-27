@@ -1,4 +1,10 @@
-import { ColorRecipe, EditorialCollection, Preset, PresetCategory } from '../types';
+import {
+  ColorRecipe,
+  EditorialCollection,
+  Preset,
+  PresetCategory,
+  SignatureCollectionMeta
+} from '../types';
 
 const BASE_RECIPE: ColorRecipe = {
   exposure: 0,
@@ -40,22 +46,61 @@ export const PRESET_CATEGORIES: { id: PresetCategory; label: string }[] = [
   { id: 'night', label: 'Night' }
 ];
 
+export const SIGNATURE_COLLECTIONS: SignatureCollectionMeta[] = [
+  {
+    id: 'rosy-portrait',
+    title: 'Rosy Portrait',
+    subtitle: 'Luminous skin & soft bloom',
+    description: 'Natural rosy skin luminance, soft highlight roll-off, and gentle optical depth.',
+    lookType: 'signature',
+    coverPresetId: 'porcelain-bloom',
+    sampleId: 'park'
+  },
+  {
+    id: 'velvet-series',
+    title: 'Velvet Series',
+    subtitle: 'Deep shadows & warm midtones',
+    description: 'Rich tonal contrast, sculpted darks, and restrained editorial saturation.',
+    lookType: 'signature',
+    coverPresetId: 'velvet-noir',
+    sampleId: 'park'
+  },
+  {
+    id: 'seoul-editorial',
+    title: 'Seoul Editorial',
+    subtitle: 'Clean whites & airy clarity',
+    description: 'Neutral indoor highlights, tamed warm casts, and crisp glass shadows.',
+    lookType: 'signature',
+    coverPresetId: 'hannam-daylight',
+    sampleId: 'cafe'
+  },
+  {
+    id: 'analog-archive',
+    title: 'Analog Archive',
+    subtitle: 'Film curves, grain & halation',
+    description: 'Classic silver-halide tone curves, muted foliage, organic grain, and halation.',
+    lookType: 'signature',
+    coverPresetId: 'amber-halation',
+    sampleId: 'window'
+  }
+];
+
 export const EDITORIAL_COLLECTIONS: EditorialCollection[] = [
   {
     id: 'col-portrait',
-    title: 'Luminous Portrait',
-    subtitle: 'Rosy glow & depth bokeh',
+    title: 'Rosy Portrait',
+    subtitle: 'Rosy glow & optical bloom',
     category: 'portrait',
     coverPresetId: 'rosy-bokeh',
     sampleId: 'park'
   },
   {
-    id: 'col-cafe',
-    title: 'Warm Café Mornings',
-    subtitle: 'Clean whites & soft shadows',
-    category: 'cafe',
-    coverPresetId: 'seoul-cafe',
-    sampleId: 'cafe'
+    id: 'col-velvet',
+    title: 'Velvet Series',
+    subtitle: 'Rich shadows & warm midtones',
+    category: 'portrait',
+    coverPresetId: 'velvet-merona',
+    sampleId: 'park'
   },
   {
     id: 'col-korean',
@@ -67,8 +112,8 @@ export const EDITORIAL_COLLECTIONS: EditorialCollection[] = [
   },
   {
     id: 'col-film',
-    title: 'Analog Film Stocks',
-    subtitle: 'Classic Chrome, Gold & Portra',
+    title: 'Analog Archive',
+    subtitle: 'Film curves, grain & halation',
     category: 'film',
     coverPresetId: 'classic-chrome',
     sampleId: 'window'
@@ -87,26 +132,26 @@ export interface DiscoverStory {
 export const DISCOVER_STORIES: DiscoverStory[] = [
   {
     id: 'story-rosy',
-    tag: 'Portrait Guide',
-    title: 'Rosy skin & quiet dark backgrounds',
-    excerpt: 'Lift facial luminance while calming busy greenery and ceiling clutter into subtle pro bokeh.',
-    presetId: 'rosy-bokeh',
+    tag: 'Rosy Portrait',
+    title: 'Porcelain Bloom & quiet portrait light',
+    excerpt: 'Open editorial shadows with soft highlight bloom while keeping natural skin color fidelity intact.',
+    presetId: 'porcelain-bloom',
     sampleId: 'park'
   },
   {
     id: 'story-cafe',
-    tag: 'Café Aesthetic',
+    tag: 'Seoul Editorial',
     title: 'Clean whites without warm cast',
     excerpt: 'Tame yellow indoor lamps and balance wood tones so coffee tables and skin look effortlessly crisp.',
-    presetId: 'seoul-cafe',
+    presetId: 'hannam-daylight',
     sampleId: 'cafe'
   },
   {
     id: 'story-film',
-    tag: 'Analog Study',
-    title: 'Portra warmth vs Classic Chrome',
-    excerpt: 'Compare soft peach portrait film against muted documentary greens for timeless everyday frames.',
-    presetId: 'portra-400',
+    tag: 'Analog Archive',
+    title: 'Tungsten Halation & film tone curves',
+    excerpt: 'Monotonic analog shoulder roll-off paired with warm highlight scatter and fine 35mm grain.',
+    presetId: 'amber-halation',
     sampleId: 'window'
   }
 ];
@@ -117,20 +162,24 @@ export const PRESETS: Preset[] = [
     name: 'Asli',
     category: 'cafe',
     isPro: false,
+    lookType: 'essential',
     accentColor: '#64748b',
+    description: 'Original untouched camera frame.',
     recipe: makeRecipe({})
   },
 
-  // === FREE PRESETS (6 Efek Siap Pakai) ===
+  // === FREE PRESETS (6 Efek Siap Pakai — 100% Legacy P0 Baseline Preserved) ===
   {
     id: 'rosy-bokeh',
     name: 'Rosy Bokeh',
     category: 'portrait',
     isPro: false,
     badge: 'Pro Cam',
+    lookType: 'essential',
+    collectionId: 'rosy-portrait',
+    recipeVersion: 1,
     accentColor: '#f43f5e',
-    // Riset Before/After Lemon8 & Pro Portrait: wajah bening cerah merona (Red/Orange HSL),
-    // daun/latar emerald gelap + depth falloff tanpa menggelapkan meja depan + sedikit bokeh optik
+    description: 'Luminous skin tone with calm dark foliage backdrop and subtle background bokeh.',
     recipe: makeRecipe({
       exposure: 5,
       contrast: 10,
@@ -165,8 +214,11 @@ export const PRESETS: Preset[] = [
     category: 'cafe',
     isPro: false,
     badge: 'Viral',
+    lookType: 'essential',
+    collectionId: 'seoul-editorial',
+    recipeVersion: 1,
     accentColor: '#0ea5e9',
-    // Korean Café: putih bersih, redupkan kuning lampu & kayu oranye, shadow cyan lembut, kulit cerah bersih
+    description: 'Crisp Korean café whites with soft cyan glass shadows and clean natural skin.',
     recipe: makeRecipe({
       exposure: 8,
       contrast: 4,
@@ -197,7 +249,11 @@ export const PRESETS: Preset[] = [
     name: 'Clean Day',
     category: 'korean',
     isPro: false,
+    lookType: 'essential',
+    collectionId: 'seoul-editorial',
+    recipeVersion: 1,
     accentColor: '#38bdf8',
+    description: 'Airy everyday brightness with clean whites and natural skin clarity.',
     recipe: makeRecipe({
       exposure: 10,
       contrast: -4,
@@ -226,7 +282,10 @@ export const PRESETS: Preset[] = [
     name: 'Warm Latte',
     category: 'cafe',
     isPro: false,
+    lookType: 'essential',
+    recipeVersion: 1,
     accentColor: '#d97706',
+    description: 'Gentle amber warmth for wooden cafés and afternoon coffee scenes.',
     recipe: makeRecipe({
       exposure: 5,
       contrast: 8,
@@ -256,8 +315,11 @@ export const PRESETS: Preset[] = [
     name: 'Fuji Soft',
     category: 'film',
     isPro: false,
+    lookType: 'essential',
+    collectionId: 'analog-archive',
+    recipeVersion: 1,
     accentColor: '#10b981',
-    // Terinspirasi Fuji Pro 400H: highlight lembut, hijau mint-emerald sejuk, shadow cyan halus
+    description: 'Soft highlight roll-off, cool mint greens, and fine analog grain.',
     recipe: makeRecipe({
       exposure: 6,
       contrast: -8,
@@ -287,7 +349,10 @@ export const PRESETS: Preset[] = [
     name: 'City Dusk',
     category: 'night',
     isPro: false,
+    lookType: 'essential',
+    recipeVersion: 1,
     accentColor: '#6366f1',
+    description: 'Clean evening tones with crisp midtones and cool urban shadows.',
     recipe: makeRecipe({
       exposure: -2,
       contrast: 14,
@@ -311,15 +376,18 @@ export const PRESETS: Preset[] = [
     })
   },
 
-  // === PRO PRESETS (Unlock via Lynk.id) ===
+  // === EXISTING PRO PRESETS (13 Presets — 100% Legacy Baseline & Entitlement Preserved) ===
   {
     id: 'velvet-merona',
     name: 'Velvet Merona',
     category: 'portrait',
     isPro: true,
     badge: 'Pro',
+    lookType: 'signature',
+    collectionId: 'velvet-series',
+    recipeVersion: 1,
     accentColor: '#ec4899',
-    // Versi lebih dramatis: latar belakang lebih gelap moody + bokeh lembut + bibir & pipi merona glowing
+    description: 'Moody velvet background separation with glowing rosy cheek & lip accents.',
     recipe: makeRecipe({
       exposure: 3,
       contrast: 14,
@@ -354,7 +422,11 @@ export const PRESETS: Preset[] = [
     category: 'korean',
     isPro: true,
     badge: 'Top',
+    lookType: 'signature',
+    collectionId: 'seoul-editorial',
+    recipeVersion: 1,
     accentColor: '#0284c7',
+    description: 'High-clarity studio Korean portrait with cool glass shadow separation.',
     recipe: makeRecipe({
       exposure: 8,
       contrast: 16,
@@ -386,7 +458,11 @@ export const PRESETS: Preset[] = [
     name: 'Tokyo Milk',
     category: 'korean',
     isPro: true,
+    lookType: 'signature',
+    collectionId: 'seoul-editorial',
+    recipeVersion: 1,
     accentColor: '#67e8f9',
+    description: 'Soft milky lift with restrained contrast and airy luminous skin.',
     recipe: makeRecipe({
       exposure: 14,
       contrast: -14,
@@ -416,7 +492,11 @@ export const PRESETS: Preset[] = [
     name: 'Busan Breeze',
     category: 'korean',
     isPro: true,
+    lookType: 'signature',
+    collectionId: 'seoul-editorial',
+    recipeVersion: 1,
     accentColor: '#3b82f6',
+    description: 'Coastal blue clarity with crisp whites and neutral skin.',
     recipe: makeRecipe({
       exposure: 6,
       contrast: 12,
@@ -444,7 +524,10 @@ export const PRESETS: Preset[] = [
     name: 'Matcha House',
     category: 'cafe',
     isPro: true,
+    lookType: 'signature',
+    recipeVersion: 1,
     accentColor: '#22c55e',
+    description: 'Botanical olive greens balanced against clean indoor light.',
     recipe: makeRecipe({
       exposure: 6,
       contrast: 6,
@@ -474,7 +557,11 @@ export const PRESETS: Preset[] = [
     name: 'Espresso Crisp',
     category: 'cafe',
     isPro: true,
+    lookType: 'signature',
+    collectionId: 'velvet-series',
+    recipeVersion: 1,
     accentColor: '#b45309',
+    description: 'Deep espresso contrast with warm dark shadows and muted highlights.',
     recipe: makeRecipe({
       exposure: -1,
       contrast: 20,
@@ -502,7 +589,10 @@ export const PRESETS: Preset[] = [
     name: 'Brunch Glow',
     category: 'cafe',
     isPro: true,
+    lookType: 'signature',
+    recipeVersion: 1,
     accentColor: '#f59e0b',
+    description: 'Sunlit morning warmth with luminous rosy skin tones.',
     recipe: makeRecipe({
       exposure: 12,
       contrast: 4,
@@ -530,8 +620,11 @@ export const PRESETS: Preset[] = [
     category: 'film',
     isPro: true,
     badge: 'Pro',
+    lookType: 'signature',
+    collectionId: 'analog-archive',
+    recipeVersion: 1,
     accentColor: '#14b8a6',
-    // Terinspirasi Fujifilm Classic Chrome: warna muted elegan, hijau kalem kebiruan, shadow slate sejuk
+    description: 'Documentary muted greens and cool slate shadows inspired by classic slide film.',
     recipe: makeRecipe({
       exposure: 2,
       contrast: 16,
@@ -563,8 +656,11 @@ export const PRESETS: Preset[] = [
     name: 'Kodak Gold',
     category: 'film',
     isPro: true,
+    lookType: 'signature',
+    collectionId: 'analog-archive',
+    recipeVersion: 1,
     accentColor: '#eab308',
-    // Terinspirasi Kodak Gold 200: highlight keemasan hangat, shadow matte lembut, tone kulit hangat nostalgia
+    description: 'Nostalgic golden highlights, matte shadows, and organic 35mm warmth.',
     recipe: makeRecipe({
       exposure: 6,
       contrast: 10,
@@ -594,8 +690,11 @@ export const PRESETS: Preset[] = [
     name: 'Portra Skin',
     category: 'film',
     isPro: true,
+    lookType: 'signature',
+    collectionId: 'analog-archive',
+    recipeVersion: 1,
     accentColor: '#fb7185',
-    // Terinspirasi Kodak Portra 400: skin tone lembut bercahaya, highlight halus, hijau sage analog
+    description: 'Soft peach portrait skin rendering with delicate analog sage greens.',
     recipe: makeRecipe({
       exposure: 8,
       contrast: -6,
@@ -626,7 +725,11 @@ export const PRESETS: Preset[] = [
     name: 'Leica Mono',
     category: 'film',
     isPro: true,
+    lookType: 'signature',
+    collectionId: 'analog-archive',
+    recipeVersion: 1,
     accentColor: '#94a3b8',
+    description: 'Crisp high-contrast monochrome street & portrait film stock.',
     recipe: makeRecipe({
       exposure: 4,
       contrast: 28,
@@ -647,7 +750,10 @@ export const PRESETS: Preset[] = [
     name: 'Neon Shibuya',
     category: 'night',
     isPro: true,
+    lookType: 'signature',
+    recipeVersion: 1,
     accentColor: '#ec4899',
+    description: 'Saturated street signage with clean cyan-magenta night separation.',
     recipe: makeRecipe({
       exposure: -2,
       contrast: 20,
@@ -676,7 +782,10 @@ export const PRESETS: Preset[] = [
     name: 'Teal & Amber',
     category: 'night',
     isPro: true,
+    lookType: 'signature',
+    recipeVersion: 1,
     accentColor: '#06b6d4',
+    description: 'Cinema teal shadows balanced with warm amber skin tones.',
     recipe: makeRecipe({
       exposure: 0,
       contrast: 18,
@@ -699,6 +808,272 @@ export const PRESETS: Preset[] = [
         green: { h: 35, s: -20, l: -14 },
         aqua: { h: 0, s: 16, l: 0 },
         blue: { h: -16, s: 10, l: -8 }
+      }
+    })
+  },
+
+  // === P1 SIGNATURE LOOKS (5 Distinct Pro Layered Color-Science Looks) ===
+  {
+    id: 'porcelain-bloom',
+    name: 'Porcelain Bloom',
+    category: 'portrait',
+    isPro: true,
+    badge: 'Signature',
+    lookType: 'signature',
+    collectionId: 'rosy-portrait',
+    recipeVersion: 2,
+    accentColor: '#d4848c',
+    description: 'Airy editorial portrait with lifted tone curve, rosy midtone warmth, and soft highlight bloom.',
+    recipe: makeRecipe({
+      exposure: 6,
+      contrast: 2,
+      highlights: -16,
+      shadows: 14,
+      whites: 4,
+      dehaze: 4,
+      sharpen: 16,
+      temperature: 2,
+      tint: 4,
+      saturation: -4,
+      vibrance: 8,
+      skinBright: 16,
+      skinRosy: 18,
+      bgDarken: 14,
+      bgBokeh: 14,
+      vignette: 4,
+      hsl: {
+        red: { h: -5, s: 10, l: 14 },
+        orange: { h: -3, s: -12, l: 16 },
+        yellow: { h: 10, s: -22, l: -8 },
+        green: { h: 16, s: -14, l: -10 },
+        blue: { h: 4, s: -16, l: -4 }
+      },
+      toneCurve: {
+        blackPoint: 0.025,
+        shadowPivot: 0.035,
+        midtonePivot: 0.03,
+        highlightShoulder: 0.16,
+        whitePoint: 0.99
+      },
+      colorGrading: {
+        shadowTint: [-0.008, 0.002, 0.01],
+        midtoneTint: [0.012, -0.004, 0.006],
+        highlightTint: [0.016, 0.006, 0.004],
+        balance: 0.08
+      },
+      effects: {
+        bloomStrength: 22,
+        bloomThreshold: 0.72,
+        halationStrength: 0,
+        halationThreshold: 0.85
+      }
+    })
+  },
+  {
+    id: 'velvet-noir',
+    name: 'Velvet Noir',
+    category: 'portrait',
+    isPro: true,
+    badge: 'Signature',
+    lookType: 'signature',
+    collectionId: 'velvet-series',
+    recipeVersion: 2,
+    accentColor: '#7c5348',
+    description: 'Sculpted low-key velvet shadows, warm midtones, and champagne highlight roll-off.',
+    recipe: makeRecipe({
+      exposure: -2,
+      contrast: 10,
+      highlights: -18,
+      shadows: 8,
+      blacks: -8,
+      dehaze: 12,
+      sharpen: 20,
+      temperature: 4,
+      tint: 1,
+      saturation: -8,
+      vibrance: 10,
+      skinBright: 14,
+      skinRosy: 12,
+      bgDarken: 22,
+      bgBokeh: 16,
+      grain: 8,
+      vignette: 16,
+      hsl: {
+        red: { h: -4, s: 8, l: 10 },
+        orange: { h: -2, s: -8, l: 12 },
+        yellow: { h: -8, s: -24, l: -14 },
+        green: { h: 14, s: -28, l: -20 },
+        blue: { h: 6, s: -24, l: -14 }
+      },
+      toneCurve: {
+        blackPoint: 0.014,
+        shadowPivot: -0.075,
+        midtonePivot: 0.02,
+        highlightShoulder: 0.2,
+        whitePoint: 0.96
+      },
+      colorGrading: {
+        shadowTint: [-0.018, -0.01, 0.012],
+        midtoneTint: [0.022, 0.008, -0.016],
+        highlightTint: [0.014, 0.008, -0.01],
+        balance: -0.1
+      },
+      effects: {
+        bloomStrength: 12,
+        bloomThreshold: 0.78,
+        halationStrength: 0,
+        halationThreshold: 0.88
+      }
+    })
+  },
+  {
+    id: 'hannam-daylight',
+    name: 'Hannam Daylight',
+    category: 'korean',
+    isPro: true,
+    badge: 'Signature',
+    lookType: 'signature',
+    collectionId: 'seoul-editorial',
+    recipeVersion: 2,
+    accentColor: '#608ba6',
+    description: 'Architectural Seoul daylight aesthetic with clean lifted blacks and cool slate shadows.',
+    recipe: makeRecipe({
+      exposure: 7,
+      contrast: 4,
+      highlights: -18,
+      shadows: 14,
+      whites: 12,
+      dehaze: 10,
+      sharpen: 18,
+      temperature: -10,
+      tint: 1,
+      saturation: -6,
+      vibrance: 8,
+      skinBright: 16,
+      skinRosy: 6,
+      hsl: {
+        red: { h: -3, s: 4, l: 10 },
+        orange: { h: 2, s: -18, l: 18 },
+        yellow: { h: 10, s: -36, l: 14 },
+        green: { h: 14, s: -28, l: 4 },
+        aqua: { h: 2, s: -8, l: 8 },
+        blue: { h: 10, s: -10, l: 0 }
+      },
+      toneCurve: {
+        blackPoint: 0.032,
+        shadowPivot: 0.02,
+        midtonePivot: 0.025,
+        highlightShoulder: 0.18,
+        whitePoint: 1.0
+      },
+      colorGrading: {
+        shadowTint: [-0.016, 0.006, 0.022],
+        midtoneTint: [-0.004, 0.002, 0.006],
+        highlightTint: [0.004, 0.006, 0.008],
+        balance: 0
+      },
+      effects: {
+        bloomStrength: 14,
+        bloomThreshold: 0.78,
+        halationStrength: 0,
+        halationThreshold: 0.9
+      }
+    })
+  },
+  {
+    id: 'amber-halation',
+    name: 'Amber Halation',
+    category: 'film',
+    isPro: true,
+    badge: 'Signature',
+    lookType: 'signature',
+    collectionId: 'analog-archive',
+    recipeVersion: 2,
+    accentColor: '#c2603d',
+    description: 'Tungsten cinema film look with analog highlight halation, teal shadows, and 35mm grain.',
+    recipe: makeRecipe({
+      exposure: 2,
+      contrast: 8,
+      highlights: -20,
+      shadows: 14,
+      dehaze: 8,
+      sharpen: 12,
+      temperature: -4,
+      tint: 2,
+      saturation: -4,
+      vibrance: 8,
+      skinBright: 10,
+      grain: 15,
+      vignette: 10,
+      hsl: {
+        red: { h: -6, s: 12, l: 4 },
+        orange: { h: 2, s: -6, l: 8 },
+        yellow: { h: -12, s: -10, l: -4 },
+        green: { h: -16, s: -30, l: -4 },
+        aqua: { h: 4, s: 10, l: -2 },
+        blue: { h: 8, s: -12, l: -6 }
+      },
+      toneCurve: {
+        blackPoint: 0.022,
+        shadowPivot: -0.035,
+        midtonePivot: 0.015,
+        highlightShoulder: 0.22,
+        whitePoint: 0.97
+      },
+      colorGrading: {
+        shadowTint: [-0.026, 0.012, 0.028],
+        midtoneTint: [0.016, 0.004, -0.014],
+        highlightTint: [0.022, 0.006, -0.018],
+        balance: -0.05
+      },
+      effects: {
+        bloomStrength: 16,
+        bloomThreshold: 0.76,
+        halationStrength: 28,
+        halationThreshold: 0.74
+      }
+    })
+  },
+  {
+    id: 'silver-gelatin',
+    name: 'Silver Gelatin',
+    category: 'film',
+    isPro: true,
+    badge: 'Signature',
+    lookType: 'signature',
+    collectionId: 'analog-archive',
+    recipeVersion: 2,
+    accentColor: '#73766e',
+    description: 'Archival fiber-paper monochrome with warm selenium highlights, deep blacks, and gentle bloom.',
+    recipe: makeRecipe({
+      exposure: 3,
+      contrast: 14,
+      highlights: -14,
+      shadows: 10,
+      dehaze: 10,
+      sharpen: 18,
+      saturation: -50,
+      vibrance: -50,
+      grain: 14,
+      vignette: 14,
+      toneCurve: {
+        blackPoint: 0.026,
+        shadowPivot: -0.055,
+        midtonePivot: 0.02,
+        highlightShoulder: 0.16,
+        whitePoint: 0.98
+      },
+      colorGrading: {
+        shadowTint: [0.008, 0.004, -0.006],
+        midtoneTint: [0.004, 0.002, -0.004],
+        highlightTint: [0.018, 0.014, -0.006],
+        balance: 0.05
+      },
+      effects: {
+        bloomStrength: 18,
+        bloomThreshold: 0.74,
+        halationStrength: 0,
+        halationThreshold: 0.9
       }
     })
   }

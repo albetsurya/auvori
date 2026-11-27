@@ -15,6 +15,7 @@ uniform int uHasMask;
 uniform int uHasBokeh;
 uniform int uHasHsl;
 uniform int uIncludeGrain;
+uniform int uApplyFinalStages;
 
 uniform float uDehazeK;
 uniform float uExpMult;
@@ -49,6 +50,18 @@ uniform vec3 uHslGreen;
 uniform vec3 uHslAqua;
 uniform vec3 uHslBlue;
 
+// P1 Signature Tone Curve (5-knot Fritsch-Carlson Monotone Cubic Hermite)
+uniform int uHasToneCurve;
+uniform float uCurveY[5];
+uniform float uCurveM[5];
+
+// P1 Three-Way Color Grading
+uniform int uHasColorGrading;
+uniform vec3 uCgShadow;
+uniform vec3 uCgMidtone;
+uniform vec3 uCgHighlight;
+uniform float uCgBalance;
+
 float clamp01(float v) {
   return clamp(v, 0.0, 1.0);
 }
@@ -66,6 +79,38 @@ vec3 softHighlightRoll3(vec3 c) {
     softHighlightRoll(c.g),
     softHighlightRoll(c.b)
   );
+}
+
+float evalToneCurve(float x) {
+  float xc = clamp01(x);
+  float y0, y1, m0, m1, kStart;
+  if (xc >= 0.75) {
+    kStart = 0.75;
+    y0 = uCurveY[3]; y1 = uCurveY[4];
+    m0 = uCurveM[3]; m1 = uCurveM[4];
+  } else if (xc >= 0.5) {
+    kStart = 0.5;
+    y0 = uCurveY[2]; y1 = uCurveY[3];
+    m0 = uCurveM[2]; m1 = uCurveM[3];
+  } else if (xc >= 0.25) {
+    kStart = 0.25;
+    y0 = uCurveY[1]; y1 = uCurveY[2];
+    m0 = uCurveM[1]; m1 = uCurveM[2];
+  } else {
+    kStart = 0.0;
+    y0 = uCurveY[0]; y1 = uCurveY[1];
+    m0 = uCurveM[0]; m1 = uCurveM[1];
+  }
+
+  float t = (xc - kStart) * 4.0;
+  float t2 = t * t;
+  float t3 = t2 * t;
+  float h00 = 2.0 * t3 - 3.0 * t2 + 1.0;
+  float h10 = t3 - 2.0 * t2 + t;
+  float h01 = -2.0 * t3 + 3.0 * t2;
+  float h11 = t3 - t2;
+
+  return clamp01(h00 * y0 + h10 * 0.25 * m0 + h01 * y1 + h11 * 0.25 * m1);
 }
 
 float computeSkinWeight(vec3 c) {
@@ -277,6 +322,18 @@ void main() {
     rgb = clamp(rgb + k * rgb * (1.0 - rgb) * (2.0 * rgb - 1.0), 0.0, 1.0);
   }
 
+  // 4b. Monotonic Cubic Tone Curve (Signature Looks)
+  if (uHasToneCurve == 1) {
+    vec3 cRgb = vec3(evalToneCurve(rgb.r), evalToneCurve(rgb.g), evalToneCurve(rgb.b));
+    float cLum = clamp01(0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b);
+    float tLum = evalToneCurve(cLum);
+    float ratio = cLum > 1e-4 ? tLum / cLum : 1.0;
+    vec3 lRgb = clamp(rgb * ratio, 0.0, 1.0);
+    float preSkin = computeSkinWeight(rgb);
+    float lumaMix = 0.22 + preSkin * 0.48;
+    rgb = mix(cRgb, lRgb, lumaMix);
+  }
+
   // 5. 6-Band HSL Color Mix
   if (uHasHsl == 1) {
     rgb = applyHslMix(rgb);
@@ -314,6 +371,18 @@ void main() {
   }
   if (uSWarm > 0.0) {
     rgb = clamp(rgb + vec3(uSWarm * 0.52, uSWarm * 0.22, -uSWarm * 0.42) * shadowWeight, 0.0, 1.0);
+  }
+
+  // 8b. 3-Way Color Grading
+  if (uHasColorGrading == 1) {
+    float cgLum = clamp01(0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b);
+    float pivot = 0.5 + uCgBalance * 0.25;
+    float darkGuard = smoothstep(0.015, 0.1, cgLum);
+    float hlGuard = 1.0 - smoothstep(0.95, 1.0, cgLum);
+    float wSh = (1.0 - smoothstep(0.05, pivot + 0.15, cgLum)) * darkGuard;
+    float wHl = smoothstep(max(0.15, pivot - 0.15), 0.94, cgLum) * hlGuard;
+    float wMid = 4.0 * cgLum * (1.0 - cgLum) * (1.0 - skinWeight * 0.45);
+    rgb = softHighlightRoll3(clamp(rgb + wSh * uCgShadow + wMid * uCgMidtone + wHl * uCgHighlight, 0.0, 1.0));
   }
 
   // 9. Clean Skin Brightening & Healthy Rosy Flush ("Wajah Merona")
@@ -358,31 +427,33 @@ void main() {
     rgb = clamp(vec3(gray) + (rgb - vec3(gray)) * effSat, 0.0, 1.0);
   }
 
-  // 11. Matte Film Fade
-  if (uFadeLift > 0.0) {
-    float scale = 1.0 - uFadeLift;
-    rgb = rgb * scale + uFadeLift;
-  }
+  if (uApplyFinalStages == 1) {
+    // 11. Matte Film Fade
+    if (uFadeLift > 0.0) {
+      float scale = 1.0 - uFadeLift;
+      rgb = rgb * scale + uFadeLift;
+    }
 
-  // 12. Soft Vignette
-  if (uVigStrength > 0.0) {
-    vec2 halfSize = vec2(uSize) * 0.5;
-    vec2 d = vec2(float(x), float(y)) - halfSize;
-    float invMaxDistSq = 1.0 / (halfSize.x * halfSize.x + halfSize.y * halfSize.y);
-    float distNorm = min(1.0, dot(d, d) * invMaxDistSq);
-    float vFactor = 1.0 - uVigStrength * 0.58 * pow(max(1e-5, distNorm), 1.15);
-    rgb *= vFactor;
-  }
+    // 12. Soft Vignette
+    if (uVigStrength > 0.0) {
+      vec2 halfSize = vec2(uSize) * 0.5;
+      vec2 d = vec2(float(x), float(y)) - halfSize;
+      float invMaxDistSq = 1.0 / (halfSize.x * halfSize.x + halfSize.y * halfSize.y);
+      float distNorm = min(1.0, dot(d, d) * invMaxDistSq);
+      float vFactor = 1.0 - uVigStrength * 0.58 * pow(max(1e-5, distNorm), 1.15);
+      rgb *= vFactor;
+    }
 
-  // 13. Midtone-weighted 2D spatial film grain (exact 32-bit unsigned integer hash parity)
-  if (uIncludeGrain == 1 && uGrainAmt > 0.0) {
-    float pLum = 0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b;
-    float midFade = 4.0 * pLum * (1.0 - pLum);
-    uint hVal = (uint(x) * 374761393u + uint(y) * 668265263u) ^ 0x5bf03635u;
-    hVal = (hVal ^ (hVal >> 13u)) * 1274126177u;
-    hVal = hVal ^ (hVal >> 16u);
-    float noise = ((float(hVal) / 4294967295.0) - 0.5) * uGrainAmt * midFade;
-    rgb += noise;
+    // 13. Midtone-weighted 2D spatial film grain (exact 32-bit unsigned integer hash parity)
+    if (uIncludeGrain == 1 && uGrainAmt > 0.0) {
+      float pLum = 0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b;
+      float midFade = 4.0 * pLum * (1.0 - pLum);
+      uint hVal = (uint(x) * 374761393u + uint(y) * 668265263u) ^ 0x5bf03635u;
+      hVal = (hVal ^ (hVal >> 13u)) * 1274126177u;
+      hVal = hVal ^ (hVal >> 16u);
+      float noise = ((float(hVal) / 4294967295.0) - 0.5) * uGrainAmt * midFade;
+      rgb += noise;
+    }
   }
 
   outColor = vec4(clamp(rgb, 0.0, 1.0), src.a);

@@ -1,7 +1,14 @@
 import { ColorRecipe, HslMix } from '../../types';
 import { assignSourceId, getCachedPortraitMask, setCachedPortraitMask } from '../analysis/mask-cache';
 import { computePortraitMaskFromRgba, PortraitMaskResult } from '../analysis/portrait-mask';
-import { buildEffectiveHsl, clamp01, isNeutralRecipe } from '../core/pixel-grade';
+import {
+  buildEffectiveHsl,
+  clamp01,
+  hasActiveColorGrading,
+  hasActiveOpticalEffects,
+  isNeutralRecipe
+} from '../core/pixel-grade';
+import { buildMonotoneToneCurveKnots, isNeutralToneCurve } from '../core/tone-curve';
 import { IPhotoRenderer, RenderFrameRequest, RenderFrameResult } from './renderer.types';
 
 import fullscreenVertSrc from '../shaders/fullscreen.vert?raw';
@@ -9,6 +16,8 @@ import baseFragSrc from '../shaders/base.frag?raw';
 import bokehFragSrc from '../shaders/bokeh.frag?raw';
 import portraitFragSrc from '../shaders/portrait.frag?raw';
 import colorGradingFragSrc from '../shaders/color-grading.frag?raw';
+import effectsFragSrc from '../shaders/effects.frag?raw';
+import effectsCompositeFragSrc from '../shaders/effects-composite.frag?raw';
 
 interface FboTarget {
   fbo: WebGLFramebuffer;
@@ -89,6 +98,8 @@ export class WebGL2Renderer implements IPhotoRenderer {
   private bokehProg: ProgramHandle | null = null;
   private portraitProg: ProgramHandle | null = null;
   private gradeProg: ProgramHandle | null = null;
+  private effectsProg: ProgramHandle | null = null;
+  private effectsCompositeProg: ProgramHandle | null = null;
 
   private supportsFloatFbo = false;
   private maxTextureSize = 4096;
@@ -111,6 +122,9 @@ export class WebGL2Renderer implements IPhotoRenderer {
   private bokehFboA: FboTarget | null = null;
   private bokehFboB: FboTarget | null = null;
   private gradeFbo: FboTarget | null = null;
+  private effectsFboA: FboTarget | null = null;
+  private effectsFboB: FboTarget | null = null;
+  private finalFbo: FboTarget | null = null;
 
   // Downsample canvas used only when uploading scaled preview sources or sampling portrait mask
   private stagingCanvas: HTMLCanvasElement | OffscreenCanvas | null = null;
@@ -194,6 +208,8 @@ export class WebGL2Renderer implements IPhotoRenderer {
       this.bokehProg = createProgram(gl, fullscreenVertSrc, bokehFragSrc);
       this.portraitProg = createProgram(gl, fullscreenVertSrc, portraitFragSrc);
       this.gradeProg = createProgram(gl, fullscreenVertSrc, colorGradingFragSrc);
+      this.effectsProg = createProgram(gl, fullscreenVertSrc, effectsFragSrc);
+      this.effectsCompositeProg = createProgram(gl, fullscreenVertSrc, effectsCompositeFragSrc);
 
       this.sourceTex = this.createLinearTex(gl);
       this.maskTex = this.createLinearTex(gl);
@@ -340,7 +356,6 @@ export class WebGL2Renderer implements IPhotoRenderer {
     }
 
     if (!maskRes) {
-      // Sample source into compact <=128px staging buffer to avoid large full-res readback
       const maxSample = 112;
       const scale = Math.min(1, maxSample / Math.max(w, h));
       const sw = Math.max(16, Math.round(w * scale));
@@ -458,7 +473,7 @@ export class WebGL2Renderer implements IPhotoRenderer {
       maskRes = this.resolveAndUploadMask(request, w, h, sourceId);
     }
 
-    // 1. Optional bokeh downsample + separable 2-pass blur (runs on un-smoothed raw source)
+    // 1. Optional bokeh downsample + separable 2-pass blur
     const minDim = Math.min(w, h);
     const hasBokeh = Boolean(maskRes && recipe.bgBokeh > 0.5);
     let bokehTex: WebGLTexture = this.sourceTex!;
@@ -490,12 +505,10 @@ export class WebGL2Renderer implements IPhotoRenderer {
       gl.bindTexture(gl.TEXTURE_2D, this.maskTex);
       gl.uniform1i(getUniform(gl, bp, 'uMaskTex'), 1);
 
-      // Splat weighted colors into bokehFboA
       gl.uniform1i(getUniform(gl, bp, 'uMode'), 0);
       gl.uniform1f(getUniform(gl, bp, 'uNormalize'), 0.0);
       this.drawPass(bp, this.bokehFboA, bw, bh, false);
 
-      // 2 passes separable horizontal + vertical box filter
       for (let pass = 0; pass < 2; pass++) {
         gl.uniform1i(getUniform(gl, bp, 'uMode'), 1);
         gl.uniform1f(getUniform(gl, bp, 'uNormalize'), 0.0);
@@ -545,7 +558,9 @@ export class WebGL2Renderer implements IPhotoRenderer {
       gradeInputTex = this.portraitFbo.tex;
     }
 
-    // 3. Full 13-stage editorial color grading shader into gradeFbo -> display canvas
+    const hasEffects = hasActiveOpticalEffects(recipe.effects);
+
+    // 3. Full editorial color grading (+ optional Tone Curve + 3-Way Grading)
     const gp = this.gradeProg!;
     this.gradeFbo = this.ensureFbo(this.gradeFbo, w, h, false);
     gl.useProgram(gp.program);
@@ -568,6 +583,7 @@ export class WebGL2Renderer implements IPhotoRenderer {
     gl.uniform1i(getUniform(gl, gp, 'uHasMask'), needsPortraitMask ? 1 : 0);
     gl.uniform1i(getUniform(gl, gp, 'uHasBokeh'), hasBokeh ? 1 : 0);
     gl.uniform1i(getUniform(gl, gp, 'uIncludeGrain'), request.includeGrain === false ? 0 : 1);
+    gl.uniform1i(getUniform(gl, gp, 'uApplyFinalStages'), hasEffects ? 0 : 1);
 
     gl.uniform1f(getUniform(gl, gp, 'uDehazeK'), clamp01(recipe.dehaze / 50) * 0.34);
     gl.uniform1f(getUniform(gl, gp, 'uExpMult'), Math.pow(2, recipe.exposure / 55));
@@ -600,10 +616,97 @@ export class WebGL2Renderer implements IPhotoRenderer {
     const hslMix = recipe.hsl && buildEffectiveHsl(recipe.hsl, 1);
     this.bindHslUniforms(gl, gp, hslMix);
 
+    const hasCurve = Boolean(recipe.toneCurve && !isNeutralToneCurve(recipe.toneCurve));
+    gl.uniform1i(getUniform(gl, gp, 'uHasToneCurve'), hasCurve ? 1 : 0);
+    if (hasCurve && recipe.toneCurve) {
+      const knots = buildMonotoneToneCurveKnots(recipe.toneCurve);
+      gl.uniform1fv(getUniform(gl, gp, 'uCurveY[0]'), knots.y);
+      gl.uniform1fv(getUniform(gl, gp, 'uCurveM[0]'), knots.m);
+    }
+
+    const hasCg = hasActiveColorGrading(recipe.colorGrading);
+    gl.uniform1i(getUniform(gl, gp, 'uHasColorGrading'), hasCg ? 1 : 0);
+    if (hasCg && recipe.colorGrading) {
+      const cg = recipe.colorGrading;
+      gl.uniform3f(getUniform(gl, gp, 'uCgShadow'), cg.shadowTint[0], cg.shadowTint[1], cg.shadowTint[2]);
+      gl.uniform3f(getUniform(gl, gp, 'uCgMidtone'), cg.midtoneTint[0], cg.midtoneTint[1], cg.midtoneTint[2]);
+      gl.uniform3f(getUniform(gl, gp, 'uCgHighlight'), cg.highlightTint[0], cg.highlightTint[1], cg.highlightTint[2]);
+      gl.uniform1f(getUniform(gl, gp, 'uCgBalance'), cg.balance);
+    }
+
     this.drawPass(gp, this.gradeFbo, w, h, false);
 
+    let outputTex = this.gradeFbo.tex;
+
+    // 3b. Optional Optical Highlight Bloom & Analog Halation + Final Stages
+    if (hasEffects && recipe.effects && this.effectsProg && this.effectsCompositeProg) {
+      const fx = recipe.effects;
+      const fxScale = Math.max(w, h) > 220 ? 0.5 : 1;
+      const ew = Math.max(16, Math.round(w * fxScale));
+      const eh = Math.max(16, Math.round(h * fxScale));
+      const scaledR = Math.min(48, Math.max(1, Math.round(minDim * 0.012 * fxScale)));
+      const step = Math.max(1, Math.round(minDim / 140));
+
+      this.effectsFboA = this.ensureFbo(this.effectsFboA, ew, eh, true);
+      this.effectsFboB = this.ensureFbo(this.effectsFboB, ew, eh, true);
+      this.finalFbo = this.ensureFbo(this.finalFbo, w, h, false);
+
+      const ep = this.effectsProg;
+      gl.useProgram(ep.program);
+      gl.uniform2i(getUniform(gl, ep, 'uSourceSize'), w, h);
+      gl.uniform2i(getUniform(gl, ep, 'uBufSize'), ew, eh);
+      gl.uniform1i(getUniform(gl, ep, 'uRadius'), scaledR);
+      gl.uniform1i(getUniform(gl, ep, 'uStep'), step);
+      gl.uniform1f(getUniform(gl, ep, 'uBloomStrength'), fx.bloomStrength);
+      gl.uniform1f(getUniform(gl, ep, 'uBloomThreshold'), fx.bloomThreshold);
+      gl.uniform1f(getUniform(gl, ep, 'uHalationStrength'), fx.halationStrength);
+      gl.uniform1f(getUniform(gl, ep, 'uHalationThreshold'), fx.halationThreshold);
+
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, this.gradeFbo.tex);
+      gl.uniform1i(getUniform(gl, ep, 'uSourceTex'), 0);
+
+      gl.uniform1i(getUniform(gl, ep, 'uMode'), 0);
+      this.drawPass(ep, this.effectsFboA, ew, eh, false);
+
+      for (let pass = 0; pass < 2; pass++) {
+        gl.uniform1i(getUniform(gl, ep, 'uMode'), 1);
+        gl.activeTexture(gl.TEXTURE1);
+        gl.bindTexture(gl.TEXTURE_2D, this.effectsFboA.tex);
+        gl.uniform1i(getUniform(gl, ep, 'uInputTex'), 1);
+        this.drawPass(ep, this.effectsFboB, ew, eh, false);
+
+        gl.uniform1i(getUniform(gl, ep, 'uMode'), 2);
+        gl.bindTexture(gl.TEXTURE_2D, this.effectsFboB.tex);
+        gl.uniform1i(getUniform(gl, ep, 'uInputTex'), 1);
+        this.drawPass(ep, this.effectsFboA, ew, eh, false);
+      }
+
+      const cp = this.effectsCompositeProg;
+      gl.useProgram(cp.program);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, this.gradeFbo.tex);
+      gl.uniform1i(getUniform(gl, cp, 'uGradeTex'), 0);
+
+      gl.activeTexture(gl.TEXTURE1);
+      gl.bindTexture(gl.TEXTURE_2D, this.effectsFboA.tex);
+      gl.uniform1i(getUniform(gl, cp, 'uEffectsTex'), 1);
+
+      gl.uniform2i(getUniform(gl, cp, 'uSize'), w, h);
+      gl.uniform2i(getUniform(gl, cp, 'uEffectsSize'), ew, eh);
+      gl.uniform1i(getUniform(gl, cp, 'uIncludeGrain'), request.includeGrain === false ? 0 : 1);
+      gl.uniform1f(getUniform(gl, cp, 'uBloomK'), (fx.bloomStrength / 40) * 0.42);
+      gl.uniform1f(getUniform(gl, cp, 'uHalK'), (fx.halationStrength / 35) * 0.58);
+      gl.uniform1f(getUniform(gl, cp, 'uFadeLift'), (recipe.fade * 0.82) / 255);
+      gl.uniform1f(getUniform(gl, cp, 'uVigStrength'), recipe.vignette / 100);
+      gl.uniform1f(getUniform(gl, cp, 'uGrainAmt'), (recipe.grain * 1.1) / 255);
+
+      this.drawPass(cp, this.finalFbo, w, h, false);
+      outputTex = this.finalFbo.tex;
+    }
+
     // 4. Present right-side-up onto visible WebGL canvas and blit to target canvas
-    this.renderToScreenAndCopy(this.gradeFbo.tex, request.targetCanvas, w, h);
+    this.renderToScreenAndCopy(outputTex, request.targetCanvas, w, h);
 
     return {
       width: w,
@@ -628,7 +731,6 @@ export class WebGL2Renderer implements IPhotoRenderer {
     gl.activeTexture(gl.TEXTURE0);
     gl.bindTexture(gl.TEXTURE_2D, tex);
     gl.uniform1i(getUniform(gl, bp, 'uTex'), 0);
-    // Flip Y on default framebuffer presentation so canvas top row aligns with DOM Y=0
     this.drawPass(bp, null, w, h, true);
     gl.flush();
 
@@ -657,13 +759,23 @@ export class WebGL2Renderer implements IPhotoRenderer {
       delFbo(this.bokehFboA);
       delFbo(this.bokehFboB);
       delFbo(this.gradeFbo);
+      delFbo(this.effectsFboA);
+      delFbo(this.effectsFboB);
+      delFbo(this.finalFbo);
 
       if (this.sourceTex) gl.deleteTexture(this.sourceTex);
       if (this.maskTex) gl.deleteTexture(this.maskTex);
       if (this.quadVbo) gl.deleteBuffer(this.quadVbo);
       if (this.quadVao) gl.deleteVertexArray(this.quadVao);
 
-      [this.baseProg, this.bokehProg, this.portraitProg, this.gradeProg].forEach((p) => {
+      [
+        this.baseProg,
+        this.bokehProg,
+        this.portraitProg,
+        this.gradeProg,
+        this.effectsProg,
+        this.effectsCompositeProg
+      ].forEach((p) => {
         if (p) gl.deleteProgram(p.program);
       });
     }
@@ -671,6 +783,9 @@ export class WebGL2Renderer implements IPhotoRenderer {
     this.bokehFboA = null;
     this.bokehFboB = null;
     this.gradeFbo = null;
+    this.effectsFboA = null;
+    this.effectsFboB = null;
+    this.finalFbo = null;
     this.sourceTex = null;
     this.maskTex = null;
     this.quadVbo = null;
@@ -679,6 +794,8 @@ export class WebGL2Renderer implements IPhotoRenderer {
     this.bokehProg = null;
     this.portraitProg = null;
     this.gradeProg = null;
+    this.effectsProg = null;
+    this.effectsCompositeProg = null;
     this.gl = null;
     this.glCanvas = null;
   }

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { ArrowRight, Crown, Heart, ImagePlus, Sparkles } from 'lucide-react';
-import { EDITORIAL_COLLECTIONS, PRESETS } from '../data/presets';
-import { LicenseState, Preset, PresetCategory, RecentEdit } from '../types';
+import { PRESETS, SIGNATURE_COLLECTIONS } from '../data/presets';
+import { CuratedCollectionId, LicenseState, Preset, PresetCategory, RecentEdit } from '../types';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { StatusBadge } from '../components/ui/Chip';
@@ -16,7 +16,7 @@ interface HomeScreenProps {
   onStartEditing: () => void;
   onStartWithSample: (sampleId: SamplePhotoId, presetId?: string) => void;
   onOpenRecentEdit: (recent: RecentEdit) => void;
-  onOpenCollection: (category: PresetCategory) => void;
+  onOpenCollection: (category: PresetCategory, collectionId?: CuratedCollectionId) => void;
   onSelectPresetDetail: (preset: Preset) => void;
   onToggleFavorite: (presetId: string) => void;
   onOpenDiscover: () => void;
@@ -24,7 +24,7 @@ interface HomeScreenProps {
   onOpenPro: () => void;
 }
 
-const RECOMMENDED_IDS = ['rosy-bokeh', 'seoul-cafe', 'portra-400', 'classic-chrome'];
+const RECOMMENDED_IDS = ['porcelain-bloom', 'velvet-noir', 'hannam-daylight', 'amber-halation'];
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
   license,
@@ -45,7 +45,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   useEffect(() => {
     let active = true;
     const targets: { key: string; presetId: string; sampleId: SamplePhotoId }[] = [
-      ...EDITORIAL_COLLECTIONS.map((c) => ({
+      ...SIGNATURE_COLLECTIONS.map((c) => ({
         key: `col:${c.id}`,
         presetId: c.coverPresetId,
         sampleId: c.sampleId
@@ -53,12 +53,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
       ...RECOMMENDED_IDS.map((pid) => ({
         key: `rec:${pid}`,
         presetId: pid,
-        sampleId: (pid === 'rosy-bokeh'
+        sampleId: (pid === 'porcelain-bloom' || pid === 'velvet-noir' || pid === 'rosy-bokeh'
           ? 'park'
-          : pid === 'portra-400' || pid === 'classic-chrome'
+          : pid === 'amber-halation' || pid === 'silver-gelatin' || pid === 'portra-400' || pid === 'classic-chrome'
           ? 'window'
           : 'cafe') as SamplePhotoId
-      }))
+      })),
+      { key: 'hero:rosy-bokeh', presetId: 'rosy-bokeh', sampleId: 'park' },
+      { key: 'hero:seoul-cafe', presetId: 'seoul-cafe', sampleId: 'cafe' }
     ];
 
     targets.forEach(({ key, presetId, sampleId }) => {
@@ -140,14 +142,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           <div className="hidden lg:grid lg:col-span-6 grid-cols-2 gap-4">
             {[
               {
-                key: 'rec:rosy-bokeh',
+                key: 'hero:rosy-bokeh',
                 presetId: 'rosy-bokeh',
                 sampleId: 'park' as SamplePhotoId,
                 title: 'Rosy Bokeh',
                 caption: 'Luminous Portrait'
               },
               {
-                key: 'rec:seoul-cafe',
+                key: 'hero:seoul-cafe',
                 presetId: 'seoul-cafe',
                 sampleId: 'cafe' as SamplePhotoId,
                 title: 'Seoul Café',
@@ -239,25 +241,26 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           )}
         </section>
 
-        {/* 4. Featured Collections */}
+        {/* 4. Signature Collections */}
         <section className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-semibold text-textPrimary tracking-tight">
-              Featured Collections
+              Signature Collections
             </h2>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
-            {EDITORIAL_COLLECTIONS.map((col) => {
+            {SIGNATURE_COLLECTIONS.map((col) => {
               const coverUrl = previews[`col:${col.id}`];
+              const memberCount = PRESETS.filter((p) => p.collectionId === col.id).length;
               return (
                 <Card
                   key={col.id}
                   variant="collection"
                   interactive
-                  onClick={() => onOpenCollection(col.category)}
+                  onClick={() => onOpenCollection('all', col.id)}
                   className="text-left"
                 >
-                  <div className="aspect-[5/4] bg-surfaceSecondary overflow-hidden">
+                  <div className="relative aspect-[5/4] bg-surfaceSecondary overflow-hidden">
                     {coverUrl ? (
                       <img
                         src={coverUrl}
@@ -268,6 +271,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                     ) : (
                       <div className="w-full h-full animate-pulse bg-surfaceSecondary" />
                     )}
+                    <span className="absolute bottom-2 left-2 px-2 py-0.5 rounded-[6px] bg-graphite/80 text-chalk text-[10px] font-medium tabular-nums">
+                      {memberCount} looks
+                    </span>
                   </div>
                   <div className="p-3 space-y-0.5 bg-surface border-t border-border/60">
                     <h3 className="text-xs font-semibold text-textPrimary truncate">{col.title}</h3>
@@ -279,11 +285,11 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           </div>
         </section>
 
-        {/* 5. Recommended Looks */}
+        {/* 5. Signature Looks */}
         <section className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-semibold text-textPrimary tracking-tight">
-              Recommended Looks
+              Signature Looks
             </h2>
             <button
               onClick={() => onOpenCollection('all')}

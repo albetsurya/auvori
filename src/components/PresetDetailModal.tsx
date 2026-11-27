@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Crown, Heart, Sparkles } from 'lucide-react';
+import { PRESET_CATEGORIES, SIGNATURE_COLLECTIONS } from '../data/presets';
 import { Preset } from '../types';
 import { ModalSheet } from './ui/ModalSheet';
 import { Button } from './ui/Button';
@@ -47,6 +48,10 @@ export const PresetDetailModal: React.FC<PresetDetailModalProps> = ({
   if (!preset) return null;
 
   const traits: string[] = [];
+  if (preset.recipe.toneCurve) traits.push('Tone Curve');
+  if (preset.recipe.colorGrading) traits.push('3-Way Grade');
+  if (preset.recipe.effects && preset.recipe.effects.bloomStrength > 0) traits.push('Highlight Bloom');
+  if (preset.recipe.effects && preset.recipe.effects.halationStrength > 0) traits.push('Analog Halation');
   if (preset.recipe.skinRosy > 0) traits.push('Rosy Skin');
   if (preset.recipe.bgDarken > 0) traits.push('Dark Background');
   if (preset.recipe.bgBokeh > 0) traits.push('Subtle Bokeh');
@@ -56,13 +61,19 @@ export const PresetDetailModal: React.FC<PresetDetailModalProps> = ({
   if (preset.recipe.grain > 0) traits.push('Organic Grain');
   if (traits.length === 0) traits.push('Balanced Tone');
 
+  const collectionTitle = SIGNATURE_COLLECTIONS.find((c) => c.id === preset.collectionId)?.title;
+  const catLabel = PRESET_CATEGORIES.find((c) => c.id === preset.category)?.label ?? preset.category;
+  const subtitleText = collectionTitle
+    ? `${collectionTitle.toUpperCase()} · ${(preset.lookType || 'signature').toUpperCase()}`
+    : `${catLabel.toUpperCase()} COLLECTION`;
+
   return (
     <ModalSheet
       isOpen={Boolean(preset)}
       onClose={onClose}
       variant="sheet"
       title={preset.name}
-      subtitle={`${preset.category.toUpperCase()} COLLECTION`}
+      subtitle={subtitleText}
     >
       <div className="space-y-4">
         <div

@@ -58,6 +58,55 @@ export interface HslMix {
   blue: HslBandAdjustment;
 }
 
+export type LookTierType = 'essential' | 'signature' | 'adaptive';
+
+export type CuratedCollectionId =
+  | 'rosy-portrait'
+  | 'velvet-series'
+  | 'seoul-editorial'
+  | 'analog-archive'
+  | 'direct-flash'
+  | 'night-cinema';
+
+export interface ToneCurveConfig {
+  blackPoint: number;        // 0 to 0.14 (matte film toe lift)
+  shadowPivot: number;       // -0.18 to 0.18 at x=0.25
+  midtonePivot: number;      // -0.18 to 0.18 at x=0.50
+  highlightShoulder: number; // 0 to 0.28 (soft highlight roll-off at x=0.75)
+  whitePoint: number;        // 0.88 to 1.0 (white ceiling)
+}
+
+export interface ColorGrading3Way {
+  shadowTint: [number, number, number];    // RGB shift in [-0.12, 0.12]
+  midtoneTint: [number, number, number];   // RGB shift in [-0.12, 0.12]
+  highlightTint: [number, number, number]; // RGB shift in [-0.12, 0.12]
+  balance: number;                         // -0.5 to 0.5
+}
+
+export interface OpticalEffectsRecipe {
+  bloomStrength: number;     // 0 to 40
+  bloomThreshold: number;    // 0.60 to 0.92
+  halationStrength: number;  // 0 to 35
+  halationThreshold: number; // 0.68 to 0.95
+}
+
+export interface RelightingRecipe {
+  subjectLift: number;        // 0 to 45 (adaptive subject illumination)
+  flashSpecular: number;      // 0 to 35 (controlled specular crispness)
+  backgroundFalloff: number;  // 0 to 50 (spatial background falloff)
+  falloffRadius: number;      // 0.6 to 1.8
+  skinHighlightGuard: number; // 0 to 1
+  shadowFloorGuard: number;   // 0 to 1
+}
+
+export interface AdaptiveRequirements {
+  requiresFaceDetection?: boolean;
+  requiresSkinSegmentation?: boolean;
+  requiresSubjectSegmentation?: boolean;
+  requiresLightingAnalysis?: boolean;
+  fallbackStrategy: 'lighting-only' | 'conservative-signature';
+}
+
 export interface ColorRecipe {
   exposure: number;      // -50 to +50
   contrast: number;      // -50 to +50
@@ -81,6 +130,11 @@ export interface ColorRecipe {
   grain: number;         // 0 to 35 (film grain)
   vignette: number;      // 0 to 40 (soft edge darkening)
   hsl?: Partial<HslMix>; // Smooth 6-band Color Mix (Red, Orange, Yellow, Green, Aqua, Blue)
+  /* ── P1 Signature & Adaptive Color Science Extensions (optional; undefined = exact P0 baseline) ── */
+  toneCurve?: ToneCurveConfig;
+  colorGrading?: ColorGrading3Way;
+  effects?: OpticalEffectsRecipe;
+  relighting?: RelightingRecipe;
 }
 
 export interface Preset {
@@ -91,7 +145,21 @@ export interface Preset {
   badge?: string;
   accentColor: string;
   description?: string;
+  lookType?: LookTierType;
+  collectionId?: CuratedCollectionId;
+  recipeVersion?: number;
+  adaptive?: AdaptiveRequirements;
   recipe: ColorRecipe;
+}
+
+export interface SignatureCollectionMeta {
+  id: CuratedCollectionId;
+  title: string;
+  subtitle: string;
+  description: string;
+  lookType: LookTierType;
+  coverPresetId: string;
+  sampleId: 'cafe' | 'park' | 'window';
 }
 
 export interface ManualAdjustments {

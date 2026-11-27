@@ -18,6 +18,7 @@ import { OfflineBanner, ToastBanner, ToastMessage } from './components/ui/Toast'
 import { PRESETS } from './data/presets';
 import {
   AppTab,
+  CuratedCollectionId,
   DEFAULT_ADJUSTMENTS,
   DEFAULT_TRANSFORM,
   EditorBackdrop,
@@ -64,6 +65,7 @@ export default function App() {
   // Navigation & Editor Backdrop
   const [activeTab, setActiveTab] = useState<AppTab>('home');
   const [presetCategory, setPresetCategory] = useState<PresetCategory>('all');
+  const [selectedCollection, setSelectedCollection] = useState<CuratedCollectionId | null>(null);
   const [editorBackdrop, setEditorBackdrop] = useState<EditorBackdrop>(() => loadEditorBackdrop());
   const [isOnline, setIsOnline] = useState<boolean>(() =>
     typeof navigator !== 'undefined' ? navigator.onLine : true
@@ -515,8 +517,9 @@ export default function App() {
               onStartEditing={() => setIsGalleryOpen(true)}
               onStartWithSample={(sid, pid) => handleStartWithSample(sid, pid)}
               onOpenRecentEdit={handleOpenRecentEdit}
-              onOpenCollection={(cat) => {
+              onOpenCollection={(cat, colId) => {
                 setPresetCategory(cat);
+                setSelectedCollection(colId ?? null);
                 setActiveTab('presets');
               }}
               onSelectPresetDetail={(preset) => setDetailPreset(preset)}
@@ -534,8 +537,10 @@ export default function App() {
             <PresetsScreen
               license={license}
               category={presetCategory}
+              collectionId={selectedCollection}
               favoriteIds={favoriteIds}
               onChangeCategory={setPresetCategory}
+              onChangeCollection={setSelectedCollection}
               onToggleFavorite={handleToggleFavorite}
               onSelectPresetDetail={(preset) => setDetailPreset(preset)}
             />
