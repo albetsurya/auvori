@@ -2,9 +2,10 @@ import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Header } from './components/Header';
 import { PhotoCanvas } from './components/PhotoCanvas';
 import { PresetDrawer } from './components/PresetDrawer';
-import { ExportModal } from './components/ExportModal';
+import { ExportModal, ExportSuccessMeta, formatBytes } from './components/ExportModal';
 import { ProModal } from './components/ProModal';
 import { BottomNav } from './components/BottomNav';
+import { TopStudioBar } from './components/TopStudioBar';
 import { GalleryPickerSheet } from './components/GalleryPickerSheet';
 import { PresetDetailModal } from './components/PresetDetailModal';
 import { HomeScreen } from './screens/HomeScreen';
@@ -19,28 +20,29 @@ import {
   AppTab,
   DEFAULT_ADJUSTMENTS,
   DEFAULT_TRANSFORM,
+  EditorBackdrop,
   ImageTransform,
   LicenseState,
   ManualAdjustments,
   Preset,
   PresetCategory,
-  RecentEdit,
-  ThemeMode
+  RecentEdit
 } from './types';
-import { buildEffectiveRecipe, generatePresetThumbnail } from './lib/imageEngine';
+import { buildEffectiveRecipe } from './lib/imageEngine';
+import { PhotoPipeline } from './engine/pipeline/photo-pipeline';
 import { createSamplePhotoDataUrl, SamplePhotoId } from './lib/samplePhoto';
 import { loadSavedLicense } from './lib/license';
 import {
-  applyThemeToDom,
   clearRecentEdits,
   loadDefaultWatermark,
+  loadEditorBackdrop,
   loadFavoritePresetIds,
   loadRecentEdits,
-  loadTheme,
   saveDefaultWatermark,
+  saveEditorBackdrop,
   saveFavoritePresetIds,
   saveRecentEdits,
-  saveTheme
+  syncThemeColorMeta
 } from './lib/storage';
 
 interface EditorSnapshot {
@@ -59,10 +61,10 @@ const snapshotsEqual = (a: EditorSnapshot, b: EditorSnapshot): boolean =>
 export default function App() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
-  // Navigation & Theme
+  // Navigation & Editor Backdrop
   const [activeTab, setActiveTab] = useState<AppTab>('home');
   const [presetCategory, setPresetCategory] = useState<PresetCategory>('all');
-  const [theme, setTheme] = useState<ThemeMode>(() => loadTheme());
+  const [editorBackdrop, setEditorBackdrop] = useState<EditorBackdrop>(() => loadEditorBackdrop());
   const [isOnline, setIsOnline] = useState<boolean>(() =>
     typeof navigator !== 'undefined' ? navigator.onLine : true
   );
@@ -87,7 +89,14 @@ export default function App() {
 
   // Editor workspace state
   const [sourceImage, setSourceImage] = useState<HTMLImageElement | null>(null);
+  const [sourceRevision, setSourceRevision] = useState<number>(1);
+  const [transformRevision, setTransformRevision] = useState<number>(1);
   const [sourceLabel, setSourceLabel] = useState<string>('Studio Photo');
+  const activeObjectUrlRef = useRef<string | null>(null);
+  const thumbObjectUrlsRef = useRef<string[]>([]);
+  const [editorPipeline, setEditorPipeline] = useState<PhotoPipeline | null>(null);
+  const editorPipelineRef = useRef<PhotoPipeline | null>(null);
+  const loadSeqRef = useRef<number>(0);
   const [thumbnails, setThumbnails] = useState<Record<string, string>>({});
   const [activePreset, setActivePreset] = useState<Preset>(
     () => PRESETS.find((p) => p.id === 'seoul-cafe') ?? PRESETS[1]
@@ -103,8 +112,8 @@ export default function App() {
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
 
   useEffect(() => {
-    applyThemeToDom(theme);
-  }, [theme]);
+    syncThemeColorMeta(Boolean(sourceImage), editorBackdrop);
+  }, [sourceImage, editorBackdrop]);
 
   useEffect(() => {
     const onOnline = () => setIsOnline(true);
@@ -129,12 +138,42 @@ export default function App() {
     }
   }, []);
 
+  const revokeThumbnailUrls = useCallback(() => {
+    for (const u of thumbObjectUrlsRef.current) {
+      if (u.startsWith('blob:')) URL.revokeObjectURL(u);
+    }
+    thumbObjectUrlsRef.current = [];
+  }, []);
+
+  const revokeTrackedObjectUrl = useCallback(() => {
+    if (activeObjectUrlRef.current) {
+      URL.revokeObjectURL(activeObjectUrlRef.current);
+      activeObjectUrlRef.current = null;
+    }
+  }, []);
+
+  useEffect(() => {
+    const pipeline = new PhotoPipeline({
+      preferWebGL2: true,
+      preferWorkerFallback: true
+    });
+    editorPipelineRef.current = pipeline;
+    setEditorPipeline(pipeline);
+
+    return () => {
+      revokeTrackedObjectUrl();
+      revokeThumbnailUrls();
+      editorPipelineRef.current = null;
+      pipeline.dispose();
+    };
+  }, [revokeThumbnailUrls, revokeTrackedObjectUrl]);
+
   const showToast = useCallback((tone: ToastMessage['tone'], text: string) => {
     const id = Date.now();
     setToast({ id, tone, text });
     setTimeout(() => {
       setToast((cur) => (cur?.id === id ? null : cur));
-    }, 3200);
+    }, 3600);
   }, []);
 
   const pushHistory = useCallback(
@@ -156,11 +195,21 @@ export default function App() {
     (
       url: string,
       label: string,
-      initial?: Partial<EditorSnapshot>
+      initial?: Partial<EditorSnapshot>,
+      isObjectUrl = false
     ) => {
+      const seq = ++loadSeqRef.current;
       const img = new Image();
       img.crossOrigin = 'anonymous';
       img.onload = () => {
+        if (seq !== loadSeqRef.current) {
+          if (isObjectUrl) URL.revokeObjectURL(url);
+          return;
+        }
+        revokeTrackedObjectUrl();
+        revokeThumbnailUrls();
+        if (isObjectUrl) activeObjectUrlRef.current = url;
+
         const initPreset =
           PRESETS.find((p) => p.id === (initial?.presetId || 'seoul-cafe')) ?? PRESETS[1];
         const initSnap: EditorSnapshot = {
@@ -170,33 +219,58 @@ export default function App() {
           transform: initial?.transform ?? DEFAULT_TRANSFORM
         };
 
+        const nextSourceRev = sourceRevision + 1;
         setSourceImage(img);
+        setSourceRevision(nextSourceRev);
+        setTransformRevision(1);
         setSourceLabel(label);
         setActivePreset(initPreset);
         setIntensity(initSnap.intensity);
         setManual(initSnap.manual);
         setTransform(initSnap.transform);
+        setThumbnails({});
         setSplitMode(false);
         setHistory([initSnap]);
         setHistoryIndex(0);
         setHasUnsavedChanges(false);
 
         const nextThumbs: Record<string, string> = {};
-        PRESETS.forEach((p, idx) => {
-          setTimeout(() => {
-            nextThumbs[p.id] = generatePresetThumbnail(img, p.recipe);
-            if (idx === PRESETS.length - 1 || idx % 4 === 0) {
-              setThumbnails({ ...nextThumbs });
-            }
-          }, idx * 12);
-        });
+        const pipeline = editorPipelineRef.current;
+        if (pipeline) {
+          pipeline
+            .generateThumbnails(img, 'editor-source', nextSourceRev, PRESETS, (presetId, thumbUrl) => {
+              if (seq !== loadSeqRef.current) {
+                if (thumbUrl.startsWith('blob:')) URL.revokeObjectURL(thumbUrl);
+                return;
+              }
+              if (thumbUrl.startsWith('blob:')) {
+                thumbObjectUrlsRef.current.push(thumbUrl);
+              }
+              nextThumbs[presetId] = thumbUrl;
+              const count = Object.keys(nextThumbs).length;
+              if (count % 4 === 0 || count === PRESETS.length) {
+                setThumbnails({ ...nextThumbs });
+              }
+            })
+            .then((finalMap) => {
+              if (seq === loadSeqRef.current) {
+                setThumbnails({ ...finalMap });
+              }
+            })
+            .catch(() => {
+              // Non-fatal thumbnail error
+            });
+        }
       };
       img.onerror = () => {
-        showToast('error', 'Something went wrong loading that photo. Try again.');
+        if (isObjectUrl) URL.revokeObjectURL(url);
+        if (seq === loadSeqRef.current) {
+          showToast('error', 'Something went wrong loading that photo. Try again.');
+        }
       };
       img.src = url;
     },
-    [showToast]
+    [revokeThumbnailUrls, revokeTrackedObjectUrl, showToast, sourceRevision]
   );
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -204,7 +278,7 @@ export default function App() {
     if (!file) return;
     const url = URL.createObjectURL(file);
     const cleanName = file.name.replace(/\.[^/.]+$/, '') || 'Gallery Photo';
-    loadImageIntoEditor(url, cleanName);
+    loadImageIntoEditor(url, cleanName, undefined, true);
     e.target.value = '';
   };
 
@@ -234,7 +308,12 @@ export default function App() {
     setActivePreset(preset);
     setIntensity(snap.intensity);
     setManual(snap.manual);
-    setTransform(snap.transform);
+    setTransform((prev) => {
+      if (JSON.stringify(prev) !== JSON.stringify(snap.transform)) {
+        setTransformRevision((r) => r + 1);
+      }
+      return snap.transform;
+    });
   };
 
   const handleUndo = () => {
@@ -279,7 +358,7 @@ export default function App() {
     });
   };
 
-  const handleExportSuccess = (thumbDataUrl: string) => {
+  const handleExportSuccess = (thumbDataUrl: string, meta?: ExportSuccessMeta) => {
     const entry: RecentEdit = {
       id: `${Date.now()}`,
       title: sourceLabel,
@@ -295,14 +374,30 @@ export default function App() {
     setRecentEdits(nextRecents);
     saveRecentEdits(nextRecents);
     setHasUnsavedChanges(false);
-    showToast('success', 'Beautifully done.');
+    if (meta) {
+      showToast(
+        'success',
+        `Saved ${meta.format.toUpperCase()} (${meta.width}×${meta.height} · ${formatBytes(meta.sizeBytes)})`
+      );
+    } else {
+      showToast('success', 'Photo saved.');
+    }
   };
+
+  const closeEditor = useCallback(() => {
+    loadSeqRef.current++;
+    editorPipelineRef.current?.cancelThumbnailBatch();
+    revokeTrackedObjectUrl();
+    revokeThumbnailUrls();
+    setThumbnails({});
+    setSourceImage(null);
+  }, [revokeThumbnailUrls, revokeTrackedObjectUrl]);
 
   const handleRequestEditorBack = () => {
     if (hasUnsavedChanges && historyIndex > 0) {
       setConfirmDiscardOpen(true);
     } else {
-      setSourceImage(null);
+      closeEditor();
     }
   };
 
@@ -325,10 +420,18 @@ export default function App() {
       <ToastBanner toast={toast} onDismiss={() => setToast(null)} />
 
       {sourceImage ? (
-        /* Contextual Photo Editor Workspace (no global bottom navigation) */
-        <>
+        /* Contextual Photo Editor Workspace (Graphite Dark default or Chalk Light preference) */
+        <div
+          data-editor-backdrop={editorBackdrop}
+          className="flex-1 min-h-0 flex flex-col overflow-hidden"
+          style={{
+            backgroundColor: 'var(--editor-background)',
+            color: 'var(--editor-text)'
+          }}
+        >
           <Header
             presetName={activePreset.name}
+            sourceLabel={sourceLabel}
             canUndo={historyIndex > 0}
             canRedo={historyIndex < history.length - 1}
             splitMode={splitMode}
@@ -340,51 +443,70 @@ export default function App() {
             onOpenExport={() => setIsExportOpen(true)}
           />
 
-          <PhotoCanvas
-            sourceImage={sourceImage}
-            effectiveRecipe={effectiveRecipe}
-            transform={transform}
-            activePreset={activePreset}
-            isProUnlocked={license.isPro}
-            splitMode={splitMode}
+          <div className="flex-1 min-h-0 flex flex-col lg:flex-row overflow-hidden">
+            {editorPipeline && (
+              <PhotoCanvas
+                pipeline={editorPipeline}
+                sourceImage={sourceImage}
+                sourceRevision={sourceRevision}
+                transformRevision={transformRevision}
+                effectiveRecipe={effectiveRecipe}
+                transform={transform}
+                activePreset={activePreset}
+                isProUnlocked={license.isPro}
+                splitMode={splitMode}
+                onOpenPro={() => {
+                  setProInitialTab('buy');
+                  setIsProOpen(true);
+                }}
+              />
+            )}
+
+            <PresetDrawer
+              activePreset={activePreset}
+              intensity={intensity}
+              manual={manual}
+              transform={transform}
+              thumbnails={thumbnails}
+              favoriteIds={favoriteIds}
+              isProUnlocked={license.isPro}
+              onSelectPreset={handleSelectPreset}
+              onChangeIntensity={setIntensity}
+              onCommitIntensity={() =>
+                pushHistory({ presetId: activePreset.id, intensity, manual, transform })
+              }
+              onChangeManual={setManual}
+              onCommitManual={() =>
+                pushHistory({ presetId: activePreset.id, intensity, manual, transform })
+              }
+              onChangeTransform={(nextTransform) => {
+                setTransform(nextTransform);
+                setTransformRevision((r) => r + 1);
+                pushHistory({
+                  presetId: activePreset.id,
+                  intensity,
+                  manual,
+                  transform: nextTransform
+                });
+              }}
+              onToggleFavorite={handleToggleFavorite}
+            />
+          </div>
+        </div>
+      ) : (
+        /* Main Studio Browse Shell (always Neutral Analog Light: Chalk / White / Stone / Olive) */
+        <>
+          <TopStudioBar
+            activeTab={activeTab}
+            license={license}
+            onSelectTab={setActiveTab}
+            onOpenPhoto={() => setIsGalleryOpen(true)}
             onOpenPro={() => {
               setProInitialTab('buy');
               setIsProOpen(true);
             }}
           />
 
-          <PresetDrawer
-            activePreset={activePreset}
-            intensity={intensity}
-            manual={manual}
-            transform={transform}
-            thumbnails={thumbnails}
-            favoriteIds={favoriteIds}
-            isProUnlocked={license.isPro}
-            onSelectPreset={handleSelectPreset}
-            onChangeIntensity={setIntensity}
-            onCommitIntensity={() =>
-              pushHistory({ presetId: activePreset.id, intensity, manual, transform })
-            }
-            onChangeManual={setManual}
-            onCommitManual={() =>
-              pushHistory({ presetId: activePreset.id, intensity, manual, transform })
-            }
-            onChangeTransform={(nextTransform) => {
-              setTransform(nextTransform);
-              pushHistory({
-                presetId: activePreset.id,
-                intensity,
-                manual,
-                transform: nextTransform
-              });
-            }}
-            onToggleFavorite={handleToggleFavorite}
-          />
-        </>
-      ) : (
-        /* Main Studio Browse Shell: Home / Presets / Discover / Profile */
-        <>
           {activeTab === 'home' && (
             <HomeScreen
               license={license}
@@ -428,13 +550,13 @@ export default function App() {
           {activeTab === 'profile' && (
             <ProfileScreen
               license={license}
-              theme={theme}
+              editorBackdrop={editorBackdrop}
               defaultWatermark={defaultWatermark}
               favoritesCount={favoriteIds.length}
               recentsCount={recentEdits.length}
-              onToggleTheme={(nextTheme) => {
-                setTheme(nextTheme);
-                saveTheme(nextTheme);
+              onChangeEditorBackdrop={(nextBackdrop) => {
+                setEditorBackdrop(nextBackdrop);
+                saveEditorBackdrop(nextBackdrop);
               }}
               onToggleDefaultWatermark={(next) => {
                 setDefaultWatermark(next);
@@ -486,6 +608,9 @@ export default function App() {
       <ExportModal
         isOpen={isExportOpen}
         sourceImage={sourceImage}
+        sourceRevision={sourceRevision}
+        transformRevision={transformRevision}
+        maxHardwareTextureSize={editorPipeline?.getMaxGpuTextureSize() ?? 4096}
         effectiveRecipe={effectiveRecipe}
         transform={transform}
         activePreset={activePreset}
@@ -526,7 +651,7 @@ export default function App() {
             fullWidth
             onClick={() => {
               setConfirmDiscardOpen(false);
-              setSourceImage(null);
+              closeEditor();
             }}
           >
             Discard

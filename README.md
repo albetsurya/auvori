@@ -4,7 +4,7 @@
 
 ## Fitur Utama
 - **UX Geser Efek ala Meitu:** Strip thumbnail *live preview* langsung dari foto pengguna + 1 slider intensitas (0–100%) + mode *Atur Manual* opsional.
-- **18 Preset Terkurasi (6 Gratis + 12 Pro):** Termasuk preset **Seoul Café** (*dehaze*, *cool cyan-teal shadows*, dan *skin-tone protection*), seri *Korean*, *Café*, *Fuji Film*, dan *Night*.
+- **20 Preset Terkurasi (Original + 6 Gratis + 13 Pro):** Termasuk preset **Rosy Bokeh**, **Velvet Merona**, dan **Seoul Café** (*dehaze*, *cool cyan-teal shadows*, serta *skin-tone & portrait depth protection*), seri *Portrait*, *Café*, *Korean*, *Fuji Film*, dan *Night*.
 - **Before / After Interaktif:** Tekan dan tahan foto untuk mengintip foto asli, atau aktifkan mode *Split-View* geser kiri-kanan.
 - **Ekspor HD & Kartu Viral Before/After:** Unduh foto HD bersih atau bingkai putih **SEBELUM / SESUDAH** siap unggah ke Threads, Instagram, dan TikTok.
 - **Try Before Buy + Aktivasi Otomatis Lynk.id:** Semua efek Pro bisa dicoba langsung di layar; saat mau ekspor muncul modal checkout Lynk.id dan aktivasi instan memakai email pembelian.

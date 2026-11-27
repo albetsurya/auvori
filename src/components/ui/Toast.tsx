@@ -27,10 +27,10 @@ export const ToastBanner: React.FC<{ toast: ToastMessage | null; onDismiss: () =
   const Icon = toast.tone === 'success' ? CheckCircle2 : toast.tone === 'error' ? AlertCircle : Info;
 
   return (
-    <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[60] w-[calc(100%-40px)] max-w-[440px] pointer-events-auto">
+    <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[60] w-[calc(100%-32px)] max-w-[440px] pointer-events-auto">
       <div
         onClick={onDismiss}
-        className={`flex items-center justify-between gap-3 px-4 py-3 rounded-[14px] bg-surface border shadow-card ${toneStyle}`}
+        className={`flex items-center justify-between gap-3 px-4 py-3 rounded-[12px] bg-surface border shadow-card ${toneStyle}`}
         role="status"
       >
         <div className="flex items-center gap-2.5 min-w-0">

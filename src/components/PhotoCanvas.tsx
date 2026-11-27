@@ -1,10 +1,14 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Crown, Lock, Maximize2 } from 'lucide-react';
 import { ColorRecipe, ImageTransform, Preset } from '../types';
-import { applyRecipeToCanvas, prepareTransformedSource } from '../lib/imageEngine';
+import { prepareTransformedSource } from '../lib/imageEngine';
+import { PhotoPipeline } from '../engine/pipeline/photo-pipeline';
 
 interface PhotoCanvasProps {
+  pipeline: PhotoPipeline;
   sourceImage: HTMLImageElement;
+  sourceRevision?: number;
+  transformRevision?: number;
   effectiveRecipe: ColorRecipe;
   transform: ImageTransform;
   activePreset: Preset;
@@ -14,7 +18,10 @@ interface PhotoCanvasProps {
 }
 
 export const PhotoCanvas: React.FC<PhotoCanvasProps> = ({
+  pipeline,
   sourceImage,
+  sourceRevision = 1,
+  transformRevision = 1,
   effectiveRecipe,
   transform,
   activePreset,
@@ -81,18 +88,43 @@ export const PhotoCanvas: React.FC<PhotoCanvasProps> = ({
     ctx?.drawImage(transformedSource, 0, 0, w, h);
   }, [transformedSource]);
 
-  // Real-time render of edited canvas
+  // Real-time GPU/Worker render of edited canvas
   useEffect(() => {
+    let active = true;
     if (!editedCanvasRef.current) return;
     setIsRendering(true);
+
     const raf = requestAnimationFrame(() => {
-      if (editedCanvasRef.current) {
-        applyRecipeToCanvas(transformedSource, editedCanvasRef.current, effectiveRecipe, 1080);
+      const canvas = editedCanvasRef.current;
+      if (!canvas) {
+        if (active) setIsRendering(false);
+        return;
       }
-      setIsRendering(false);
+      pipeline
+        .renderPreview({
+          source: transformedSource,
+          sourceId: 'editor-source',
+          sourceRevision,
+          transformRevision,
+          recipe: effectiveRecipe,
+          targetCanvas: canvas,
+          maxDimension: 1080
+        })
+        .then((res) => {
+          if (active && !res.cancelled) {
+            setIsRendering(false);
+          }
+        })
+        .catch(() => {
+          if (active) setIsRendering(false);
+        });
     });
-    return () => cancelAnimationFrame(raf);
-  }, [transformedSource, effectiveRecipe]);
+
+    return () => {
+      active = false;
+      cancelAnimationFrame(raf);
+    };
+  }, [pipeline, transformedSource, effectiveRecipe, sourceRevision, transformRevision]);
 
   const updateSplitFromClientX = (clientX: number) => {
     if (!frameRef.current) return;
@@ -145,7 +177,10 @@ export const PhotoCanvas: React.FC<PhotoCanvasProps> = ({
     if (pointersRef.current.size === 2 && pinchStartDistRef.current) {
       const pts = Array.from(pointersRef.current.values());
       const dist = Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
-      const nextZoom = Math.max(1, Math.min(3.5, pinchStartZoomRef.current * (dist / pinchStartDistRef.current)));
+      const nextZoom = Math.max(
+        1,
+        Math.min(3.5, pinchStartZoomRef.current * (dist / pinchStartDistRef.current))
+      );
       setZoom(nextZoom);
       if (nextZoom <= 1.02) setPan({ x: 0, y: 0 });
       return;
@@ -174,12 +209,12 @@ export const PhotoCanvas: React.FC<PhotoCanvasProps> = ({
 
   return (
     <main
-      className="flex-1 flex items-center justify-center p-4 sm:p-5 relative overflow-hidden select-none touch-none"
-      style={{ backgroundColor: 'var(--color-canvas-well)' }}
+      className="flex-1 min-w-0 min-h-0 flex items-center justify-center p-3 sm:p-5 lg:p-8 relative overflow-hidden select-none touch-none"
+      style={{ backgroundColor: 'var(--editor-canvas-well)' }}
     >
       <div
         ref={frameRef}
-        className="relative max-h-full max-w-full flex items-center justify-center rounded-[16px] overflow-hidden shadow-card"
+        className="relative max-h-full max-w-full flex items-center justify-center rounded-[10px] overflow-hidden shadow-card"
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -192,10 +227,10 @@ export const PhotoCanvas: React.FC<PhotoCanvasProps> = ({
             transform: `translate(${pan.x}px, ${pan.y}px) scale(${zoom})`
           }}
         >
-          {/* Edited Canvas (never tinted by dark mode) */}
+          {/* Edited Canvas (pixels never tinted by workspace theme) */}
           <canvas
             ref={editedCanvasRef}
-            className="max-h-[calc(100dvh-318px)] sm:max-h-[calc(100dvh-330px)] max-w-full w-auto h-auto block object-contain"
+            className="max-h-[calc(100dvh-340px)] sm:max-h-[calc(100dvh-350px)] lg:max-h-[calc(100dvh-124px)] max-w-full w-auto h-auto block object-contain"
           />
 
           {/* Original Canvas Overlay (Press-and-Hold OR Split-View) */}
@@ -219,17 +254,17 @@ export const PhotoCanvas: React.FC<PhotoCanvasProps> = ({
         {splitMode && (
           <>
             <div
-              className="absolute top-0 bottom-0 w-0.5 bg-ivory shadow-[0_0_12px_rgba(40,35,31,0.5)] pointer-events-none"
+              className="absolute top-0 bottom-0 w-0.5 bg-chalk shadow-[0_0_12px_rgba(37,39,36,0.55)] pointer-events-none"
               style={{ left: `${splitPercent}%` }}
             >
-              <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-ivory text-ink shadow-md flex items-center justify-center text-xs font-bold border border-sand">
+              <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 rounded-[8px] bg-chalk text-graphite shadow-md flex items-center justify-center text-xs font-bold border border-stone">
                 ↔
               </div>
             </div>
-            <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-ink/75 text-ivory text-[10px] font-medium tracking-wider uppercase pointer-events-none">
+            <span className="absolute top-3 left-3 px-2.5 py-1 rounded-[6px] bg-graphite/85 text-chalk text-[10px] font-semibold tracking-wider uppercase pointer-events-none">
               Before
             </span>
-            <span className="absolute top-3 right-3 px-2.5 py-1 rounded-full bg-mocha/90 text-ivory text-[10px] font-medium tracking-wider uppercase pointer-events-none">
+            <span className="absolute top-3 right-3 px-2.5 py-1 rounded-[6px] bg-olive text-white text-[10px] font-semibold tracking-wider uppercase pointer-events-none">
               After
             </span>
           </>
@@ -237,14 +272,14 @@ export const PhotoCanvas: React.FC<PhotoCanvasProps> = ({
 
         {/* Press-and-Hold indicator */}
         {!splitMode && isHoldingOriginal && (
-          <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-ink/80 text-ivory text-[10px] font-medium tracking-wider uppercase pointer-events-none">
+          <span className="absolute top-3 left-3 px-2.5 py-1 rounded-[6px] bg-graphite/85 text-chalk text-[10px] font-semibold tracking-wider uppercase pointer-events-none">
             Before (Original)
           </span>
         )}
 
         {/* Subtle idle hint */}
         {!splitMode && !isHoldingOriginal && activePreset.id !== 'original' && zoom <= 1.05 && (
-          <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-ink/75 backdrop-blur-sm text-ivory text-[10px] font-medium pointer-events-none">
+          <span className="absolute top-3 left-3 px-2.5 py-1 rounded-[6px] bg-graphite/75 backdrop-blur-sm text-chalk text-[10px] font-medium pointer-events-none">
             Hold to compare · Pinch to zoom
           </span>
         )}
@@ -258,16 +293,16 @@ export const PhotoCanvas: React.FC<PhotoCanvasProps> = ({
               setPan({ x: 0, y: 0 });
             }}
             onPointerDown={(e) => e.stopPropagation()}
-            className="absolute top-3 right-3 px-3 py-1.5 rounded-full bg-ink/80 text-ivory text-[11px] font-medium inline-flex items-center gap-1.5 shadow-card"
+            className="absolute top-3 right-3 min-h-[44px] px-3 py-1.5 rounded-[8px] bg-graphite/85 text-chalk text-[11px] font-medium inline-flex items-center gap-1.5 shadow-card tabular-nums"
           >
-            <Maximize2 className="w-3 h-3" strokeWidth={1.8} />
+            <Maximize2 className="w-3.5 h-3.5" strokeWidth={1.8} />
             Fit ({zoom.toFixed(1)}x)
           </button>
         )}
 
-        {/* Loading indicator for heavy exports/renders */}
+        {/* Loading indicator for heavy renders */}
         {isRendering && (
-          <span className="absolute bottom-3 right-3 px-2.5 py-1 rounded-full bg-ink/70 text-ivory text-[10px] font-medium pointer-events-none">
+          <span className="absolute bottom-3 right-3 px-2.5 py-1 rounded-[6px] bg-graphite/80 text-chalk text-[10px] font-medium pointer-events-none">
             Preparing...
           </span>
         )}
@@ -280,11 +315,11 @@ export const PhotoCanvas: React.FC<PhotoCanvasProps> = ({
               onOpenPro();
             }}
             onPointerDown={(e) => e.stopPropagation()}
-            className="absolute bottom-3 left-1/2 -translate-x-1/2 flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-ink/85 hover:bg-ink text-ivory border border-taupe/50 backdrop-blur-md text-xs font-medium shadow-card transition duration-fast"
+            className="absolute bottom-3 left-1/2 -translate-x-1/2 min-h-[44px] flex items-center gap-1.5 px-3.5 py-1.5 rounded-[8px] bg-graphite/90 hover:bg-graphite text-chalk border border-olive/60 backdrop-blur-md text-xs font-medium shadow-card transition duration-fast whitespace-nowrap"
           >
-            <Lock className="w-3 h-3 text-taupe" strokeWidth={1.8} />
+            <Lock className="w-3.5 h-3.5 text-olive-soft" strokeWidth={1.8} />
             <span>Preview PRO · Buka via Lynk.id</span>
-            <Crown className="w-3 h-3 text-taupe" strokeWidth={1.8} />
+            <Crown className="w-3.5 h-3.5 text-olive-soft" strokeWidth={1.8} />
           </button>
         )}
       </div>

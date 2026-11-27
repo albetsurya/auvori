@@ -3,37 +3,40 @@
 @tailwind utilities;
 
 :root {
-  /* Brand */
-  --color-ivory: #F7F3ED;
-  --color-sand: #E6D9C9;
-  --color-taupe: #B28B70;
-  --color-mocha: #755846;
-  --color-ink: #28231F;
+  /* ── Neutral Analog Studio Palette (Browse & Global Light Tokens) ── */
+  --color-graphite: #252724;
+  --color-chalk: #F2F2ED;
+  --color-white: #FFFFFF;
+  --color-stone: #DADBD4;
+  --color-olive: #68735D;
+  --color-olive-soft: #E7EAE2;
+  --color-olive-hover: #58614F;
+  --color-slate: #7C8990;
 
   /* Semantic */
-  --color-success: #52765E;
-  --color-warning: #B47B3C;
+  --color-success: #466B53;
+  --color-warning: #A26A2C;
   --color-error: #A6534D;
-  --color-info: #71839A;
+  --color-info: #5E728A;
 
-  /* RGB triplets for Tailwind alpha modifiers */
-  --rgb-background: 247 243 237;
+  /* RGB triplets — Neutral Analog Studio (Light Browse) */
+  --rgb-background: 242 242 237;
   --rgb-surface: 255 255 255;
   --rgb-surface-elevated: 255 255 255;
-  --rgb-surface-secondary: 240 231 220;
-  --rgb-border: 230 217 201;
-  --rgb-text: 40 35 31;
-  --rgb-text-secondary: 104 93 85;
-  --rgb-primary: 117 88 70;
-  --rgb-primary-hover: 99 72 56;
-  --rgb-primary-text: 247 243 237;
-  --rgb-accent: 178 139 112;
-  --rgb-success: 82 118 94;
-  --rgb-warning: 180 123 60;
+  --rgb-surface-secondary: 231 234 226;
+  --rgb-border: 218 219 212;
+  --rgb-text: 37 39 36;
+  --rgb-text-secondary: 93 97 89;
+  --rgb-primary: 104 115 93;
+  --rgb-primary-hover: 88 97 79;
+  --rgb-primary-text: 255 255 255;
+  --rgb-accent: 124 137 144;
+  --rgb-success: 70 107 83;
+  --rgb-warning: 162 106 44;
   --rgb-error: 166 83 77;
-  --rgb-info: 113 131 154;
+  --rgb-info: 94 114 138;
 
-  /* Surfaces & Text (Light Mode Default) */
+  /* Surfaces & Text */
   --color-background: rgb(var(--rgb-background));
   --color-surface: rgb(var(--rgb-surface));
   --color-surface-elevated: rgb(var(--rgb-surface-elevated));
@@ -45,38 +48,16 @@
   --color-primary-hover: rgb(var(--rgb-primary-hover));
   --color-primary-text: rgb(var(--rgb-primary-text));
   --color-accent: rgb(var(--rgb-accent));
-  --color-canvas-well: #EFE8DE;
+  --color-slider-active: #68735D;
+  --color-canvas-well: #DADBD4;
 
-  /* Typography */
-  --font-display: "Cormorant Garamond", serif;
-  --font-ui: "Plus Jakarta Sans", sans-serif;
-
-  /* Radius */
-  --radius-sm: 4px;
-  --radius-md: 12px;
-  --radius-lg: 16px;
-  --radius-xl: 20px;
-  --radius-2xl: 24px;
-  --radius-pill: 999px;
-
-  /* Spacing (8-point grid) */
-  --space-1: 4px;
-  --space-2: 8px;
-  --space-3: 12px;
-  --space-4: 16px;
-  --space-5: 20px;
-  --space-6: 24px;
-  --space-8: 32px;
-  --space-10: 40px;
-
-  /* Components */
-  --button-height: 52px;
-  --input-height: 48px;
-  --navigation-height: 72px;
+  /* Typography — Plus Jakarta Sans for all product UI */
+  --font-display: "Plus Jakarta Sans", system-ui, sans-serif;
+  --font-ui: "Plus Jakarta Sans", system-ui, -apple-system, sans-serif;
 
   /* Effects */
-  --shadow-card: 0 2px 12px rgba(40, 35, 31, 0.04);
-  --shadow-sheet: 0 -8px 32px rgba(40, 35, 31, 0.08);
+  --shadow-card: 0 1px 4px rgba(37, 39, 36, 0.05);
+  --shadow-sheet: 0 -8px 28px rgba(37, 39, 36, 0.12);
 
   /* Motion */
   --motion-fast: 150ms;
@@ -84,27 +65,82 @@
   --motion-slow: 300ms;
 }
 
-[data-theme='dark'] {
-  --rgb-background: 31 28 25;
-  --rgb-surface: 43 38 34;
-  --rgb-surface-elevated: 56 48 42;
-  --rgb-surface-secondary: 50 44 39;
-  --rgb-border: 75 64 55;
-  --rgb-text: 247 243 237;
-  --rgb-text-secondary: 197 183 169;
-  --rgb-primary: 178 139 112;
-  --rgb-primary-hover: 194 156 129;
-  --rgb-primary-text: 31 28 25;
-  --rgb-accent: 178 139 112;
-  --rgb-success: 132 184 148;
-  --rgb-warning: 222 168 102;
-  --rgb-error: 224 128 120;
-  --rgb-info: 158 180 208;
+/* ── Dedicated Editor Workspace Tokens ── */
+/* Graphite Dark (default for Photo Editor) */
+[data-editor-backdrop],
+[data-editor-backdrop='graphite'] {
+  --editor-background: #252724;
+  --editor-panel: #30332F;
+  --editor-panel-elevated: #393D37;
+  --editor-text: #F2F2ED;
+  --editor-text-secondary: #B4B8AD;
+  --editor-border: #484C45;
+  --editor-primary: #68735D;
+  --editor-primary-hover: #78856B;
+  --editor-surface-hover: rgba(242, 242, 237, 0.08);
+  --editor-canvas-well: #1D1F1C;
 
-  --color-canvas-well: #161412;
+  /* Scope shared UI primitives inside editor to Graphite Dark */
+  --rgb-background: 37 39 36;
+  --rgb-surface: 48 51 47;
+  --rgb-surface-elevated: 57 61 55;
+  --rgb-surface-secondary: 57 61 55;
+  --rgb-border: 72 76 69;
+  --rgb-text: 242 242 237;
+  --rgb-text-secondary: 180 184 173;
+  --rgb-primary: 104 115 93;
+  --rgb-primary-hover: 120 133 107;
+  --rgb-primary-text: 255 255 255;
 
-  --shadow-card: 0 2px 14px rgba(0, 0, 0, 0.24);
-  --shadow-sheet: 0 -8px 32px rgba(0, 0, 0, 0.36);
+  --color-background: var(--editor-background);
+  --color-surface: var(--editor-panel);
+  --color-surface-elevated: var(--editor-panel-elevated);
+  --color-surface-secondary: var(--editor-panel-elevated);
+  --color-border: var(--editor-border);
+  --color-text: var(--editor-text);
+  --color-text-secondary: var(--editor-text-secondary);
+  --color-primary: var(--editor-primary);
+  --color-primary-hover: var(--editor-primary-hover);
+  --color-slider-active: #8E9D7F;
+  --color-canvas-well: var(--editor-canvas-well);
+}
+
+/* Chalk Light (alternative for Photo Editor) */
+[data-editor-backdrop='chalk'] {
+  --editor-background: #F2F2ED;
+  --editor-panel: #FFFFFF;
+  --editor-panel-elevated: #E7EAE2;
+  --editor-text: #252724;
+  --editor-text-secondary: #5D6159;
+  --editor-border: #DADBD4;
+  --editor-primary: #68735D;
+  --editor-primary-hover: #58614F;
+  --editor-surface-hover: rgba(37, 39, 36, 0.05);
+  --editor-canvas-well: #E5E6DF;
+
+  /* Scope shared UI primitives inside editor to Chalk Light */
+  --rgb-background: 242 242 237;
+  --rgb-surface: 255 255 255;
+  --rgb-surface-elevated: 231 234 226;
+  --rgb-surface-secondary: 231 234 226;
+  --rgb-border: 218 219 212;
+  --rgb-text: 37 39 36;
+  --rgb-text-secondary: 93 97 89;
+  --rgb-primary: 104 115 93;
+  --rgb-primary-hover: 88 97 79;
+  --rgb-primary-text: 255 255 255;
+
+  --color-background: var(--editor-background);
+  --color-surface: var(--editor-panel);
+  --color-surface-elevated: var(--editor-panel-elevated);
+  --color-surface-secondary: var(--editor-panel-elevated);
+  --color-border: var(--editor-border);
+  --color-text: var(--editor-text);
+  --color-text-secondary: var(--editor-text-secondary);
+  --color-primary: var(--editor-primary);
+  --color-primary-hover: var(--editor-primary-hover);
+  --color-slider-active: #68735D;
+  --color-canvas-well: var(--editor-canvas-well);
 }
 
 @layer base {
@@ -123,7 +159,7 @@
   button:focus-visible,
   a:focus-visible,
   input:focus-visible {
-    outline: 2px solid var(--color-primary);
+    outline: 2px solid var(--color-slider-active);
     outline-offset: 2px;
   }
 }
@@ -143,7 +179,7 @@ input[type='range'].auvori-slider {
   appearance: none;
   background: transparent;
   cursor: pointer;
-  height: 28px;
+  height: 36px;
 }
 
 input[type='range'].auvori-slider::-webkit-slider-runnable-track {
@@ -151,8 +187,8 @@ input[type='range'].auvori-slider::-webkit-slider-runnable-track {
   border-radius: 9999px;
   background: linear-gradient(
     to right,
-    var(--color-primary) 0%,
-    var(--color-primary) var(--slider-pct, 0%),
+    var(--color-slider-active) 0%,
+    var(--color-slider-active) var(--slider-pct, 0%),
     var(--color-border) var(--slider-pct, 0%),
     var(--color-border) 100%
   );
@@ -164,15 +200,15 @@ input[type='range'].auvori-slider::-webkit-slider-thumb {
   width: 18px;
   height: 18px;
   border-radius: 9999px;
-  background: var(--color-surface);
-  border: 2.5px solid var(--color-primary);
-  box-shadow: 0 2px 8px rgba(40, 35, 31, 0.18);
+  background: #FFFFFF;
+  border: 2.5px solid var(--color-slider-active);
+  box-shadow: 0 1px 6px rgba(37, 39, 36, 0.28);
   margin-top: -7px;
   transition: transform var(--motion-fast) ease;
 }
 
 input[type='range'].auvori-slider:active::-webkit-slider-thumb {
-  transform: scale(1.16);
+  transform: scale(1.15);
 }
 
 input[type='range'].auvori-slider::-moz-range-track {
@@ -184,16 +220,16 @@ input[type='range'].auvori-slider::-moz-range-track {
 input[type='range'].auvori-slider::-moz-range-progress {
   height: 4px;
   border-radius: 9999px;
-  background: var(--color-primary);
+  background: var(--color-slider-active);
 }
 
 input[type='range'].auvori-slider::-moz-range-thumb {
   width: 18px;
   height: 18px;
   border-radius: 9999px;
-  background: var(--color-surface);
-  border: 2.5px solid var(--color-primary);
-  box-shadow: 0 2px 8px rgba(40, 35, 31, 0.18);
+  background: #FFFFFF;
+  border: 2.5px solid var(--color-slider-active);
+  box-shadow: 0 1px 6px rgba(37, 39, 36, 0.28);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -206,27 +242,43 @@ input[type='range'].auvori-slider::-moz-range-thumb {
   }
 }
 
-/* Explicit CSS-variable token utilities so hot-reloading works even when Vite dev caches tailwind.config.js */
+/*
+ * Explicit CSS-variable token utilities after @tailwind utilities so HMR works
+ * reliably even when a long-running Vite dev server caches tailwind.config.js.
+ */
 .font-display { font-family: var(--font-display); }
+.font-sans { font-family: var(--font-ui); }
 
+/* ── Backgrounds ── */
 .bg-bg { background-color: rgb(var(--rgb-background)); }
 .bg-surface { background-color: rgb(var(--rgb-surface)); }
 .bg-surface\/90 { background-color: rgb(var(--rgb-surface) / 0.9); }
 .bg-surface\/95 { background-color: rgb(var(--rgb-surface) / 0.95); }
 .bg-surfaceSecondary { background-color: rgb(var(--rgb-surface-secondary)); }
 .hover\:bg-surfaceSecondary:hover { background-color: rgb(var(--rgb-surface-secondary)); }
+.hover\:bg-surfaceSecondary\/50:hover { background-color: rgb(var(--rgb-surface-secondary) / 0.5); }
 .hover\:bg-surfaceSecondary\/60:hover { background-color: rgb(var(--rgb-surface-secondary) / 0.6); }
 
 .bg-primary { background-color: rgb(var(--rgb-primary)); }
 .hover\:bg-primaryHover:hover { background-color: rgb(var(--rgb-primary-hover)); }
-.bg-ivory { background-color: #F7F3ED; }
-.bg-mocha\/90 { background-color: rgb(117 88 70 / 0.9); }
-.bg-ink\/70 { background-color: rgb(40 35 31 / 0.7); }
-.bg-ink\/75 { background-color: rgb(40 35 31 / 0.75); }
-.bg-ink\/80 { background-color: rgb(40 35 31 / 0.8); }
-.bg-ink\/85 { background-color: rgb(40 35 31 / 0.85); }
-.hover\:bg-ink:hover { background-color: #28231F; }
 
+.bg-chalk { background-color: #F2F2ED; }
+.bg-stone { background-color: #DADBD4; }
+.bg-graphite { background-color: #252724; }
+.bg-graphite\/50 { background-color: rgb(37 39 36 / 0.5); }
+.bg-graphite\/75 { background-color: rgb(37 39 36 / 0.75); }
+.bg-graphite\/80 { background-color: rgb(37 39 36 / 0.8); }
+.bg-graphite\/85 { background-color: rgb(37 39 36 / 0.85); }
+.bg-graphite\/90 { background-color: rgb(37 39 36 / 0.9); }
+.hover\:bg-graphite:hover { background-color: #252724; }
+
+.bg-olive { background-color: #68735D; }
+.hover\:bg-olive-hover:hover { background-color: #58614F; }
+.bg-olive-soft { background-color: #E7EAE2; }
+.bg-olive-soft\/70 { background-color: rgb(231 234 226 / 0.7); }
+
+.bg-border\/40 { background-color: rgb(var(--rgb-border) / 0.4); }
+.bg-error { background-color: rgb(var(--rgb-error)); }
 .bg-success\/10 { background-color: rgb(var(--rgb-success) / 0.1); }
 .bg-success\/15 { background-color: rgb(var(--rgb-success) / 0.15); }
 .bg-warning\/10 { background-color: rgb(var(--rgb-warning) / 0.1); }
@@ -234,6 +286,7 @@ input[type='range'].auvori-slider::-moz-range-thumb {
 .bg-error\/15 { background-color: rgb(var(--rgb-error) / 0.15); }
 .bg-info\/15 { background-color: rgb(var(--rgb-info) / 0.15); }
 
+/* ── Text Colors ── */
 .text-textPrimary { color: rgb(var(--rgb-text)); }
 .hover\:text-textPrimary:hover { color: rgb(var(--rgb-text)); }
 .text-textSecondary { color: rgb(var(--rgb-text-secondary)); }
@@ -241,35 +294,43 @@ input[type='range'].auvori-slider::-moz-range-thumb {
 .text-primary { color: rgb(var(--rgb-primary)); }
 .hover\:text-primary:hover { color: rgb(var(--rgb-primary)); }
 .text-primaryText { color: rgb(var(--rgb-primary-text)); }
-.text-ivory { color: #F7F3ED; }
-.text-ink { color: #28231F; }
-.text-taupe { color: #B28B70; }
+
+.text-chalk { color: #F2F2ED; }
+.text-graphite { color: #252724; }
+.text-olive { color: #68735D; }
+.text-olive-soft { color: #E7EAE2; }
+
 .text-success { color: rgb(var(--rgb-success)); }
 .text-warning { color: rgb(var(--rgb-warning)); }
 .text-error { color: rgb(var(--rgb-error)); }
 .text-info { color: rgb(var(--rgb-info)); }
 .fill-primary { fill: rgb(var(--rgb-primary)); }
 
+/* ── Border Colors ── */
 .border-border { border-color: rgb(var(--rgb-border)); }
-.border-sand { border-color: #E6D9C9; }
+.border-border\/60 { border-color: rgb(var(--rgb-border) / 0.6); }
+.border-border\/70 { border-color: rgb(var(--rgb-border) / 0.7); }
+.border-stone { border-color: #DADBD4; }
+.border-olive { border-color: #68735D; }
+.border-olive\/60 { border-color: rgb(104 115 93 / 0.6); }
+.border-graphite\/30 { border-color: rgb(37 39 36 / 0.3); }
 .border-primary { border-color: rgb(var(--rgb-primary)); }
+.hover\:border-olive:hover { border-color: #68735D; }
+.hover\:border-primary\/60:hover { border-color: rgb(var(--rgb-primary) / 0.6); }
 .focus\:border-primary:focus { border-color: rgb(var(--rgb-primary)); }
-.hover\:border-taupe:hover { border-color: #B28B70; }
-.group:hover .group-hover\:border-taupe { border-color: #B28B70; }
-.border-taupe\/50 { border-color: rgb(178 139 112 / 0.5); }
+.border-error { border-color: rgb(var(--rgb-error)); }
+.focus\:border-error:focus { border-color: rgb(var(--rgb-error)); }
 .border-success\/30 { border-color: rgb(var(--rgb-success) / 0.3); }
 .border-success\/40 { border-color: rgb(var(--rgb-success) / 0.4); }
 .border-warning\/30 { border-color: rgb(var(--rgb-warning) / 0.3); }
-.border-error { border-color: rgb(var(--rgb-error)); }
-.focus\:border-error:focus { border-color: rgb(var(--rgb-error)); }
 .border-error\/40 { border-color: rgb(var(--rgb-error) / 0.4); }
 .border-info\/30 { border-color: rgb(var(--rgb-info) / 0.3); }
 .border-info\/40 { border-color: rgb(var(--rgb-info) / 0.4); }
 .divide-border > :not([hidden]) ~ :not([hidden]) { border-color: rgb(var(--rgb-border)); }
 
+/* ── Shadows, Motion ── */
 .shadow-card { box-shadow: var(--shadow-card); }
 .shadow-sheet { box-shadow: var(--shadow-sheet); }
 .duration-fast { transition-duration: var(--motion-fast); }
 .duration-normal { transition-duration: var(--motion-normal); }
 .duration-slow { transition-duration: var(--motion-slow); }
-

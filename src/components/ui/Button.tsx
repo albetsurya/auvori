@@ -11,17 +11,17 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {
   primary:
-    'h-[52px] px-5 rounded-[14px] bg-primary text-primaryText hover:bg-primaryHover active:brightness-95 font-medium text-sm shadow-card',
+    'min-h-[44px] h-12 px-5 rounded-[10px] bg-primary text-primaryText hover:bg-primaryHover active:brightness-95 font-medium text-sm shadow-card',
   secondary:
-    'h-12 px-5 rounded-[14px] bg-transparent border border-border text-textPrimary hover:bg-surfaceSecondary active:brightness-95 font-medium text-sm',
+    'min-h-[44px] h-11 px-5 rounded-[10px] bg-transparent border border-border text-textPrimary hover:bg-surfaceSecondary active:brightness-95 font-medium text-sm',
   soft:
-    'h-12 px-5 rounded-[14px] bg-surfaceSecondary text-textPrimary hover:brightness-95 active:brightness-90 font-medium text-sm',
+    'min-h-[44px] h-11 px-5 rounded-[10px] bg-surfaceSecondary text-textPrimary hover:brightness-95 active:brightness-90 font-medium text-sm border border-border/60',
   ghost:
-    'h-10 px-3 rounded-[12px] bg-transparent text-textPrimary hover:bg-surfaceSecondary active:brightness-95 font-medium text-sm',
+    'min-h-[44px] h-11 px-3 rounded-[8px] bg-transparent text-textPrimary hover:bg-surfaceSecondary active:brightness-95 font-medium text-sm',
   icon:
-    'min-w-[44px] min-h-[44px] w-11 h-11 rounded-[12px] bg-surface border border-border text-textPrimary hover:bg-surfaceSecondary active:scale-95',
+    'min-w-[44px] min-h-[44px] w-11 h-11 rounded-[8px] bg-surface border border-border text-textPrimary hover:bg-surfaceSecondary active:scale-95',
   destructive:
-    'h-12 px-5 rounded-[14px] bg-[#A6534D] text-ivory hover:brightness-95 active:brightness-90 font-medium text-sm'
+    'min-h-[44px] h-11 px-5 rounded-[10px] bg-error text-white hover:brightness-95 active:brightness-90 font-medium text-sm'
 };
 
 export const Button: React.FC<ButtonProps> = ({

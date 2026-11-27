@@ -31,7 +31,7 @@ export const Input: React.FC<InputProps> = ({
         )}
         <input
           id={inputId}
-          className={`w-full h-12 rounded-[12px] bg-surface border text-sm text-textPrimary placeholder:text-textSecondary/70 transition duration-fast focus:outline-none ${
+          className={`w-full h-11 rounded-[8px] bg-surface border text-sm text-textPrimary placeholder:text-textSecondary/70 transition duration-fast focus:outline-none ${
             leftIcon ? 'pl-10 pr-3.5' : 'px-3.5'
           } ${
             error

@@ -27,7 +27,8 @@ export const PresetDetailModal: React.FC<PresetDetailModalProps> = ({
   const [afterUrl, setAfterUrl] = useState<string>('');
   const [showBefore, setShowBefore] = useState(false);
 
-  const sampleId: SamplePhotoId = preset?.category === 'portrait' ? 'park' : preset?.category === 'film' ? 'window' : 'cafe';
+  const sampleId: SamplePhotoId =
+    preset?.category === 'portrait' ? 'park' : preset?.category === 'film' ? 'window' : 'cafe';
   const beforeUrl = preset ? createSamplePhotoDataUrl(sampleId) : '';
 
   useEffect(() => {
@@ -65,7 +66,7 @@ export const PresetDetailModal: React.FC<PresetDetailModalProps> = ({
     >
       <div className="space-y-4">
         <div
-          className="relative aspect-[4/5] max-h-[320px] mx-auto rounded-[18px] overflow-hidden border border-border bg-surfaceSecondary select-none"
+          className="relative aspect-[4/5] max-h-[320px] mx-auto rounded-[12px] overflow-hidden border border-border bg-surfaceSecondary select-none cursor-pointer"
           onPointerDown={() => setShowBefore(true)}
           onPointerUp={() => setShowBefore(false)}
           onPointerLeave={() => setShowBefore(false)}
@@ -81,7 +82,7 @@ export const PresetDetailModal: React.FC<PresetDetailModalProps> = ({
             <div className="w-full h-full animate-pulse bg-surfaceSecondary" />
           )}
 
-          <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-ink/75 text-ivory text-[10px] font-medium">
+          <span className="absolute top-3 left-3 px-2.5 py-1 rounded-[6px] bg-graphite/85 text-chalk text-[10px] font-medium">
             {showBefore ? 'Before' : 'Hold to compare'}
           </span>
 
@@ -92,13 +93,14 @@ export const PresetDetailModal: React.FC<PresetDetailModalProps> = ({
                 PRO
               </StatusBadge>
             ) : preset.badge ? (
-              <StatusBadge tone="mocha">{preset.badge}</StatusBadge>
+              <StatusBadge tone="olive">{preset.badge}</StatusBadge>
             ) : null}
           </div>
         </div>
 
         <p className="text-sm text-textSecondary leading-relaxed">
-          {preset.description || 'Crafted for clean natural tones, balanced highlights, and editorial clarity.'}
+          {preset.description ||
+            'Crafted for clean natural tones, balanced highlights, and editorial clarity.'}
         </p>
 
         <div className="flex flex-wrap gap-1.5">

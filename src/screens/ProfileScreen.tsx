@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { CheckCircle2, Crown, Heart, Moon, Sun, Trash2 } from 'lucide-react';
-import { LicenseState, ThemeMode } from '../types';
+import { Check, CheckCircle2, Crown, Heart, Moon, Sun, Trash2 } from 'lucide-react';
+import { EditorBackdrop, LicenseState } from '../types';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { StatusBadge } from '../components/ui/Chip';
@@ -8,11 +8,11 @@ import { ModalSheet } from '../components/ui/ModalSheet';
 
 interface ProfileScreenProps {
   license: LicenseState;
-  theme: ThemeMode;
+  editorBackdrop: EditorBackdrop;
   defaultWatermark: boolean;
   favoritesCount: number;
   recentsCount: number;
-  onToggleTheme: (next: ThemeMode) => void;
+  onChangeEditorBackdrop: (next: EditorBackdrop) => void;
   onToggleDefaultWatermark: (next: boolean) => void;
   onOpenPro: (tab: 'buy' | 'activate') => void;
   onOpenFavorites: () => void;
@@ -21,11 +21,11 @@ interface ProfileScreenProps {
 
 export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   license,
-  theme,
+  editorBackdrop,
   defaultWatermark,
   favoritesCount,
   recentsCount,
-  onToggleTheme,
+  onChangeEditorBackdrop,
   onToggleDefaultWatermark,
   onOpenPro,
   onOpenFavorites,
@@ -35,13 +35,13 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
 
   return (
     <div className="flex-1 overflow-y-auto no-scrollbar">
-      <div className="max-w-[480px] mx-auto px-5 pt-6 pb-10 space-y-6">
+      <div className="max-w-[540px] md:max-w-[720px] lg:max-w-[820px] mx-auto px-5 sm:px-6 pt-6 lg:pt-8 pb-12 space-y-6">
         <div className="space-y-1">
-          <h1 className="font-display text-[30px] leading-tight font-medium text-textPrimary">
+          <h1 className="text-[28px] sm:text-[32px] leading-tight font-semibold text-textPrimary tracking-tight">
             Studio Profile
           </h1>
-          <p className="text-xs text-textSecondary">
-            Manage Auvori Pro access, theme appearance, and export preferences.
+          <p className="text-xs sm:text-sm text-textSecondary">
+            Manage Auvori Pro access, editor workspace backdrop, and export preferences.
           </p>
         </div>
 
@@ -49,7 +49,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
         <Card variant="info" className="p-5 space-y-4">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-surfaceSecondary border border-border flex items-center justify-center font-display text-xl font-semibold text-primary">
+              <div className="w-12 h-12 rounded-[10px] bg-olive-soft border border-stone flex items-center justify-center text-lg font-semibold text-graphite">
                 {license.email ? license.email[0].toUpperCase() : 'A'}
               </div>
               <div>
@@ -76,20 +76,20 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                 <CheckCircle2 className="w-4 h-4" strokeWidth={1.8} />
                 {license.plan || 'Pro Lifetime'}
               </span>
-              <Button variant="ghost" onClick={() => onOpenPro('activate')} className="text-xs h-9">
+              <Button variant="ghost" onClick={() => onOpenPro('activate')} className="text-xs">
                 Manage License
               </Button>
             </div>
           ) : (
             <div className="grid grid-cols-2 gap-2.5">
-              <Button variant="primary" onClick={() => onOpenPro('buy')} className="h-11 text-xs">
+              <Button variant="primary" onClick={() => onOpenPro('buy')} className="text-xs">
                 <Crown className="w-4 h-4" strokeWidth={1.8} />
                 Beli via Lynk.id
               </Button>
               <Button
                 variant="secondary"
                 onClick={() => onOpenPro('activate')}
-                className="h-11 text-xs"
+                className="text-xs"
               >
                 Aktifkan Kode
               </Button>
@@ -97,57 +97,97 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
           )}
         </Card>
 
-        {/* Appearance & Preferences */}
+        {/* Editor Workspace & Preferences */}
         <div className="space-y-2.5">
           <h2 className="text-xs font-semibold uppercase tracking-wider text-textSecondary px-1">
-            Appearance &amp; Preferences
+            Studio Preferences
           </h2>
 
           <Card variant="settings" className="divide-y divide-border">
-            {/* Theme Mode Toggle */}
-            <div className="p-4 flex items-center justify-between gap-3">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-[12px] bg-surfaceSecondary flex items-center justify-center text-primary">
-                  {theme === 'dark' ? (
-                    <Moon className="w-5 h-5" strokeWidth={1.75} />
-                  ) : (
-                    <Sun className="w-5 h-5" strokeWidth={1.75} />
-                  )}
-                </div>
+            {/* Editor Backdrop Selector */}
+            <div className="p-4 space-y-3">
+              <div className="flex items-start justify-between gap-3">
                 <div>
-                  <div className="text-sm font-medium text-textPrimary">Appearance</div>
-                  <div className="text-xs text-textSecondary">
-                    {theme === 'dark' ? 'Dark Mode (#1F1C19)' : 'Warm Ivory (Default)'}
+                  <div className="text-sm font-medium text-textPrimary">Editor Backdrop</div>
+                  <div className="text-xs text-textSecondary mt-0.5">
+                    Applies to the Photo Editor workspace only. Browse screens stay Chalk Light and
+                    photo tones remain unaffected.
                   </div>
                 </div>
               </div>
 
-              <button
-                role="switch"
-                aria-checked={theme === 'dark'}
-                aria-label="Toggle dark mode"
-                onClick={() => onToggleTheme(theme === 'dark' ? 'light' : 'dark')}
-                className={`w-12 h-7 rounded-full transition duration-fast relative border ${
-                  theme === 'dark'
-                    ? 'bg-primary border-primary'
-                    : 'bg-surfaceSecondary border-border'
-                }`}
+              <div
+                role="radiogroup"
+                aria-label="Editor Backdrop"
+                className="grid grid-cols-1 sm:grid-cols-2 gap-2.5"
               >
-                <span
-                  className={`absolute top-0.5 w-5 h-5 rounded-full bg-surface shadow transition duration-fast ${
-                    theme === 'dark' ? 'left-6' : 'left-0.5'
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={editorBackdrop === 'graphite'}
+                  onClick={() => onChangeEditorBackdrop('graphite')}
+                  className={`min-h-[52px] px-3.5 py-2.5 rounded-[10px] border text-left flex items-center justify-between gap-3 transition duration-fast ${
+                    editorBackdrop === 'graphite'
+                      ? 'border-olive bg-olive-soft/70 text-graphite'
+                      : 'border-border bg-surface text-textPrimary hover:bg-surfaceSecondary/50'
                   }`}
-                />
-              </button>
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <span className="w-8 h-8 rounded-[6px] bg-graphite border border-graphite/30 text-chalk flex items-center justify-center shrink-0">
+                      <Moon className="w-4 h-4" strokeWidth={1.8} />
+                    </span>
+                    <div className="min-w-0">
+                      <div className="text-xs font-semibold truncate">Graphite Dark</div>
+                      <div className="text-[11px] text-textSecondary truncate">
+                        Default studio workspace
+                      </div>
+                    </div>
+                  </div>
+                  {editorBackdrop === 'graphite' && (
+                    <span className="w-5 h-5 rounded-[6px] bg-olive text-white flex items-center justify-center shrink-0">
+                      <Check className="w-3.5 h-3.5" strokeWidth={2.4} />
+                    </span>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={editorBackdrop === 'chalk'}
+                  onClick={() => onChangeEditorBackdrop('chalk')}
+                  className={`min-h-[52px] px-3.5 py-2.5 rounded-[10px] border text-left flex items-center justify-between gap-3 transition duration-fast ${
+                    editorBackdrop === 'chalk'
+                      ? 'border-olive bg-olive-soft/70 text-graphite'
+                      : 'border-border bg-surface text-textPrimary hover:bg-surfaceSecondary/50'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <span className="w-8 h-8 rounded-[6px] bg-chalk border border-stone text-graphite flex items-center justify-center shrink-0">
+                      <Sun className="w-4 h-4" strokeWidth={1.8} />
+                    </span>
+                    <div className="min-w-0">
+                      <div className="text-xs font-semibold truncate">Chalk Light</div>
+                      <div className="text-[11px] text-textSecondary truncate">
+                        Daylight workspace option
+                      </div>
+                    </div>
+                  </div>
+                  {editorBackdrop === 'chalk' && (
+                    <span className="w-5 h-5 rounded-[6px] bg-olive text-white flex items-center justify-center shrink-0">
+                      <Check className="w-3.5 h-3.5" strokeWidth={2.4} />
+                    </span>
+                  )}
+                </button>
+              </div>
             </div>
 
             {/* Favorites shortcut */}
             <button
               onClick={onOpenFavorites}
-              className="w-full p-4 flex items-center justify-between gap-3 text-left hover:bg-surfaceSecondary/60 transition duration-fast"
+              className="w-full min-h-[60px] p-4 flex items-center justify-between gap-3 text-left hover:bg-surfaceSecondary/50 transition duration-fast"
             >
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-[12px] bg-surfaceSecondary flex items-center justify-center text-primary">
+                <div className="w-10 h-10 rounded-[8px] bg-olive-soft border border-stone flex items-center justify-center text-olive">
                   <Heart className="w-5 h-5" strokeWidth={1.75} />
                 </div>
                 <div>
@@ -155,7 +195,9 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                   <div className="text-xs text-textSecondary">Your personal preset collection</div>
                 </div>
               </div>
-              <StatusBadge tone="neutral">{favoritesCount}</StatusBadge>
+              <StatusBadge tone="neutral" className="tabular-nums">
+                {favoritesCount}
+              </StatusBadge>
             </button>
 
             {/* Default Watermark (Pro) */}
@@ -174,16 +216,16 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
                 aria-checked={license.isPro ? defaultWatermark : true}
                 aria-label="Toggle default watermark"
                 onClick={() => onToggleDefaultWatermark(!defaultWatermark)}
-                className={`w-12 h-7 rounded-full transition duration-fast relative border ${
+                className={`w-12 h-7 rounded-full transition duration-fast relative border shrink-0 ${
                   !license.isPro
-                    ? 'opacity-45 bg-surfaceSecondary border-border cursor-not-allowed'
+                    ? 'opacity-45 bg-stone border-border cursor-not-allowed'
                     : defaultWatermark
                     ? 'bg-primary border-primary'
-                    : 'bg-surfaceSecondary border-border'
+                    : 'bg-stone border-border'
                 }`}
               >
                 <span
-                  className={`absolute top-0.5 w-5 h-5 rounded-full bg-surface shadow transition duration-fast ${
+                  className={`absolute top-0.5 w-5 h-5 rounded-full bg-white shadow transition duration-fast ${
                     (license.isPro ? defaultWatermark : true) ? 'left-6' : 'left-0.5'
                   }`}
                 />
@@ -200,7 +242,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
           <Card variant="settings" className="p-4 flex items-center justify-between gap-3">
             <div>
               <div className="text-sm font-medium text-textPrimary">Recent Edits</div>
-              <div className="text-xs text-textSecondary">
+              <div className="text-xs text-textSecondary tabular-nums">
                 {recentsCount} local snapshots stored on device
               </div>
             </div>
@@ -208,7 +250,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
               variant="ghost"
               disabled={recentsCount === 0}
               onClick={() => setConfirmClearOpen(true)}
-              className="text-error text-xs h-10"
+              className="text-error text-xs"
             >
               <Trash2 className="w-4 h-4" strokeWidth={1.8} />
               Clear
@@ -217,7 +259,7 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
         </div>
 
         <p className="text-[11px] text-center text-textSecondary pt-2">
-          Auvori Studio v1.0 · 100% private photo processing on your device.
+          Auvori Studio · Neutral Analog Workspace · 100% private on-device processing.
         </p>
       </div>
 

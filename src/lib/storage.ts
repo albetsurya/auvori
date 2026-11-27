@@ -1,9 +1,37 @@
-import { RecentEdit, ThemeMode } from '../types';
+import { EditorBackdrop, RecentEdit, ThemeMode } from '../types';
 
+const EDITOR_BACKDROP_KEY = 'auvori_editor_backdrop_v1';
 const THEME_KEY = 'auvori_theme_v1';
 const FAVORITES_KEY = 'auvori_favorites_v1';
 const RECENTS_KEY = 'auvori_recents_v1';
 const WATERMARK_KEY = 'auvori_default_watermark_v1';
+
+export function loadEditorBackdrop(): EditorBackdrop {
+  try {
+    const saved = localStorage.getItem(EDITOR_BACKDROP_KEY);
+    return saved === 'chalk' ? 'chalk' : 'graphite';
+  } catch {
+    return 'graphite';
+  }
+}
+
+export function saveEditorBackdrop(backdrop: EditorBackdrop): void {
+  try {
+    localStorage.setItem(EDITOR_BACKDROP_KEY, backdrop);
+  } catch {
+    // ignore storage errors
+  }
+}
+
+export function syncThemeColorMeta(inEditor: boolean, backdrop: EditorBackdrop): void {
+  const root = document.documentElement;
+  root.removeAttribute('data-theme');
+  const metaTheme = document.querySelector('meta[name="theme-color"]');
+  if (metaTheme) {
+    const color = inEditor && backdrop === 'graphite' ? '#252724' : '#F2F2ED';
+    metaTheme.setAttribute('content', color);
+  }
+}
 
 export function loadTheme(): ThemeMode {
   try {
@@ -14,17 +42,8 @@ export function loadTheme(): ThemeMode {
   }
 }
 
-export function applyThemeToDom(theme: ThemeMode): void {
-  const root = document.documentElement;
-  if (theme === 'dark') {
-    root.setAttribute('data-theme', 'dark');
-  } else {
-    root.removeAttribute('data-theme');
-  }
-  const metaTheme = document.querySelector('meta[name="theme-color"]');
-  if (metaTheme) {
-    metaTheme.setAttribute('content', theme === 'dark' ? '#1F1C19' : '#F7F3ED');
-  }
+export function applyThemeToDom(_theme: ThemeMode): void {
+  syncThemeColorMeta(false, 'graphite');
 }
 
 export function saveTheme(theme: ThemeMode): void {
@@ -33,7 +52,6 @@ export function saveTheme(theme: ThemeMode): void {
   } catch {
     // ignore storage errors
   }
-  applyThemeToDom(theme);
 }
 
 export function loadFavoritePresetIds(): string[] {

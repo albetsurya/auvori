@@ -4,15 +4,17 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        display: ['"Cormorant Garamond"', 'Georgia', 'serif'],
+        display: ['"Plus Jakarta Sans"', 'system-ui', 'sans-serif'],
         sans: ['"Plus Jakarta Sans"', 'system-ui', '-apple-system', 'sans-serif']
       },
       colors: {
-        ivory: '#F7F3ED',
-        sand: '#E6D9C9',
-        taupe: '#B28B70',
-        mocha: '#755846',
-        ink: '#28231F',
+        graphite: '#252724',
+        chalk: '#F2F2ED',
+        stone: '#DADBD4',
+        olive: '#68735D',
+        'olive-soft': '#E7EAE2',
+        'olive-hover': '#58614F',
+        slate: '#7C8990',
         bg: 'rgb(var(--rgb-background) / <alpha-value>)',
         surface: 'rgb(var(--rgb-surface) / <alpha-value>)',
         surfaceElevated: 'rgb(var(--rgb-surface-elevated) / <alpha-value>)',

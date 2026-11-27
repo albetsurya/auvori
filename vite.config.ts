@@ -8,12 +8,29 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['icon.svg'],
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
+        maximumFileSizeToCacheInBytes: 5 * 1024 * 1024,
+        runtimeCaching: [
+          {
+            urlPattern: /\.(?:onnx|wasm|bin|json)$/i,
+            handler: 'CacheFirst',
+            options: {
+              cacheName: 'auvori-ai-models-v1',
+              expiration: {
+                maxEntries: 16,
+                maxAgeSeconds: 60 * 60 * 24 * 30
+              }
+            }
+          }
+        ]
+      },
       manifest: {
         name: 'Auvori — Personal Photo Styling Studio',
         short_name: 'Auvori',
-        description: 'Your moments, in your own tone. Studio preset & color grading foto editorial langsung di browser.',
-        theme_color: '#F7F3ED',
-        background_color: '#F7F3ED',
+        description: 'Make every frame count. Personal photo styling & color grading studio directly in your browser.',
+        theme_color: '#F2F2ED',
+        background_color: '#F2F2ED',
         display: 'standalone',
         orientation: 'portrait',
         start_url: '/',

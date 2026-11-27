@@ -72,7 +72,7 @@ export const ProModal: React.FC<ProModalProps> = ({
     >
       {license.isPro ? (
         <div className="space-y-4">
-          <div className="p-4 rounded-[14px] bg-success/10 border border-success/30 space-y-1.5">
+          <div className="p-4 rounded-[12px] bg-success/10 border border-success/30 space-y-1.5">
             <div className="flex items-center gap-2 text-success font-semibold text-sm">
               <CheckCircle2 className="w-4 h-4" strokeWidth={1.8} />
               Status Auvori Pro Aktif
@@ -90,10 +90,10 @@ export const ProModal: React.FC<ProModalProps> = ({
         </div>
       ) : (
         <div className="space-y-4">
-          <div className="grid grid-cols-2 bg-surfaceSecondary p-1 rounded-[12px] border border-border">
+          <div className="grid grid-cols-2 bg-surfaceSecondary p-1 rounded-[8px] border border-border">
             <button
               onClick={() => setTab('buy')}
-              className={`py-2 rounded-[10px] text-xs font-semibold transition duration-fast ${
+              className={`min-h-[40px] py-2 rounded-[6px] text-xs font-semibold transition duration-fast ${
                 tab === 'buy'
                   ? 'bg-primary text-primaryText'
                   : 'text-textSecondary hover:text-textPrimary'
@@ -103,7 +103,7 @@ export const ProModal: React.FC<ProModalProps> = ({
             </button>
             <button
               onClick={() => setTab('activate')}
-              className={`py-2 rounded-[10px] text-xs font-semibold transition duration-fast ${
+              className={`min-h-[40px] py-2 rounded-[6px] text-xs font-semibold transition duration-fast ${
                 tab === 'activate'
                   ? 'bg-primary text-primaryText'
                   : 'text-textSecondary hover:text-textPrimary'
@@ -115,7 +115,7 @@ export const ProModal: React.FC<ProModalProps> = ({
 
           {tab === 'buy' ? (
             <div className="space-y-4">
-              <ul className="space-y-2.5 text-xs text-textPrimary bg-surfaceSecondary p-4 rounded-[14px] border border-border">
+              <ul className="space-y-2.5 text-xs text-textPrimary bg-surfaceSecondary p-4 rounded-[12px] border border-border">
                 <li className="flex items-center gap-2.5">
                   <Sparkles className="w-4 h-4 text-primary shrink-0" strokeWidth={1.8} />
                   <span>Buka seluruh koleksi Pro (Portrait, Korean, Café, Film, Night)</span>
@@ -138,7 +138,7 @@ export const ProModal: React.FC<ProModalProps> = ({
                 href={LYNK_CHECKOUT_URL}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full h-[52px] px-5 rounded-[14px] bg-primary hover:bg-primaryHover text-primaryText font-medium text-sm flex items-center justify-center gap-2 shadow-card transition duration-fast"
+                className="w-full min-h-[44px] h-12 px-5 rounded-[10px] bg-primary hover:bg-primaryHover text-primaryText font-medium text-sm flex items-center justify-center gap-2 shadow-card transition duration-fast"
               >
                 <Crown className="w-4 h-4" strokeWidth={1.8} />
                 <span>Checkout Pro di Lynk.id</span>
@@ -164,7 +164,7 @@ export const ProModal: React.FC<ProModalProps> = ({
               />
 
               {feedback?.type === 'ok' && (
-                <div className="p-3 rounded-[12px] text-xs font-medium bg-success/15 text-success border border-success/30">
+                <div className="p-3 rounded-[10px] text-xs font-medium bg-success/15 text-success border border-success/30">
                   {feedback.text}
                 </div>
               )}
@@ -174,7 +174,9 @@ export const ProModal: React.FC<ProModalProps> = ({
               </Button>
 
               <p className="text-[11px] text-center text-textSecondary">
-                Tips pengujian lokal: ketik <code className="text-textPrimary font-semibold">AUVORI-DEMO</code> untuk mencoba mode Pro.
+                Tips pengujian lokal: ketik{' '}
+                <code className="text-textPrimary font-semibold">AUVORI-DEMO</code> untuk mencoba
+                mode Pro.
               </p>
             </form>
           )}

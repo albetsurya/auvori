@@ -72,22 +72,26 @@ export const PresetsScreen: React.FC<PresetsScreenProps> = ({
 
   return (
     <div className="flex-1 overflow-y-auto no-scrollbar">
-      <div className="max-w-[480px] md:max-w-[760px] mx-auto px-5 pt-6 pb-10 space-y-5">
-        <div className="space-y-1">
-          <h1 className="font-display text-[30px] leading-tight font-medium text-textPrimary">
-            Find your signature tone.
-          </h1>
-          <p className="text-xs text-textSecondary">
-            Curated color recipes designed for natural skin &amp; editorial depth.
-          </p>
-        </div>
+      <div className="max-w-[540px] md:max-w-[780px] lg:max-w-[1280px] mx-auto px-5 sm:px-6 lg:px-8 pt-6 lg:pt-8 pb-12 space-y-5">
+        <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-4">
+          <div className="space-y-1">
+            <h1 className="text-[28px] sm:text-[32px] leading-tight font-semibold text-textPrimary tracking-tight">
+              Find your signature tone.
+            </h1>
+            <p className="text-xs sm:text-sm text-textSecondary">
+              Curated color recipes designed for natural skin &amp; editorial depth.
+            </p>
+          </div>
 
-        <Input
-          value={query}
-          onChange={(e) => setQuery(e.target.value)}
-          placeholder="Search presets (e.g. Rosy, Seoul, Portra)..."
-          leftIcon={<Search className="w-4 h-4" strokeWidth={1.8} />}
-        />
+          <div className="w-full lg:w-[340px]">
+            <Input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search presets (e.g. Rosy, Seoul, Portra)..."
+              leftIcon={<Search className="w-4 h-4" strokeWidth={1.8} />}
+            />
+          </div>
+        </div>
 
         <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1">
           {PRESET_CATEGORIES.map((cat) => (
@@ -109,7 +113,7 @@ export const PresetsScreen: React.FC<PresetsScreenProps> = ({
 
         {visiblePresets.length === 0 ? (
           <Card variant="info" className="p-6 text-center space-y-3">
-            <div className="w-11 h-11 mx-auto rounded-[12px] bg-surfaceSecondary flex items-center justify-center text-taupe">
+            <div className="w-11 h-11 mx-auto rounded-[10px] bg-surfaceSecondary flex items-center justify-center text-olive">
               <Heart className="w-5 h-5" strokeWidth={1.75} />
             </div>
             <div className="space-y-1">
@@ -128,13 +132,13 @@ export const PresetsScreen: React.FC<PresetsScreenProps> = ({
                 setQuery('');
                 onChangeCategory('all');
               }}
-              className="h-10 px-4 text-xs"
+              className="px-4 text-xs"
             >
               Explore all presets
             </Button>
           </Card>
         ) : (
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-3.5">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3.5 sm:gap-4">
             {visiblePresets.map((preset) => {
               const url = previews[preset.id];
               const isFav = favoriteIds.includes(preset.id);
@@ -164,7 +168,7 @@ export const PresetsScreen: React.FC<PresetsScreenProps> = ({
                         onToggleFavorite(preset.id);
                       }}
                       aria-label={`Toggle favorite ${preset.name}`}
-                      className="absolute top-2 right-2 w-10 h-10 rounded-full bg-surface/90 backdrop-blur-sm border border-border flex items-center justify-center text-textPrimary shadow-card"
+                      className="absolute top-2 right-2 min-w-[44px] min-h-[44px] w-11 h-11 rounded-[8px] bg-surface/90 backdrop-blur-sm border border-border flex items-center justify-center text-textPrimary shadow-card hover:scale-105 transition duration-fast"
                     >
                       <Heart
                         className={`w-4 h-4 ${isFav ? 'fill-primary text-primary' : ''}`}
@@ -173,17 +177,17 @@ export const PresetsScreen: React.FC<PresetsScreenProps> = ({
                     </button>
 
                     {preset.isPro && !license.isPro ? (
-                      <span className="absolute bottom-2.5 left-2.5 px-2 py-0.5 rounded-[6px] bg-ink/80 text-ivory text-[10px] font-medium flex items-center gap-1">
+                      <span className="absolute bottom-2.5 left-2.5 px-2 py-0.5 rounded-[6px] bg-graphite/85 text-chalk text-[10px] font-semibold tracking-wider flex items-center gap-1">
                         <Crown className="w-2.5 h-2.5" strokeWidth={1.8} />
                         PRO
                       </span>
                     ) : preset.badge ? (
-                      <span className="absolute bottom-2.5 left-2.5 px-2 py-0.5 rounded-[6px] bg-primary text-primaryText text-[10px] font-medium">
+                      <span className="absolute bottom-2.5 left-2.5 px-2 py-0.5 rounded-[6px] bg-olive text-white text-[10px] font-semibold">
                         {preset.badge}
                       </span>
                     ) : null}
                   </div>
-                  <div className="p-3 bg-surface">
+                  <div className="p-3 bg-surface border-t border-border/60">
                     <div className="text-xs font-semibold text-textPrimary truncate">
                       {preset.name}
                     </div>

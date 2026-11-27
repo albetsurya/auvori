@@ -2,6 +2,10 @@ export type PresetCategory = 'all' | 'free' | 'favorites' | 'portrait' | 'cafe' 
 
 export type AppTab = 'home' | 'presets' | 'discover' | 'profile';
 
+export type EditorBackdrop = 'graphite' | 'chalk';
+
+export type ExportFormat = 'jpeg' | 'png';
+
 export type ThemeMode = 'light' | 'dark';
 
 export type AspectRatioOption = 'original' | '4:5' | '1:1' | '16:9';

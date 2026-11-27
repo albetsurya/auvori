@@ -8,11 +8,11 @@ interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const RADIUS_CLASSES: Record<CardVariant, string> = {
-  photo: 'rounded-[18px] overflow-hidden bg-surface border border-border shadow-card',
-  collection: 'rounded-[16px] overflow-hidden bg-surfaceSecondary border border-border shadow-card',
-  info: 'rounded-[14px] bg-surface border border-border shadow-card',
-  feature: 'rounded-[20px] overflow-hidden bg-surface border border-border shadow-card',
-  settings: 'rounded-[14px] bg-surface border border-border'
+  photo: 'rounded-[12px] overflow-hidden bg-surface border border-border shadow-card',
+  collection: 'rounded-[12px] overflow-hidden bg-surface border border-border shadow-card',
+  info: 'rounded-[12px] bg-surface border border-border shadow-card',
+  feature: 'rounded-[14px] overflow-hidden bg-surface border border-border shadow-card',
+  settings: 'rounded-[12px] bg-surface border border-border'
 };
 
 export const Card: React.FC<CardProps> = ({
@@ -26,7 +26,7 @@ export const Card: React.FC<CardProps> = ({
     <div
       className={`${RADIUS_CLASSES[variant]} ${
         interactive
-          ? 'cursor-pointer transition duration-normal hover:border-taupe active:scale-[0.99]'
+          ? 'cursor-pointer transition duration-normal hover:border-olive active:scale-[0.99]'
           : ''
       } ${className}`}
       {...rest}

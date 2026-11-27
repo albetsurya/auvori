@@ -32,17 +32,17 @@ export const DiscoverScreen: React.FC<DiscoverScreenProps> = ({ onTryLook }) => 
 
   return (
     <div className="flex-1 overflow-y-auto no-scrollbar">
-      <div className="max-w-[480px] md:max-w-[760px] mx-auto px-5 pt-6 pb-10 space-y-6">
+      <div className="max-w-[540px] md:max-w-[780px] lg:max-w-[1280px] mx-auto px-5 sm:px-6 lg:px-8 pt-6 lg:pt-8 pb-12 space-y-6">
         <div className="space-y-1">
-          <h1 className="font-display text-[30px] leading-tight font-medium text-textPrimary">
+          <h1 className="text-[28px] sm:text-[32px] leading-tight font-semibold text-textPrimary tracking-tight">
             Discover
           </h1>
-          <p className="text-xs text-textSecondary">
+          <p className="text-xs sm:text-sm text-textSecondary">
             Editorial tone notes &amp; lookbooks. Hold any photograph to compare Before / After.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 lg:gap-6">
           {DISCOVER_STORIES.map((story) => {
             const preset = PRESETS.find((p) => p.id === story.presetId);
             if (!preset) return null;
@@ -51,7 +51,7 @@ export const DiscoverScreen: React.FC<DiscoverScreenProps> = ({ onTryLook }) => 
             const isHolding = holdingId === story.id;
 
             return (
-              <Card key={story.id} variant="feature">
+              <Card key={story.id} variant="feature" className="flex flex-col">
                 <div
                   className="relative aspect-[4/5] bg-surfaceSecondary select-none cursor-pointer"
                   onPointerDown={() => setHoldingId(story.id)}
@@ -69,22 +69,24 @@ export const DiscoverScreen: React.FC<DiscoverScreenProps> = ({ onTryLook }) => 
                     <div className="w-full h-full animate-pulse bg-surfaceSecondary" />
                   )}
 
-                  <span className="absolute top-3 left-3 px-2.5 py-1 rounded-full bg-ink/75 text-ivory text-[10px] font-medium">
+                  <span className="absolute top-3 left-3 px-2.5 py-1 rounded-[6px] bg-graphite/85 text-chalk text-[10px] font-medium">
                     {isHolding ? 'Before (Original)' : 'Hold to compare'}
                   </span>
                 </div>
 
-                <div className="p-5 space-y-3 bg-surface">
-                  <div className="flex items-center justify-between gap-2">
-                    <StatusBadge tone="neutral">{story.tag}</StatusBadge>
-                    <span className="text-[11px] font-semibold text-primary">{preset.name}</span>
-                  </div>
+                <div className="p-5 flex-1 flex flex-col justify-between gap-4 bg-surface border-t border-border/60">
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between gap-2">
+                      <StatusBadge tone="neutral">{story.tag}</StatusBadge>
+                      <span className="text-[11px] font-semibold text-olive">{preset.name}</span>
+                    </div>
 
-                  <div className="space-y-1">
-                    <h2 className="font-display text-2xl font-semibold text-textPrimary leading-snug">
-                      {story.title}
-                    </h2>
-                    <p className="text-xs text-textSecondary leading-relaxed">{story.excerpt}</p>
+                    <div className="space-y-1">
+                      <h2 className="text-lg font-semibold text-textPrimary leading-snug tracking-tight">
+                        {story.title}
+                      </h2>
+                      <p className="text-xs text-textSecondary leading-relaxed">{story.excerpt}</p>
+                    </div>
                   </div>
 
                   <Button
@@ -92,7 +94,7 @@ export const DiscoverScreen: React.FC<DiscoverScreenProps> = ({ onTryLook }) => 
                     fullWidth
                     onClick={() => onTryLook(preset, story.sampleId)}
                   >
-                    <Sparkles className="w-4 h-4 text-primary" strokeWidth={1.8} />
+                    <Sparkles className="w-4 h-4 text-olive" strokeWidth={1.8} />
                     Try {preset.name} in Editor
                   </Button>
                 </div>

@@ -22,8 +22,8 @@ export const GalleryPickerSheet: React.FC<GalleryPickerSheetProps> = ({
       isOpen={isOpen}
       onClose={onClose}
       variant="sheet"
-      title="Create your look"
-      subtitle="Select a photo from your gallery or explore with a studio sample."
+      title="Open a Photo"
+      subtitle="Select a photo from your device or start with a studio sample."
     >
       <div className="space-y-5">
         <Button
@@ -40,7 +40,7 @@ export const GalleryPickerSheet: React.FC<GalleryPickerSheetProps> = ({
 
         <div className="space-y-2.5">
           <div className="flex items-center gap-1.5 text-xs font-medium text-textSecondary">
-            <Sparkles className="w-3.5 h-3.5 text-taupe" strokeWidth={1.8} />
+            <Sparkles className="w-3.5 h-3.5 text-olive" strokeWidth={1.8} />
             <span>Studio sample photos</span>
           </div>
 
@@ -56,7 +56,7 @@ export const GalleryPickerSheet: React.FC<GalleryPickerSheetProps> = ({
                   }}
                   className="text-left group focus:outline-none"
                 >
-                  <div className="aspect-[4/5] rounded-[14px] overflow-hidden border border-border bg-surfaceSecondary group-hover:border-taupe transition duration-normal">
+                  <div className="aspect-[4/5] rounded-[10px] overflow-hidden border border-border bg-surfaceSecondary group-hover:border-olive transition duration-normal">
                     <img
                       src={src}
                       alt={sample.title}

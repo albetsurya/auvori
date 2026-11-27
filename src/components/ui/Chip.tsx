@@ -12,10 +12,10 @@ export const FilterChip: React.FC<FilterChipProps> = ({
 }) => {
   return (
     <button
-      className={`h-9 px-4 rounded-full text-xs font-medium whitespace-nowrap inline-flex items-center gap-1.5 transition duration-fast shrink-0 ${
+      className={`min-h-[44px] px-3.5 rounded-[8px] text-xs font-medium whitespace-nowrap inline-flex items-center justify-center gap-1.5 transition duration-fast shrink-0 ${
         selected
           ? 'bg-primary text-primaryText border border-primary'
-          : 'bg-transparent border border-border text-textSecondary hover:text-textPrimary hover:bg-surfaceSecondary'
+          : 'bg-surface border border-border text-textSecondary hover:text-textPrimary hover:bg-surfaceSecondary'
       } ${className}`}
       {...rest}
     >
@@ -24,10 +24,11 @@ export const FilterChip: React.FC<FilterChipProps> = ({
   );
 };
 
-export type BadgeTone = 'neutral' | 'mocha' | 'warning' | 'success' | 'info';
+export type BadgeTone = 'neutral' | 'olive' | 'mocha' | 'warning' | 'success' | 'info';
 
 const TONE_CLASSES: Record<BadgeTone, string> = {
   neutral: 'bg-surfaceSecondary text-textPrimary border border-border',
+  olive: 'bg-primary text-primaryText',
   mocha: 'bg-primary text-primaryText',
   warning: 'bg-warning/15 text-warning border border-warning/30',
   success: 'bg-success/15 text-success border border-success/30',
@@ -47,7 +48,7 @@ export const StatusBadge: React.FC<StatusBadgeProps> = ({
 }) => {
   return (
     <span
-      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-[6px] text-[10px] font-medium tracking-wide uppercase leading-tight ${TONE_CLASSES[tone]} ${className}`}
+      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-[6px] text-[10px] font-semibold tracking-wider uppercase leading-tight ${TONE_CLASSES[tone]} ${className}`}
     >
       {children}
     </span>

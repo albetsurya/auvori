@@ -22,10 +22,14 @@ export const Slider: React.FC<SliderProps> = ({
   ariaLabel
 }) => {
   const pct = max === min ? 0 : ((value - min) / (max - min)) * 100;
-  const formatted = formatValue ? formatValue(value) : value > 0 && min < 0 ? `+${value}` : String(value);
+  const formatted = formatValue
+    ? formatValue(value)
+    : value > 0 && min < 0
+    ? `+${value}`
+    : String(value);
 
   return (
-    <div className="flex items-center gap-3 min-h-[34px]">
+    <div className="flex items-center gap-3 min-h-[40px]">
       <span className="text-xs font-medium text-textPrimary w-24 shrink-0 truncate">{label}</span>
       <input
         type="range"
