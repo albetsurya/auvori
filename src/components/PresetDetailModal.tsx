@@ -48,6 +48,8 @@ export const PresetDetailModal: React.FC<PresetDetailModalProps> = ({
   if (!preset) return null;
 
   const traits: string[] = [];
+  if (preset.lookType === 'adaptive') traits.push('Adaptive Flash');
+  if (preset.recipe.relighting) traits.push('Subject Relight');
   if (preset.recipe.toneCurve) traits.push('Tone Curve');
   if (preset.recipe.colorGrading) traits.push('3-Way Grade');
   if (preset.recipe.effects && preset.recipe.effects.bloomStrength > 0) traits.push('Highlight Bloom');
@@ -61,7 +63,9 @@ export const PresetDetailModal: React.FC<PresetDetailModalProps> = ({
   if (preset.recipe.grain > 0) traits.push('Organic Grain');
   if (traits.length === 0) traits.push('Balanced Tone');
 
-  const collectionTitle = SIGNATURE_COLLECTIONS.find((c) => c.id === preset.collectionId)?.title;
+  const collectionTitle =
+    SIGNATURE_COLLECTIONS.find((c) => c.id === preset.collectionId)?.title ??
+    (preset.collectionId === 'direct-flash' ? 'Direct Flash' : undefined);
   const catLabel = PRESET_CATEGORIES.find((c) => c.id === preset.category)?.label ?? preset.category;
   const subtitleText = collectionTitle
     ? `${collectionTitle.toUpperCase()} · ${(preset.lookType || 'signature').toUpperCase()}`

@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Header } from './components/Header';
-import { PhotoCanvas } from './components/PhotoCanvas';
+import { AdaptiveStatusUi, PhotoCanvas } from './components/PhotoCanvas';
 import { PresetDrawer } from './components/PresetDrawer';
 import { ExportModal, ExportSuccessMeta, formatBytes } from './components/ExportModal';
 import { ProModal } from './components/ProModal';
@@ -29,7 +29,9 @@ import {
   PresetCategory,
   RecentEdit
 } from './types';
-import { buildEffectiveRecipe } from './lib/imageEngine';
+import { buildEffectiveRecipe, prepareTransformedSource } from './lib/imageEngine';
+import { resolveAdaptiveRelighting } from './engine/analysis/adaptive-relighting';
+import { AnalysisResult } from './engine/analysis/analysis-types';
 import { PhotoPipeline } from './engine/pipeline/photo-pipeline';
 import { createSamplePhotoDataUrl, SamplePhotoId } from './lib/samplePhoto';
 import { loadSavedLicense } from './lib/license';
@@ -112,6 +114,14 @@ export default function App() {
   const [history, setHistory] = useState<EditorSnapshot[]>([]);
   const [historyIndex, setHistoryIndex] = useState<number>(-1);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
+
+  // Adaptive Look non-blocking AI analysis state (lazy-triggered only for adaptive presets)
+  const analysisSeqRef = useRef<number>(0);
+  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
+  const [adaptiveStatus, setAdaptiveStatus] = useState<AdaptiveStatusUi>({
+    status: 'idle',
+    label: ''
+  });
 
   useEffect(() => {
     syncThemeColorMeta(Boolean(sourceImage), editorBackdrop);
@@ -408,6 +418,96 @@ export default function App() {
     [activePreset, intensity, manual]
   );
 
+  const transformRevisionKey = useMemo(
+    () => `aspect=${transform.aspect}|rot=${transform.rotate}|flip=${transform.flipH ? 1 : 0}`,
+    [transform.aspect, transform.rotate, transform.flipH]
+  );
+
+  const isAdaptivePresetActive = activePreset.lookType === 'adaptive';
+
+  useEffect(() => {
+    const pipeline = editorPipelineRef.current;
+    if (!sourceImage || !pipeline || !isAdaptivePresetActive) {
+      analysisSeqRef.current++;
+      pipeline?.cancelAdaptiveAnalysis();
+      setAnalysisResult(null);
+      setAdaptiveStatus({ status: 'idle', label: '' });
+      return;
+    }
+
+    const seq = ++analysisSeqRef.current;
+    const hasTransform =
+      transform.rotate !== 0 || transform.flipH || transform.aspect !== 'original';
+    const targetSrc = hasTransform ? prepareTransformedSource(sourceImage, transform) : sourceImage;
+
+    const cached = pipeline.getCachedAdaptiveAnalysis({
+      source: targetSrc,
+      sourceId: 'editor-source',
+      sourceRevision,
+      transformRevision: transformRevisionKey
+    });
+
+    if (cached) {
+      const resolved = resolveAdaptiveRelighting(activePreset.recipe.relighting, cached);
+      setAnalysisResult(cached);
+      setAdaptiveStatus({
+        status: resolved.statusKind.startsWith('fallback') ? 'fallback' : 'ready',
+        mode: resolved.mode,
+        label: resolved.statusLabel
+      });
+      return;
+    }
+
+    setAnalysisResult(null);
+    setAdaptiveStatus({
+      status: 'analyzing',
+      label: 'Analyzing subject & light...'
+    });
+
+    pipeline
+      .analyzeAdaptive({
+        source: targetSrc,
+        sourceId: 'editor-source',
+        sourceRevision,
+        transformRevision: transformRevisionKey
+      })
+      .then((outcome) => {
+        if (seq !== analysisSeqRef.current || outcome.cancelled) return;
+        if (!outcome.result) {
+          setAnalysisResult(null);
+          setAdaptiveStatus({
+            status: 'fallback',
+            mode: 'fallback-signature',
+            label: 'Signature Fallback · Offline Mode'
+          });
+          return;
+        }
+        const resolved = resolveAdaptiveRelighting(activePreset.recipe.relighting, outcome.result);
+        setAnalysisResult(outcome.result);
+        setAdaptiveStatus({
+          status: resolved.statusKind.startsWith('fallback') ? 'fallback' : 'ready',
+          mode: resolved.mode,
+          label: resolved.statusLabel
+        });
+      })
+      .catch(() => {
+        if (seq !== analysisSeqRef.current) return;
+        setAnalysisResult(null);
+        setAdaptiveStatus({
+          status: 'fallback',
+          mode: 'fallback-signature',
+          label: 'Signature Fallback · Offline Mode'
+        });
+      });
+  }, [
+    sourceImage,
+    sourceRevision,
+    transform,
+    transformRevisionKey,
+    isAdaptivePresetActive,
+    activePreset.id
+  ]);
+
   return (
     <div className="h-[100dvh] w-full flex flex-col bg-bg text-textPrimary overflow-hidden">
       <input
@@ -455,6 +555,8 @@ export default function App() {
                 effectiveRecipe={effectiveRecipe}
                 transform={transform}
                 activePreset={activePreset}
+                analysisResult={analysisResult}
+                adaptiveStatus={adaptiveStatus}
                 isProUnlocked={license.isPro}
                 splitMode={splitMode}
                 onOpenPro={() => {
@@ -619,6 +721,7 @@ export default function App() {
         effectiveRecipe={effectiveRecipe}
         transform={transform}
         activePreset={activePreset}
+        analysisResult={analysisResult}
         isProUnlocked={license.isPro}
         defaultWatermark={defaultWatermark}
         onClose={() => setIsExportOpen(false)}

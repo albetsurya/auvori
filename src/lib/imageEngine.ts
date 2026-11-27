@@ -1,8 +1,16 @@
 import { ColorRecipe, ImageTransform } from '../types';
 import {
+  AdaptiveRenderMap,
+  buildAdaptiveRenderMap,
+  getCachedAdaptiveRenderMap,
+  resolveAdaptiveRelighting
+} from '../engine/analysis/adaptive-relighting';
+import { AnalysisResult } from '../engine/analysis/analysis-types';
+import {
   applyRecipeToPixelBuffer,
   buildEffectiveHsl,
   buildEffectiveRecipe,
+  hasActiveRelighting,
   isNeutralRecipe
 } from '../engine/core/pixel-grade';
 import {
@@ -116,6 +124,7 @@ export function canvasToBlob(
 
 export interface ApplyRecipeOptions {
   cacheKey?: Partial<PortraitMaskCacheKey>;
+  analysisResult?: AnalysisResult | null;
   includeGrain?: boolean;
 }
 
@@ -167,8 +176,22 @@ export function applyRecipeToCanvas(
       })
     : null;
 
+  const rlParams = resolveAdaptiveRelighting(recipe.relighting, options?.analysisResult);
+  let adaptiveMap: AdaptiveRenderMap | null = null;
+  if (rlParams.active && hasActiveRelighting(recipe.relighting) && options?.analysisResult) {
+    const falloffRad = recipe.relighting?.falloffRadius ?? 1.15;
+    adaptiveMap =
+      getCachedAdaptiveRenderMap(options.analysisResult, falloffRad) ??
+      buildAdaptiveRenderMap(options.analysisResult, data, w, h, falloffRad);
+    if (adaptiveMap.mode === 'fallback-signature') {
+      adaptiveMap = null;
+    }
+  }
+
   applyRecipeToPixelBuffer(data, w, h, recipe, {
     portraitMask: portraitInfo,
+    adaptiveMap,
+    relightingParams: rlParams,
     includeGrain: options?.includeGrain
   });
 

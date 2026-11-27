@@ -233,9 +233,9 @@ def run_verify_p1(page, base_url: str) -> None:
         SIGNATURE_PRESETS,
     )
     print(f"[p1-core] {json.dumps(core_checks)}")
-    assert core_checks["totalPresets"] == 25
+    assert core_checks["totalPresets"] == 26
     assert core_checks["freeCount"] == 6
-    assert core_checks["proCount"] == 18
+    assert core_checks["proCount"] == 19
     assert core_checks["rosyFree"] is True
     assert core_checks["seoulFree"] is True
     assert core_checks["velvetPro"] is True

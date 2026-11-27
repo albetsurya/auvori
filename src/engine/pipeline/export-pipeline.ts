@@ -1,4 +1,5 @@
 import { ColorRecipe, ExportFormat, ImageTransform } from '../../types';
+import { AnalysisResult } from '../analysis/analysis-types';
 import { assignSourceId, ImageSourceLike } from '../analysis/mask-cache';
 import { RendererBackend } from '../renderer/renderer.types';
 import { WebGL2Renderer } from '../renderer/webgl2.renderer';
@@ -18,6 +19,7 @@ export interface ExportPipelineRequest {
   sourceRevision?: number;
   transformRevision?: number;
   recipe: ColorRecipe;
+  analysisResult?: AnalysisResult | null;
   mode: 'single' | 'card';
   options: {
     showWatermark: boolean;
@@ -107,7 +109,8 @@ export async function exportPhotographBlob(
         transformRevision,
         recipe,
         targetCanvas: glCanvas,
-        maxDimension: maxDim
+        maxDimension: maxDim,
+        analysisResult: req.analysisResult
       });
       backend = res.backend;
 
@@ -143,7 +146,8 @@ export async function exportPhotographBlob(
           transformRevision,
           recipe,
           targetCanvas: gradedCanvas,
-          maxDimension: maxDim
+          maxDimension: maxDim,
+          analysisResult: req.analysisResult
         });
         backend = res.backend;
       } finally {

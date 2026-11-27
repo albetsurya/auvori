@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Columns2, Crown, Download, Image as ImageIcon } from 'lucide-react';
 import { ColorRecipe, ExportFormat, ImageTransform, Preset } from '../types';
+import { AnalysisResult } from '../engine/analysis/analysis-types';
 import {
   applyRecipeToCanvas,
   composeBeforeAfterCard,
@@ -29,6 +30,7 @@ interface ExportModalProps {
   effectiveRecipe: ColorRecipe;
   transform: ImageTransform;
   activePreset: Preset;
+  analysisResult?: AnalysisResult | null;
   isProUnlocked: boolean;
   defaultWatermark: boolean;
   onClose: () => void;
@@ -69,6 +71,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
   effectiveRecipe,
   transform,
   activePreset,
+  analysisResult = null,
   isProUnlocked,
   defaultWatermark,
   onClose,
@@ -101,7 +104,8 @@ export const ExportModal: React.FC<ExportModalProps> = ({
         sourceId: 'editor-source',
         sourceRevision,
         transformRevision
-      }
+      },
+      analysisResult
     });
 
     if (mode === 'card') {
@@ -121,6 +125,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
     isProUnlocked,
     activePreset.name,
     effectiveRecipe,
+    analysisResult,
     transform,
     sourceRevision,
     transformRevision
@@ -179,6 +184,7 @@ export const ExportModal: React.FC<ExportModalProps> = ({
         sourceRevision,
         transformRevision,
         recipe: effectiveRecipe,
+        analysisResult,
         mode,
         options: {
           showWatermark: isProUnlocked ? showWatermark : true,
@@ -214,7 +220,8 @@ export const ExportModal: React.FC<ExportModalProps> = ({
           sourceId: 'editor-source',
           sourceRevision,
           transformRevision
-        }
+        },
+        analysisResult
       });
       onExportSuccess(thumbCanvas.toDataURL('image/jpeg', 0.78), {
         sizeBytes: result.blob.size,

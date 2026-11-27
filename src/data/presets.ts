@@ -1076,5 +1076,78 @@ export const PRESETS: Preset[] = [
         halationThreshold: 0.9
       }
     })
+  },
+
+  // === P4 ADAPTIVE LOOK FLAGSHIP PRO PRESET (Layer A–E CV-Guided Relighting) ===
+  {
+    id: 'direct-flash',
+    name: 'Direct Flash',
+    category: 'portrait',
+    isPro: true,
+    badge: 'Adaptive',
+    lookType: 'adaptive',
+    collectionId: 'direct-flash',
+    recipeVersion: 3,
+    accentColor: '#d9ceb8',
+    description: 'Subject-aware on-camera flash look that lifts faces softly, guards skin & fabric highlights, and deepens background depth.',
+    adaptive: {
+      requiresFaceDetection: true,
+      requiresSkinSegmentation: true,
+      requiresSubjectSegmentation: true,
+      requiresLightingAnalysis: true,
+      fallbackStrategy: 'conservative-signature'
+    },
+    recipe: makeRecipe({
+      exposure: 1,
+      contrast: 6,
+      highlights: -4,
+      shadows: 8,
+      whites: 4,
+      blacks: -2,
+      dehaze: 3,
+      sharpen: 10,
+      temperature: 0,
+      tint: 0,
+      saturation: -2,
+      vibrance: 6,
+      skinBright: 0,
+      skinRosy: 0,
+      grain: 5,
+      vignette: 6,
+      hsl: {
+        red: { h: 0, s: 3, l: 2 },
+        orange: { h: 0, s: -2, l: 2 },
+        yellow: { h: 0, s: -14, l: -2 },
+        green: { h: 6, s: -14, l: -6 },
+        blue: { h: 2, s: -8, l: -2 }
+      },
+      toneCurve: {
+        blackPoint: 0.005,
+        shadowPivot: -0.015,
+        midtonePivot: 0.016,
+        highlightShoulder: 0.09,
+        whitePoint: 1.0
+      },
+      colorGrading: {
+        shadowTint: [-0.005, 0.0, 0.008],
+        midtoneTint: [0.002, 0.002, -0.001],
+        highlightTint: [0.002, 0.003, 0.003],
+        balance: 0.02
+      },
+      effects: {
+        bloomStrength: 8,
+        bloomThreshold: 0.82,
+        halationStrength: 0,
+        halationThreshold: 0.9
+      },
+      relighting: {
+        subjectLift: 32,
+        flashSpecular: 18,
+        backgroundFalloff: 20,
+        falloffRadius: 1.15,
+        skinHighlightGuard: 0.88,
+        shadowFloorGuard: 0.85
+      }
+    })
   }
 ];

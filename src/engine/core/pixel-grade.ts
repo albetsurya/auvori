@@ -8,6 +8,10 @@ import {
   RelightingRecipe
 } from '../../types';
 import {
+  AdaptiveRenderMap,
+  ResolvedRelightingParams
+} from '../analysis/adaptive-relighting';
+import {
   blurFloatMap,
   computePortraitMaskFromRgba,
   computeSkinWeight,
@@ -611,7 +615,43 @@ function sampleSkinSmoothAndEdge(
 
 export interface PixelGradeOptions {
   portraitMask?: Pick<PortraitMaskResult, 'mw' | 'mh' | 'mask'> | null;
+  adaptiveMap?: AdaptiveRenderMap | null;
+  relightingParams?: ResolvedRelightingParams | null;
   includeGrain?: boolean;
+}
+
+function sampleAdaptiveChannels(
+  map: AdaptiveRenderMap,
+  u: number,
+  v: number
+): [number, number, number] {
+  const w = map.width;
+  const h = map.height;
+  const gx = clamp01(u) * (w - 1);
+  const gy = clamp01(v) * (h - 1);
+  const x0 = Math.floor(gx);
+  const y0 = Math.floor(gy);
+  const x1 = x0 + 1 < w ? x0 + 1 : x0;
+  const y1 = y0 + 1 < h ? y0 + 1 : y0;
+  const fx = gx - x0;
+  const fy = gy - y0;
+
+  const i00 = (y0 * w + x0) * 4;
+  const i10 = (y0 * w + x1) * 4;
+  const i01 = (y1 * w + x0) * 4;
+  const i11 = (y1 * w + x1) * 4;
+
+  const w00 = (1 - fx) * (1 - fy);
+  const w10 = fx * (1 - fy);
+  const w01 = (1 - fx) * fy;
+  const w11 = fx * fy;
+  const d = map.rgbaData;
+
+  return [
+    (d[i00] * w00 + d[i10] * w10 + d[i01] * w01 + d[i11] * w11) / 255,
+    (d[i00 + 1] * w00 + d[i10 + 1] * w10 + d[i01 + 1] * w01 + d[i11 + 1] * w11) / 255,
+    (d[i00 + 2] * w00 + d[i10 + 2] * w10 + d[i01 + 2] * w01 + d[i11 + 2] * w11) / 255
+  ];
 }
 
 function applyFinalStages(
@@ -730,6 +770,11 @@ export function applyRecipeToPixelBuffer(
       : null;
   const cg = hasActiveColorGrading(recipe.colorGrading) ? recipe.colorGrading! : null;
   const fx = hasActiveOpticalEffects(recipe.effects) ? recipe.effects! : null;
+  const adaptiveMap = options?.adaptiveMap ?? null;
+  const rl = options?.relightingParams ?? null;
+  const hasActiveAdaptiveRl = Boolean(
+    rl?.active && adaptiveMap && adaptiveMap.mode !== 'fallback-signature' && hasActiveRelighting(recipe.relighting)
+  );
 
   const halfW = w * 0.5;
   const halfH = h * 0.5;
@@ -802,6 +847,78 @@ export function applyRecipeToPixelBuffer(
         r += (br - r) * bMix;
         g += (bg - g) * bMix;
         b += (bb - b) * bMix;
+      }
+
+      // 0d. Adaptive Flash Relighting (Layers C & D — matches GLSL uHasRelighting path)
+      if (hasActiveAdaptiveRl && adaptiveMap && rl) {
+        const [sSubj, sFalloff, sSkin] = sampleAdaptiveChannels(adaptiveMap, (x + 0.5) * invW, ny);
+        const rlDepthFade = 1 - 0.45 * smoothstep(0.75, 0.96, ny);
+        const fgWeight = smoothstep(0.36, 0.80, sSubj) * (0.30 + 0.70 * sFalloff);
+        const bgWeight = smoothstep(0.62, 0.12, sSubj) * rlDepthFade;
+        const preLum = clamp01(0.299 * r + 0.587 * g + 0.114 * b);
+
+        if (bgWeight > 0.01 && rl.backgroundFalloff > 0) {
+          const bgHlTame = 1 - rl.backgroundFalloff * 0.18 * bgWeight * smoothstep(0.45, 0.92, preLum);
+          const bgShadowKeep =
+            smoothstep(0.02, 0.14, preLum) * rl.shadowFloorGuard + (1 - rl.shadowFloorGuard);
+          const rawAtten = 1 - rl.backgroundFalloff * 0.52 * bgWeight * (0.35 + 0.65 * bgShadowKeep);
+          const bgAtten = Math.max(0.55, Math.min(1, rawAtten)) * bgHlTame;
+          r *= bgAtten;
+          g *= bgAtten;
+          b *= bgAtten;
+          const bGray = 0.299 * r + 0.587 * g + 0.114 * b;
+          const bDesat = rl.backgroundFalloff * 0.16 * bgWeight;
+          r += (bGray - r) * bDesat;
+          g += (bGray - g) * bDesat;
+          b += (bGray - b) * bDesat;
+        }
+
+        if (fgWeight > 0.01) {
+          const skinMask = rl.isPortrait ? clamp01(sSkin * smoothstep(0.28, 0.68, sSubj)) : 0;
+          const hlProtect = 1 - rl.skinHighlightGuard * 0.84 * smoothstep(0.54, 0.88, preLum);
+          const shadowBase = 0.36 + 0.64 * smoothstep(0.018, 0.12, preLum);
+          const shadowLiftWindow = 1 + (shadowBase - 1) * rl.shadowFloorGuard;
+          const skinCap = 1 - 0.52 * skinMask;
+          const gainAmt = rl.subjectLift * fgWeight * hlProtect * shadowLiftWindow * skinCap;
+
+          const multGain = 1 + gainAmt * (0.88 + 0.28 * (1 - preLum));
+          r *= multGain;
+          g *= multGain;
+          b *= multGain;
+          const maxMultC = Math.max(r, g, b);
+          if (maxMultC > 0.84) {
+            const rScale = softHighlightRoll(maxMultC) / maxMultC;
+            r *= rScale;
+            g *= rScale;
+            b *= rScale;
+          }
+
+          const midLum = clamp01(0.299 * r + 0.587 * g + 0.114 * b);
+          const specEnv =
+            4 * midLum * (1 - midLum) * smoothstep(0.22, 0.6, midLum) * (1 - smoothstep(0.72, 0.92, midLum));
+          const specBoost = 1 + rl.flashSpecular * fgWeight * specEnv * (1 - 0.42 * skinMask);
+          r *= specBoost;
+          g *= specBoost;
+          b *= specBoost;
+          const maxSpecC = Math.max(r, g, b);
+          if (maxSpecC > 0.84) {
+            const sScale = softHighlightRoll(maxSpecC) / maxSpecC;
+            r *= sScale;
+            g *= sScale;
+            b *= sScale;
+          }
+
+          if (skinMask > 0.01 && rl.skinWarmBalance > 0) {
+            const skLum = clamp01(0.299 * r + 0.587 * g + 0.114 * b);
+            const midEnv = 4 * skLum * (1 - skLum);
+            const wStrength =
+              skinMask * rl.skinWarmBalance * clamp01(gainAmt * 2.0 + 0.2 * fgWeight) * hlProtect;
+            const satRestore = 1 + 0.06 * wStrength * midEnv;
+            r = clamp01(skLum + (r - skLum) * satRestore);
+            g = clamp01(skLum + (g - skLum) * satRestore);
+            b = clamp01(skLum + (b - skLum) * satRestore);
+          }
+        }
       }
 
       // 1. Smooth Dehaze (monotonic toe curve in [0, 1])

@@ -1,7 +1,13 @@
 import { ColorRecipe } from '../../types';
+import {
+  AdaptiveRenderMap,
+  buildAdaptiveRenderMap,
+  getCachedAdaptiveRenderMap,
+  resolveAdaptiveRelighting
+} from '../analysis/adaptive-relighting';
 import { assignSourceId } from '../analysis/mask-cache';
 import { getPortraitMask } from '../analysis/portrait-mask';
-import { applyRecipeToPixelBuffer, isNeutralRecipe } from '../core/pixel-grade';
+import { applyRecipeToPixelBuffer, hasActiveRelighting, isNeutralRecipe } from '../core/pixel-grade';
 import { IPhotoRenderer, RenderFrameRequest, RenderFrameResult } from './renderer.types';
 
 function resolveSourceSize(source: RenderFrameRequest['source']): { width: number; height: number } {
@@ -80,8 +86,22 @@ export class Canvas2DRenderer implements IPhotoRenderer {
       });
     }
 
+    const rlParams = resolveAdaptiveRelighting(recipe.relighting, request.analysisResult);
+    let adaptiveMap: AdaptiveRenderMap | null = null;
+    if (rlParams.active && hasActiveRelighting(recipe.relighting) && request.analysisResult) {
+      const falloffRad = recipe.relighting?.falloffRadius ?? 1.15;
+      adaptiveMap =
+        getCachedAdaptiveRenderMap(request.analysisResult, falloffRad) ??
+        buildAdaptiveRenderMap(request.analysisResult, imgData.data, w, h, falloffRad);
+      if (adaptiveMap.mode === 'fallback-signature') {
+        adaptiveMap = null;
+      }
+    }
+
     applyRecipeToPixelBuffer(imgData.data, w, h, recipe, {
       portraitMask,
+      adaptiveMap,
+      relightingParams: rlParams,
       includeGrain: request.includeGrain
     });
 
@@ -94,7 +114,8 @@ export class Canvas2DRenderer implements IPhotoRenderer {
       durationMs: performance.now() - t0,
       maskMethod: portraitMask?.method,
       maskConfidence: portraitMask?.confidence,
-      maskFromCache: portraitMask?.fromCache
+      maskFromCache: portraitMask?.fromCache,
+      adaptiveMode: adaptiveMap ? adaptiveMap.mode : recipe.relighting ? rlParams.mode : undefined
     };
   }
 

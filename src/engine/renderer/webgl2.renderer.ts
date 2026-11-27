@@ -1,4 +1,10 @@
 import { ColorRecipe, HslMix } from '../../types';
+import {
+  AdaptiveRenderMap,
+  buildAdaptiveRenderMap,
+  getCachedAdaptiveRenderMap,
+  resolveAdaptiveRelighting
+} from '../analysis/adaptive-relighting';
 import { assignSourceId, getCachedPortraitMask, setCachedPortraitMask } from '../analysis/mask-cache';
 import { computePortraitMaskFromRgba, PortraitMaskResult } from '../analysis/portrait-mask';
 import {
@@ -6,6 +12,7 @@ import {
   clamp01,
   hasActiveColorGrading,
   hasActiveOpticalEffects,
+  hasActiveRelighting,
   isNeutralRecipe
 } from '../core/pixel-grade';
 import { buildMonotoneToneCurveKnots, isNeutralToneCurve } from '../core/tone-curve';
@@ -117,6 +124,11 @@ export class WebGL2Renderer implements IPhotoRenderer {
   private uploadedMaskW = 1;
   private uploadedMaskH = 1;
 
+  private adaptiveTex: WebGLTexture | null = null;
+  private uploadedAdaptiveKey = '';
+  private uploadedAdaptiveW = 1;
+  private uploadedAdaptiveH = 1;
+
   // Offscreen FBO pool
   private portraitFbo: FboTarget | null = null;
   private bokehFboA: FboTarget | null = null;
@@ -213,11 +225,26 @@ export class WebGL2Renderer implements IPhotoRenderer {
 
       this.sourceTex = this.createLinearTex(gl);
       this.maskTex = this.createLinearTex(gl);
+      this.adaptiveTex = this.createLinearTex(gl);
 
-      // Initialize dummy 1x1 mask texture so samplers remain bound safely even without active mask
+      // Initialize dummy 1x1 mask & adaptive textures so samplers remain bound safely
       gl.bindTexture(gl.TEXTURE_2D, this.maskTex);
       gl.pixelStorei(gl.UNPACK_ALIGNMENT, 1);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.R8, 1, 1, 0, gl.RED, gl.UNSIGNED_BYTE, new Uint8Array([255]));
+
+      gl.bindTexture(gl.TEXTURE_2D, this.adaptiveTex);
+      gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
+      gl.texImage2D(
+        gl.TEXTURE_2D,
+        0,
+        gl.RGBA8,
+        1,
+        1,
+        0,
+        gl.RGBA,
+        gl.UNSIGNED_BYTE,
+        new Uint8Array([255, 0, 0, 255])
+      );
     } catch {
       this.dispose();
       this.initFailed = true;
@@ -404,6 +431,27 @@ export class WebGL2Renderer implements IPhotoRenderer {
     return maskRes;
   }
 
+  private sampleGuideRgba(
+    source: RenderFrameRequest['source'],
+    w: number,
+    h: number
+  ): { data: Uint8ClampedArray; width: number; height: number } {
+    const maxSample = 320;
+    const scale = Math.min(1, maxSample / Math.max(w, h));
+    const gw = Math.max(32, Math.round(w * scale));
+    const gh = Math.max(32, Math.round(h * scale));
+    const sampleCanvas = this.createCanvas(gw, gh);
+    const sCtx = sampleCanvas.getContext('2d', { willReadFrequently: true }) as
+      | CanvasRenderingContext2D
+      | OffscreenCanvasRenderingContext2D
+      | null;
+    if (!sCtx) {
+      return { data: new Uint8ClampedArray(gw * gh * 4), width: gw, height: gh };
+    }
+    sCtx.drawImage(source as CanvasImageSource, 0, 0, gw, gh);
+    return { data: sCtx.getImageData(0, 0, gw, gh).data, width: gw, height: gh };
+  }
+
   private drawPass(
     prog: ProgramHandle,
     target: FboTarget | null,
@@ -471,6 +519,49 @@ export class WebGL2Renderer implements IPhotoRenderer {
     let maskRes: PortraitMaskResult | null = null;
     if (needsPortraitMask) {
       maskRes = this.resolveAndUploadMask(request, w, h, sourceId);
+    }
+
+    const rlParams = resolveAdaptiveRelighting(recipe.relighting, request.analysisResult);
+    const hasRelight = Boolean(
+      rlParams.active &&
+        hasActiveRelighting(recipe.relighting) &&
+        request.analysisResult &&
+        this.adaptiveTex
+    );
+    let adaptiveMap: AdaptiveRenderMap | null = null;
+    if (hasRelight && request.analysisResult) {
+      const falloffRad = recipe.relighting?.falloffRadius ?? 1.15;
+      adaptiveMap = getCachedAdaptiveRenderMap(request.analysisResult, falloffRad);
+      if (!adaptiveMap) {
+        const guideSample = this.sampleGuideRgba(request.source, w, h);
+        adaptiveMap = buildAdaptiveRenderMap(
+          request.analysisResult,
+          guideSample.data,
+          guideSample.width,
+          guideSample.height,
+          falloffRad
+        );
+      }
+      if (adaptiveMap.mode === 'fallback-signature') {
+        adaptiveMap = null;
+      } else if (this.uploadedAdaptiveKey !== adaptiveMap.cacheKey) {
+        gl.bindTexture(gl.TEXTURE_2D, this.adaptiveTex);
+        gl.pixelStorei(gl.UNPACK_ALIGNMENT, 4);
+        gl.texImage2D(
+          gl.TEXTURE_2D,
+          0,
+          gl.RGBA8,
+          adaptiveMap.width,
+          adaptiveMap.height,
+          0,
+          gl.RGBA,
+          gl.UNSIGNED_BYTE,
+          adaptiveMap.rgbaData
+        );
+        this.uploadedAdaptiveKey = adaptiveMap.cacheKey;
+        this.uploadedAdaptiveW = adaptiveMap.width;
+        this.uploadedAdaptiveH = adaptiveMap.height;
+      }
     }
 
     // 1. Optional bokeh downsample + separable 2-pass blur
@@ -577,13 +668,28 @@ export class WebGL2Renderer implements IPhotoRenderer {
     gl.bindTexture(gl.TEXTURE_2D, bokehTex);
     gl.uniform1i(getUniform(gl, gp, 'uBokehTex'), 2);
 
+    gl.activeTexture(gl.TEXTURE3);
+    gl.bindTexture(gl.TEXTURE_2D, this.adaptiveTex);
+    gl.uniform1i(getUniform(gl, gp, 'uAdaptiveTex'), 3);
+
     gl.uniform2i(getUniform(gl, gp, 'uSize'), w, h);
     gl.uniform2i(getUniform(gl, gp, 'uMaskSize'), this.uploadedMaskW, this.uploadedMaskH);
     gl.uniform2i(getUniform(gl, gp, 'uBokehSize'), bw, bh);
+    gl.uniform2i(getUniform(gl, gp, 'uAdaptiveSize'), this.uploadedAdaptiveW, this.uploadedAdaptiveH);
     gl.uniform1i(getUniform(gl, gp, 'uHasMask'), needsPortraitMask ? 1 : 0);
     gl.uniform1i(getUniform(gl, gp, 'uHasBokeh'), hasBokeh ? 1 : 0);
     gl.uniform1i(getUniform(gl, gp, 'uIncludeGrain'), request.includeGrain === false ? 0 : 1);
     gl.uniform1i(getUniform(gl, gp, 'uApplyFinalStages'), hasEffects ? 0 : 1);
+
+    const activeRelight = Boolean(adaptiveMap && rlParams.active);
+    gl.uniform1i(getUniform(gl, gp, 'uHasRelighting'), activeRelight ? 1 : 0);
+    gl.uniform1i(getUniform(gl, gp, 'uRlIsPortrait'), rlParams.isPortrait ? 1 : 0);
+    gl.uniform1f(getUniform(gl, gp, 'uRlSubjectLift'), activeRelight ? rlParams.subjectLift : 0);
+    gl.uniform1f(getUniform(gl, gp, 'uRlFlashSpecular'), activeRelight ? rlParams.flashSpecular : 0);
+    gl.uniform1f(getUniform(gl, gp, 'uRlBgFalloff'), activeRelight ? rlParams.backgroundFalloff : 0);
+    gl.uniform1f(getUniform(gl, gp, 'uRlSkinHighlightGuard'), rlParams.skinHighlightGuard);
+    gl.uniform1f(getUniform(gl, gp, 'uRlShadowFloorGuard'), rlParams.shadowFloorGuard);
+    gl.uniform1f(getUniform(gl, gp, 'uRlSkinWarmBalance'), rlParams.skinWarmBalance);
 
     gl.uniform1f(getUniform(gl, gp, 'uDehazeK'), clamp01(recipe.dehaze / 50) * 0.34);
     gl.uniform1f(getUniform(gl, gp, 'uExpMult'), Math.pow(2, recipe.exposure / 55));
@@ -715,7 +821,8 @@ export class WebGL2Renderer implements IPhotoRenderer {
       durationMs: performance.now() - t0,
       maskMethod: maskRes?.method,
       maskConfidence: maskRes?.confidence,
-      maskFromCache: maskRes?.fromCache
+      maskFromCache: maskRes?.fromCache,
+      adaptiveMode: adaptiveMap ? adaptiveMap.mode : recipe.relighting ? rlParams.mode : undefined
     };
   }
 
@@ -765,6 +872,7 @@ export class WebGL2Renderer implements IPhotoRenderer {
 
       if (this.sourceTex) gl.deleteTexture(this.sourceTex);
       if (this.maskTex) gl.deleteTexture(this.maskTex);
+      if (this.adaptiveTex) gl.deleteTexture(this.adaptiveTex);
       if (this.quadVbo) gl.deleteBuffer(this.quadVbo);
       if (this.quadVao) gl.deleteVertexArray(this.quadVao);
 
@@ -788,6 +896,7 @@ export class WebGL2Renderer implements IPhotoRenderer {
     this.finalFbo = null;
     this.sourceTex = null;
     this.maskTex = null;
+    this.adaptiveTex = null;
     this.quadVbo = null;
     this.quadVao = null;
     this.baseProg = null;

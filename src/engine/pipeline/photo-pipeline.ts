@@ -4,14 +4,20 @@ import {
   AdaptiveAnalyzeRequest,
   AdaptiveAnalyzer,
 } from '../analysis/adaptive-analysis';
+import {
+  AdaptiveRenderMap,
+  buildAdaptiveRenderMap,
+  getCachedAdaptiveRenderMap,
+  resolveAdaptiveRelighting
+} from '../analysis/adaptive-relighting';
 import { AnalysisResult } from '../analysis/analysis-types';
 import { assignSourceId, getCachedPortraitMask, ImageSourceLike, setCachedPortraitMask } from '../analysis/mask-cache';
 import { computePortraitMaskFromRgba, PortraitMaskResult } from '../analysis/portrait-mask';
-import { buildEffectiveRecipe, isNeutralRecipe } from '../core/pixel-grade';
+import { buildEffectiveRecipe, hasActiveRelighting, isNeutralRecipe } from '../core/pixel-grade';
 import { Canvas2DRenderer } from '../renderer/canvas2d.renderer';
 import { RenderFrameRequest, RenderFrameResult, RendererBackend } from '../renderer/renderer.types';
 import { WebGL2Renderer } from '../renderer/webgl2.renderer';
-import type { ImageWorkerRequest, ImageWorkerResponse } from '../../workers/image.worker';
+import type { ImageWorkerRequest, ImageWorkerResponse, WorkerAdaptiveMapPayload } from '../../workers/image.worker';
 
 export interface PhotoPipelineOptions {
   preferWebGL2?: boolean;
@@ -26,6 +32,7 @@ export interface PreviewRequest {
   recipe: ColorRecipe;
   targetCanvas: HTMLCanvasElement;
   maxDimension?: number;
+  analysisResult?: AnalysisResult | null;
   includeGrain?: boolean;
 }
 
@@ -312,6 +319,7 @@ export class PhotoPipeline {
           targetCanvas: request.targetCanvas,
           maxDimension: request.maxDimension,
           portraitMask: maskRes,
+          analysisResult: request.analysisResult,
           includeGrain: request.includeGrain
         };
         return await this.glRenderer.render(frameReq);
@@ -339,6 +347,7 @@ export class PhotoPipeline {
       recipe: request.recipe,
       targetCanvas: request.targetCanvas,
       maxDimension: request.maxDimension,
+      analysisResult: request.analysisResult,
       includeGrain: request.includeGrain
     });
   }
@@ -387,6 +396,52 @@ export class PhotoPipeline {
 
         try {
           const transferPayload = await sourceToTransferPayload(req.source, w, h);
+
+          let workerAdaptivePayload: WorkerAdaptiveMapPayload | null = null;
+          const rlParams = resolveAdaptiveRelighting(req.recipe.relighting, req.analysisResult);
+          if (
+            rlParams.active &&
+            hasActiveRelighting(req.recipe.relighting) &&
+            req.analysisResult
+          ) {
+            const falloffRad = req.recipe.relighting?.falloffRadius ?? 1.15;
+            let adaptiveMap: AdaptiveRenderMap | null = getCachedAdaptiveRenderMap(
+              req.analysisResult,
+              falloffRad
+            );
+            if (!adaptiveMap) {
+              const gScale = Math.min(1, 320 / Math.max(srcW, srcH));
+              const gw = Math.max(32, Math.round(srcW * gScale));
+              const gh = Math.max(32, Math.round(srcH * gScale));
+              const gCanvas = document.createElement('canvas');
+              gCanvas.width = gw;
+              gCanvas.height = gh;
+              const gCtx = gCanvas.getContext('2d', { willReadFrequently: true });
+              const gRgba = gCtx
+                ? (gCtx.drawImage(req.source as CanvasImageSource, 0, 0, gw, gh),
+                  gCtx.getImageData(0, 0, gw, gh).data)
+                : null;
+              adaptiveMap = buildAdaptiveRenderMap(
+                req.analysisResult,
+                gRgba,
+                gw,
+                gh,
+                falloffRad
+              );
+            }
+            if (adaptiveMap.mode !== 'fallback-signature') {
+              const copy = new Uint8Array(adaptiveMap.rgbaData);
+              workerAdaptivePayload = {
+                width: adaptiveMap.width,
+                height: adaptiveMap.height,
+                rgbaBuffer: copy.buffer,
+                mode: adaptiveMap.mode,
+                cacheKey: adaptiveMap.cacheKey
+              };
+              transferPayload.transfer.push(copy.buffer);
+            }
+          }
+
           const id = ++this.jobSeq;
           const resp = await this.callWorker(
             {
@@ -404,6 +459,8 @@ export class PhotoPipeline {
                 height: h,
                 transformRevision: req.transformRevision
               },
+              adaptiveMap: workerAdaptivePayload,
+              relightingParams: workerAdaptivePayload ? rlParams : null,
               includeGrain: req.includeGrain
             },
             transferPayload.transfer
@@ -451,6 +508,9 @@ export class PhotoPipeline {
             maskMethod: resp.maskMethod,
             maskConfidence: resp.maskConfidence,
             maskFromCache: resp.maskFromCache,
+            adaptiveMode: req.recipe.relighting
+              ? resolveAdaptiveRelighting(req.recipe.relighting, req.analysisResult).mode
+              : undefined,
             cancelled: false
           });
         } catch {
@@ -462,6 +522,7 @@ export class PhotoPipeline {
             recipe: req.recipe,
             targetCanvas: req.targetCanvas,
             maxDimension: req.maxDimension,
+            analysisResult: req.analysisResult,
             includeGrain: req.includeGrain
           });
           task.resolve(fallbackRes);

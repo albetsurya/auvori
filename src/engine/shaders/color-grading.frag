@@ -7,15 +7,27 @@ out vec4 outColor;
 uniform sampler2D uSourceTex;
 uniform sampler2D uMaskTex;
 uniform sampler2D uBokehTex;
+uniform sampler2D uAdaptiveTex;
 
 uniform ivec2 uSize;
 uniform ivec2 uMaskSize;
 uniform ivec2 uBokehSize;
+uniform ivec2 uAdaptiveSize;
 uniform int uHasMask;
 uniform int uHasBokeh;
 uniform int uHasHsl;
 uniform int uIncludeGrain;
 uniform int uApplyFinalStages;
+
+// P4 Adaptive Relighting (Direct Flash)
+uniform int uHasRelighting;
+uniform int uRlIsPortrait;
+uniform float uRlSubjectLift;
+uniform float uRlFlashSpecular;
+uniform float uRlBgFalloff;
+uniform float uRlSkinHighlightGuard;
+uniform float uRlShadowFloorGuard;
+uniform float uRlSkinWarmBalance;
 
 uniform float uDehazeK;
 uniform float uExpMult;
@@ -235,6 +247,12 @@ vec3 sampleBokehRgb(vec2 uv) {
   return texture(uBokehTex, aligned).rgb;
 }
 
+vec3 sampleAdaptiveChannels(vec2 uv) {
+  vec2 fSize = vec2(uAdaptiveSize);
+  vec2 aligned = (clamp(uv, 0.0, 1.0) * (fSize - 1.0) + 0.5) / fSize;
+  return texture(uAdaptiveTex, aligned).rgb;
+}
+
 void main() {
   int x = int(gl_FragCoord.x);
   int y = int(gl_FragCoord.y);
@@ -259,6 +277,62 @@ void main() {
     vec3 bokehRgb = sampleBokehRgb(vec2(nx, ny));
     float bMix = min(1.0, uBokehAmtScale * smoothstep(0.18, 0.86, effBgMask));
     rgb += (bokehRgb - rgb) * bMix;
+  }
+
+  // 0d. Adaptive Flash Relighting (Layers C & D — exact CPU pixel-grade parity)
+  if (uHasRelighting == 1) {
+    vec3 ad = sampleAdaptiveChannels(vec2(nx, ny));
+    float sSubj = ad.r;
+    float sFalloff = ad.g;
+    float sSkin = ad.b;
+    float rlDepthFade = 1.0 - 0.45 * smoothstep(0.75, 0.96, ny);
+    float fgWeight = smoothstep(0.36, 0.80, sSubj) * (0.30 + 0.70 * sFalloff);
+    float bgWeight = smoothstep(0.62, 0.12, sSubj) * rlDepthFade;
+    float preLum = clamp01(0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b);
+
+    if (bgWeight > 0.01 && uRlBgFalloff > 0.0) {
+      float bgHlTame = 1.0 - uRlBgFalloff * 0.18 * bgWeight * smoothstep(0.45, 0.92, preLum);
+      float bgShadowKeep = smoothstep(0.02, 0.14, preLum) * uRlShadowFloorGuard + (1.0 - uRlShadowFloorGuard);
+      float rawAtten = 1.0 - uRlBgFalloff * 0.52 * bgWeight * (0.35 + 0.65 * bgShadowKeep);
+      float bgAtten = clamp(rawAtten, 0.55, 1.0) * bgHlTame;
+      rgb *= bgAtten;
+      float bGray = 0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b;
+      float bDesat = uRlBgFalloff * 0.16 * bgWeight;
+      rgb += (vec3(bGray) - rgb) * bDesat;
+    }
+
+    if (fgWeight > 0.01) {
+      float skinMask = (uRlIsPortrait == 1) ? clamp01(sSkin * smoothstep(0.28, 0.68, sSubj)) : 0.0;
+      float hlProtect = 1.0 - uRlSkinHighlightGuard * 0.84 * smoothstep(0.54, 0.88, preLum);
+      float shadowBase = 0.36 + 0.64 * smoothstep(0.018, 0.12, preLum);
+      float shadowLiftWindow = mix(1.0, shadowBase, uRlShadowFloorGuard);
+      float skinCap = 1.0 - 0.52 * skinMask;
+      float gainAmt = uRlSubjectLift * fgWeight * hlProtect * shadowLiftWindow * skinCap;
+
+      float multGain = 1.0 + gainAmt * (0.88 + 0.28 * (1.0 - preLum));
+      rgb *= multGain;
+      float maxMultC = max(rgb.r, max(rgb.g, rgb.b));
+      if (maxMultC > 0.84) {
+        rgb *= softHighlightRoll(maxMultC) / maxMultC;
+      }
+
+      float midLum = clamp01(0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b);
+      float specEnv = 4.0 * midLum * (1.0 - midLum) * smoothstep(0.22, 0.60, midLum) * (1.0 - smoothstep(0.72, 0.92, midLum));
+      float specBoost = 1.0 + uRlFlashSpecular * fgWeight * specEnv * (1.0 - 0.42 * skinMask);
+      rgb *= specBoost;
+      float maxSpecC = max(rgb.r, max(rgb.g, rgb.b));
+      if (maxSpecC > 0.84) {
+        rgb *= softHighlightRoll(maxSpecC) / maxSpecC;
+      }
+
+      if (skinMask > 0.01 && uRlSkinWarmBalance > 0.0) {
+        float skLum = clamp01(0.299 * rgb.r + 0.587 * rgb.g + 0.114 * rgb.b);
+        float midEnv = 4.0 * skLum * (1.0 - skLum);
+        float wStrength = skinMask * uRlSkinWarmBalance * clamp01(gainAmt * 2.0 + 0.20 * fgWeight) * hlProtect;
+        float satRestore = 1.0 + 0.06 * wStrength * midEnv;
+        rgb = clamp(vec3(skLum) + (rgb - vec3(skLum)) * satRestore, 0.0, 1.0);
+      }
+    }
   }
 
   // 1. Smooth Dehaze (monotonic toe curve in [0, 1])

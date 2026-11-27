@@ -1,7 +1,20 @@
 import { ColorRecipe } from '../types';
+import {
+  AdaptiveFlashMode,
+  AdaptiveRenderMap,
+  ResolvedRelightingParams
+} from '../engine/analysis/adaptive-relighting';
 import { getCachedPortraitMask, PortraitMaskCacheKey, setCachedPortraitMask } from '../engine/analysis/mask-cache';
 import { computePortraitMaskFromRgba, PortraitMaskResult } from '../engine/analysis/portrait-mask';
 import { applyRecipeToPixelBuffer, isNeutralRecipe } from '../engine/core/pixel-grade';
+
+export interface WorkerAdaptiveMapPayload {
+  width: number;
+  height: number;
+  rgbaBuffer: ArrayBuffer;
+  mode: AdaptiveFlashMode;
+  cacheKey: string;
+}
 
 export interface WorkerRenderPayload {
   id: number;
@@ -12,6 +25,8 @@ export interface WorkerRenderPayload {
   height: number;
   recipe: ColorRecipe;
   cacheKey: PortraitMaskCacheKey;
+  adaptiveMap?: WorkerAdaptiveMapPayload | null;
+  relightingParams?: ResolvedRelightingParams | null;
   includeGrain?: boolean;
 }
 
@@ -212,8 +227,20 @@ self.onmessage = async (event: MessageEvent<ImageWorkerRequest>) => {
             }
           }
 
+          const adaptiveMap: AdaptiveRenderMap | null = msg.adaptiveMap
+            ? {
+                width: msg.adaptiveMap.width,
+                height: msg.adaptiveMap.height,
+                rgbaData: new Uint8Array(msg.adaptiveMap.rgbaBuffer),
+                mode: msg.adaptiveMap.mode,
+                cacheKey: msg.adaptiveMap.cacheKey
+              }
+            : null;
+
           applyRecipeToPixelBuffer(data, msg.width, msg.height, msg.recipe, {
             portraitMask,
+            adaptiveMap,
+            relightingParams: msg.relightingParams ?? null,
             includeGrain: msg.includeGrain
           });
         }

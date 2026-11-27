@@ -1,8 +1,16 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Crown, Lock, Maximize2 } from 'lucide-react';
 import { ColorRecipe, ImageTransform, Preset } from '../types';
+import { AdaptiveFlashMode } from '../engine/analysis/adaptive-relighting';
+import { AnalysisResult } from '../engine/analysis/analysis-types';
 import { prepareTransformedSource } from '../lib/imageEngine';
 import { PhotoPipeline } from '../engine/pipeline/photo-pipeline';
+
+export interface AdaptiveStatusUi {
+  status: 'idle' | 'analyzing' | 'ready' | 'fallback';
+  mode?: AdaptiveFlashMode;
+  label: string;
+}
 
 interface PhotoCanvasProps {
   pipeline: PhotoPipeline;
@@ -14,6 +22,8 @@ interface PhotoCanvasProps {
   activePreset: Preset;
   isProUnlocked: boolean;
   splitMode: boolean;
+  analysisResult?: AnalysisResult | null;
+  adaptiveStatus?: AdaptiveStatusUi;
   onOpenPro: () => void;
 }
 
@@ -27,6 +37,8 @@ export const PhotoCanvas: React.FC<PhotoCanvasProps> = ({
   activePreset,
   isProUnlocked,
   splitMode,
+  analysisResult = null,
+  adaptiveStatus,
   onOpenPro
 }) => {
   const editedCanvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -108,7 +120,8 @@ export const PhotoCanvas: React.FC<PhotoCanvasProps> = ({
           transformRevision,
           recipe: effectiveRecipe,
           targetCanvas: canvas,
-          maxDimension: 1080
+          maxDimension: 1080,
+          analysisResult
         })
         .then((res) => {
           if (active && !res.cancelled) {
@@ -124,7 +137,7 @@ export const PhotoCanvas: React.FC<PhotoCanvasProps> = ({
       active = false;
       cancelAnimationFrame(raf);
     };
-  }, [pipeline, transformedSource, effectiveRecipe, sourceRevision, transformRevision]);
+  }, [pipeline, transformedSource, effectiveRecipe, sourceRevision, transformRevision, analysisResult]);
 
   const updateSplitFromClientX = (clientX: number) => {
     if (!frameRef.current) return;
@@ -284,21 +297,46 @@ export const PhotoCanvas: React.FC<PhotoCanvasProps> = ({
           </span>
         )}
 
-        {/* Fit zoom reset pill when zoomed */}
-        {zoom > 1.05 && (
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setZoom(1);
-              setPan({ x: 0, y: 0 });
-            }}
-            onPointerDown={(e) => e.stopPropagation()}
-            className="absolute top-3 right-3 min-h-[44px] px-3 py-1.5 rounded-[8px] bg-graphite/85 text-chalk text-[11px] font-medium inline-flex items-center gap-1.5 shadow-card tabular-nums"
-          >
-            <Maximize2 className="w-3.5 h-3.5" strokeWidth={1.8} />
-            Fit ({zoom.toFixed(1)}x)
-          </button>
-        )}
+        {/* Top-right adaptive status + optional fit zoom reset pill */}
+        <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
+          {activePreset.lookType === 'adaptive' &&
+            adaptiveStatus &&
+            adaptiveStatus.status !== 'idle' &&
+            !splitMode && (
+              <span
+                data-testid="adaptive-status-pill"
+                data-adaptive-status={adaptiveStatus.status}
+                data-adaptive-mode={adaptiveStatus.mode ?? ''}
+                className="px-2.5 py-1 rounded-[6px] bg-graphite/85 text-chalk text-[10px] font-medium inline-flex items-center gap-1.5 backdrop-blur-sm border border-stone/25 shadow-card pointer-events-none"
+              >
+                <span
+                  className={`w-1.5 h-1.5 rounded-full ${
+                    adaptiveStatus.status === 'analyzing'
+                      ? 'bg-chalk animate-pulse'
+                      : adaptiveStatus.status === 'ready'
+                        ? 'bg-olive-soft'
+                        : 'bg-amber-300'
+                  }`}
+                />
+                <span>{adaptiveStatus.label}</span>
+              </span>
+            )}
+
+          {zoom > 1.05 && (
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setZoom(1);
+                setPan({ x: 0, y: 0 });
+              }}
+              onPointerDown={(e) => e.stopPropagation()}
+              className="min-h-[44px] px-3 py-1.5 rounded-[8px] bg-graphite/85 text-chalk text-[11px] font-medium inline-flex items-center gap-1.5 shadow-card tabular-nums"
+            >
+              <Maximize2 className="w-3.5 h-3.5" strokeWidth={1.8} />
+              Fit ({zoom.toFixed(1)}x)
+            </button>
+          )}
+        </div>
 
         {/* Loading indicator for heavy renders */}
         {isRendering && (

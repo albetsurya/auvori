@@ -1,4 +1,6 @@
 import { ColorRecipe } from '../../types';
+import { AdaptiveFlashMode } from '../analysis/adaptive-relighting';
+import { AnalysisResult } from '../analysis/analysis-types';
 import { ImageSourceLike, PortraitMaskMethod } from '../analysis/mask-cache';
 import { PortraitMaskResult } from '../analysis/portrait-mask';
 
@@ -14,6 +16,8 @@ export interface RenderFrameRequest {
   maxDimension?: number;
   /** Optional precomputed portrait mask (e.g., from Worker or P1 AI segmentation) */
   portraitMask?: PortraitMaskResult | null;
+  /** Optional cached Phase 3 AI analysis used by Adaptive Looks (e.g. Direct Flash) */
+  analysisResult?: AnalysisResult | null;
   /** Allow toggling deterministic film grain (useful for clean golden GPU-vs-CPU comparisons) */
   includeGrain?: boolean;
 }
@@ -26,6 +30,7 @@ export interface RenderFrameResult {
   maskMethod?: PortraitMaskMethod;
   maskConfidence?: number;
   maskFromCache?: boolean;
+  adaptiveMode?: AdaptiveFlashMode;
   cancelled?: boolean;
 }
 
