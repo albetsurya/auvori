@@ -1,0 +1,1222 @@
+{
+  "library": {
+    "count": 50,
+    "distinctCategories": [
+      "architecture",
+      "backlit portrait",
+      "beach",
+      "black object on dark background",
+      "black-and-white original",
+      "close-up portrait",
+      "cloudy daylight",
+      "coffee",
+      "colored LED lighting",
+      "dark clothing portrait",
+      "deep shadows",
+      "flowers",
+      "food",
+      "forest",
+      "glass objects",
+      "golden-hour photography",
+      "harsh sunlight portrait",
+      "high dynamic range",
+      "human subject with complex background",
+      "indoor caf\u00e9",
+      "indoor plants",
+      "indoor window-light portrait",
+      "landscape daylight",
+      "landscape sunset",
+      "low-light portrait",
+      "metallic objects",
+      "mixed color temperature portrait",
+      "mixed tungsten and daylight",
+      "multiple faces",
+      "multiple subjects",
+      "natural daylight portrait",
+      "outdoor portrait",
+      "pet photography",
+      "portrait",
+      "product photography",
+      "reflective objects",
+      "restaurant lighting",
+      "small subject in large environment",
+      "street photography",
+      "strong highlights",
+      "tabletop objects",
+      "urban street",
+      "white clothing portrait",
+      "white object on bright background",
+      "window-lit interior"
+    ]
+  },
+  "gpuSwiftShader": {
+    "renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+    "hasWebGPU": false,
+    "maxTexSize": 8192
+  },
+  "gpuHardware": {
+    "renderer": "ANGLE (Intel, Mesa Intel(R) Iris(R) Xe Graphics (ADL GT2), OpenGL ES 3.2)",
+    "hasWebGPU": false,
+    "maxTexSize": 16384
+  },
+  "benchSwiftShader": [
+    {
+      "name": "p6_07_daylight_smiling_portrait.jpg",
+      "glMs": 648.1999999992549,
+      "backend": "webgl2",
+      "w": 1200,
+      "h": 800
+    },
+    {
+      "name": "p6_14_latte_croissant_cafe.jpg",
+      "glMs": 355.4000000022352,
+      "backend": "webgl2",
+      "w": 1200,
+      "h": 900
+    },
+    {
+      "name": "p6_30_forest_bridge_hiker.jpg",
+      "glMs": 437.3999999985099,
+      "backend": "webgl2",
+      "w": 1200,
+      "h": 800
+    },
+    {
+      "name": "p6_25_sea_waves_sunset.jpg",
+      "glMs": 295.30000000074506,
+      "backend": "webgl2",
+      "w": 1200,
+      "h": 800
+    }
+  ],
+  "benchHardware": [
+    {
+      "name": "p6_07_daylight_smiling_portrait.jpg",
+      "glMs": 172.5,
+      "backend": "webgl2",
+      "w": 1200,
+      "h": 800
+    },
+    {
+      "name": "p6_14_latte_croissant_cafe.jpg",
+      "glMs": 65.09999999776483,
+      "backend": "webgl2",
+      "w": 1200,
+      "h": 900
+    },
+    {
+      "name": "p6_30_forest_bridge_hiker.jpg",
+      "glMs": 197.69999999925494,
+      "backend": "webgl2",
+      "w": 1200,
+      "h": 800
+    },
+    {
+      "name": "p6_25_sea_waves_sunset.jpg",
+      "glMs": 64.59999999776483,
+      "backend": "webgl2",
+      "w": 1200,
+      "h": 800
+    }
+  ],
+  "exportSwiftShader": {
+    "freePortrait": {
+      "w": 853,
+      "h": 1280,
+      "mime": "image/jpeg",
+      "bytes": 107463,
+      "ms": 664.6999999992549,
+      "backend": "webgl2"
+    },
+    "proPortraitJpg": {
+      "w": 2731,
+      "h": 4096,
+      "orig": false,
+      "mime": "image/jpeg",
+      "bytes": 1003178,
+      "ms": 2944.599999997765,
+      "backend": "webgl2"
+    },
+    "proLandscapePng": {
+      "w": 4096,
+      "h": 2731,
+      "orig": false,
+      "mime": "image/png",
+      "bytes": 12135450,
+      "ms": 3042.300000000745,
+      "backend": "webgl2"
+    },
+    "proSquareCpu": {
+      "w": 3456,
+      "h": 3456,
+      "mime": "image/png",
+      "bytes": 11025496,
+      "ms": 4179.79999999702,
+      "backend": "worker-canvas2d"
+    },
+    "proCard": {
+      "w": 3856,
+      "h": 1578,
+      "mime": "image/jpeg",
+      "bytes": 706838,
+      "ms": 704.9000000022352
+    },
+    "heapUsedMB": 51
+  },
+  "exportHardware": {
+    "freePortrait": {
+      "w": 853,
+      "h": 1280,
+      "mime": "image/jpeg",
+      "bytes": 114625,
+      "ms": 215.80000000074506,
+      "backend": "webgl2"
+    },
+    "proPortraitJpg": {
+      "w": 2731,
+      "h": 4096,
+      "orig": false,
+      "mime": "image/jpeg",
+      "bytes": 1002763,
+      "ms": 357.3999999985099,
+      "backend": "webgl2"
+    },
+    "proLandscapePng": {
+      "w": 4096,
+      "h": 2731,
+      "orig": false,
+      "mime": "image/png",
+      "bytes": 12288353,
+      "ms": 756.1999999992549,
+      "backend": "webgl2"
+    },
+    "proSquareCpu": {
+      "w": 3456,
+      "h": 3456,
+      "mime": "image/png",
+      "bytes": 11025393,
+      "ms": 5541.699999999255,
+      "backend": "worker-canvas2d"
+    },
+    "proCard": {
+      "w": 3856,
+      "h": 1578,
+      "mime": "image/jpeg",
+      "bytes": 791278,
+      "ms": 115
+    },
+    "heapUsedMB": 51
+  },
+  "catalogAudit": {
+    "totalPresets": 27,
+    "categoriesCount": 8,
+    "collectionsCount": 4,
+    "uniqueThumbCount": 26,
+    "catalogRows": [
+      {
+        "id": "rosy-bokeh",
+        "name": "Rosy Bokeh",
+        "category": "portrait",
+        "isPro": false,
+        "lookType": "essential",
+        "collectionId": "rosy-portrait",
+        "ladderMae": {
+          "0": 0,
+          "25": 4.441346450617284,
+          "50": 8.531489197530863,
+          "75": 12.594112654320988,
+          "100": 16.60474922839506
+        },
+        "sceneStats": {
+          "p": {
+            "maeVsOrig": 16.651793981481482,
+            "meanL": 0.18027065926834196,
+            "clipPct": 0,
+            "darkPct": 31.05787037037037
+          },
+          "f": {
+            "maeVsOrig": 46.76167695473251,
+            "meanL": 0.31518995646736564,
+            "clipPct": 0,
+            "darkPct": 2.8580246913580245
+          },
+          "n": {
+            "maeVsOrig": 25.731489197530863,
+            "meanL": 0.25015424845680667,
+            "clipPct": 0,
+            "darkPct": 34.82175925925926
+          }
+        }
+      },
+      {
+        "id": "seoul-cafe",
+        "name": "Seoul Caf\u00e9",
+        "category": "cafe",
+        "isPro": false,
+        "lookType": "essential",
+        "collectionId": "seoul-editorial",
+        "ladderMae": {
+          "0": 0,
+          "25": 4.240929783950618,
+          "50": 8.231697530864198,
+          "75": 12.162935956790124,
+          "100": 16.027827932098766
+        },
+        "sceneStats": {
+          "p": {
+            "maeVsOrig": 16.027827932098766,
+            "meanL": 0.2656244575163612,
+            "clipPct": 0,
+            "darkPct": 0
+          },
+          "f": {
+            "maeVsOrig": 15.821529492455419,
+            "meanL": 0.515997604938324,
+            "clipPct": 0,
+            "darkPct": 0
+          },
+          "n": {
+            "maeVsOrig": 12.497827932098765,
+            "meanL": 0.3474572546296696,
+            "clipPct": 0,
+            "darkPct": 28.953703703703702
+          }
+        }
+      },
+      {
+        "id": "clean-day",
+        "name": "Clean Day",
+        "category": "korean",
+        "isPro": false,
+        "lookType": "essential",
+        "collectionId": "seoul-editorial",
+        "ladderMae": {
+          "0": 0,
+          "25": 5.758549382716049,
+          "50": 11.298680555555556,
+          "75": 16.808815586419755,
+          "100": 22.251523919753087
+        },
+        "sceneStats": {
+          "p": {
+            "maeVsOrig": 22.251523919753087,
+            "meanL": 0.300275908224407,
+            "clipPct": 0,
+            "darkPct": 0
+          },
+          "f": {
+            "maeVsOrig": 20.988271604938273,
+            "meanL": 0.5392678225612533,
+            "clipPct": 0,
+            "darkPct": 0
+          },
+          "n": {
+            "maeVsOrig": 16.20722222222222,
+            "meanL": 0.368804935412082,
+            "clipPct": 0,
+            "darkPct": 27.751157407407405
+          }
+        }
+      },
+      {
+        "id": "warm-latte",
+        "name": "Warm Latte",
+        "category": "cafe",
+        "isPro": false,
+        "lookType": "essential",
+        "collectionId": null,
+        "ladderMae": {
+          "0": 0,
+          "25": 3.291358024691358,
+          "50": 6.424409722222222,
+          "75": 9.521095679012346,
+          "100": 12.602511574074073
+        },
+        "sceneStats": {
+          "p": {
+            "maeVsOrig": 12.602511574074073,
+            "meanL": 0.26626095620006723,
+            "clipPct": 0,
+            "darkPct": 0
+          },
+          "f": {
+            "maeVsOrig": 12.674969135802469,
+            "meanL": 0.5154236199062695,
+            "clipPct": 0,
+            "darkPct": 0
+          },
+          "n": {
+            "maeVsOrig": 13.169884259259259,
+            "meanL": 0.3541005720770754,
+            "clipPct": 0,
+            "darkPct": 27.640046296296294
+          }
+        }
+      },
+      {
+        "id": "fuji-soft",
+        "name": "Fuji Soft",
+        "category": "film",
+        "isPro": false,
+        "lookType": "essential",
+        "collectionId": "analog-archive",
+        "ladderMae": {
+          "0": 0,
+          "25": 6.342006172839506,
+          "50": 12.314810956790124,
+          "75": 18.244475308641974,
+          "100": 24.088537808641977
+        },
+        "sceneStats": {
+          "p": {
+            "maeVsOrig": 24.088537808641977,
+            "meanL": 0.309491300290507,
+            "clipPct": 0,
+            "darkPct": 0
+          },
+          "f": {
+            "maeVsOrig": 19.952849794238684,
+            "meanL": 0.5233014497297305,
+            "clipPct": 0,
+            "darkPct": 0
+          },
+          "n": {
+            "maeVsOrig": 18.075212191358023,
+            "meanL": 0.3725985877359524,
+            "clipPct": 0,
+            "darkPct": 22.07638888888889
+          }
+        }
+      },
+      {
+        "id": "midnight-clean",
+        "name": "City Dusk",
+        "category": "night",
+        "isPro": false,
+        "lookType": "essential",
+        "collectionId": null,
+        "ladderMae": {
+          "0": 0,
+          "25": 3.438792438271605,
+          "50": 6.547534722222222,
+          "75": 9.594278549382716,
+          "100": 12.516979166666667
+        },
+        "sceneStats": {
+          "p": {
+            "maeVsOrig": 12.516979166666667,
+            "meanL": 0.17963980591866277,
+            "clipPct": 0,
+            "darkPct": 1.9664351851851853
+          },
+          "f": {
+            "maeVsOrig": 13.85610768175583,
+            "meanL": 0.4284583353506353,
+            "clipPct": 0,
+            "darkPct": 0.00102880658436214
+          },
+          "n": {
+            "maeVsOrig": 11.995868055555556,
+            "meanL": 0.27053682697899184,
+            "clipPct": 0,
+            "darkPct": 34.167824074074076
+          }
+        }
+      },
+      {
+        "id": "velvet-merona",
+        "name": "Velvet Merona",
+        "category": "portrait",
+        "isPro": true,
+        "lookType": "signature",
+        "collectionId": "velvet-series",
+        "ladderMae": {
+          "0": 0,
+          "25": 5.527712191358025,
+          "50": 10.49744212962963,
+          "75": 15.202592592592593,
+          "100": 19.59108024691358
+        },
+        "sceneStats": {
+          "p": {
+            "maeVsOrig": 19.63519675925926,
+            "meanL": 0.15840161928105836,
+            "clipPct": 0,
+            "darkPct": 47.030092592592595
+          },
+          "f": {
+            "maeVsOrig": 56.03553155006859,
+            "meanL": 0.2702010287258456,
+            "clipPct": 0,
+            "darkPct": 4.872427983539095
+          },
+          "n": {
+            "maeVsOrig": 30.68491898148148,
+            "meanL": 0.22541146691178351,
+            "clipPct": 0,
+            "darkPct": 38.914351851851855
+          }
+        }
+      },
+      {
+        "id": "gangnam-glass",
+        "name": "Gangnam Glass",
+        "category": "korean",
+        "isPro": true,
+        "lookType": "signature",
+        "collectionId": "seoul-editorial",
+        "ladderMae": {
+          "0": 0,
+          "25": 4.227770061728395,
+          "50": 8.08929398148148,
+          "75": 11.82582561728395,
+          "100": 15.374479166666667
+        },
+        "sceneStats": {
+          "p": {
+            "maeVsOrig": 15.374479166666667,
+            "meanL": 0.22982227528140756,
+            "clipPct": 0,
+            "darkPct": 0
+          },
+          "f": {
+            "maeVsOrig": 15.1635768175583,
+            "meanL": 0.503266181876902,
+            "clipPct": 0,
+            "darkPct": 0
+          },
+          "n": {
+            "maeVsOrig": 13.043904320987654,
+            "meanL": 0.32762793418665576,
+            "clipPct": 0,
+            "darkPct": 31.969907407407405
+          }
+        }
+      },
+      {
+        "id": "tokyo-milk",
+        "name": "Tokyo Milk",
+        "category": "korean",
+        "isPro": true,
+        "lookType": "signature",
+        "collectionId": "seoul-editorial",
+        "ladderMae": {
+          "0": 0,
+          "25": 9.959548611111112,
+          "50": 19.549618055555555,
+          "75": 28.78884259259259,
+          "100": 37.604741512345676
+        },
+        "sceneStats": {
+          "p": {
+            "maeVsOrig": 37.604741512345676,
+            "meanL": 0.35516347558095446,
+            "clipPct": 0,
+            "darkPct": 0
+          },
+          "f": {
+            "maeVsOrig": 31.77798696844993,
+            "meanL": 0.5654994393205246,
+            "clipPct": 0,
+            "darkPct": 0
+          },
+          "n": {
+            "maeVsOrig": 27.82636574074074,
+            "meanL": 0.4095608320172181,
+            "clipPct": 0,
+            "darkPct": 14.172453703703702
+          }
+        }
+      },
+      {
+        "id": "busan-breeze",
+        "name": "Busan Breeze",
+        "category": "korean",
+        "isPro": true,
+        "lookType": "signature",
+        "collectionId": "seoul-editorial",
+        "ladderMae": {
+          "0": 0,
+          "25": 3.694490740740741,
+          "50": 7.187866512345679,
+          "75": 10.741566358024691,
+          "100": 14.27355324074074
+        },
+        "sceneStats": {
+          "p": {
+            "maeVsOrig": 14.27355324074074,
+            "meanL": 0.23224846536854646,
+            "clipPct": 0,
+            "darkPct": 0
+          },
+          "f": {
+            "maeVsOrig": 12.851567215363511,
+            "meanL": 0.4958300941256346,
+            "clipPct": 0,
+            "darkPct": 0
+          },
+          "n": {
+            "maeVsOrig": 13.762569444444445,
+            "meanL": 0.3211444504357489,
+            "clipPct": 0,
+            "darkPct": 30.872685185185183
+          }
+        }
+      },
+      {
+        "id": "matcha-house",
+        "name": "Matcha House",
+        "category": "cafe",
+        "isPro": true,
+        "lookType": "signature",
+        "collectionId": null,
+        "ladderMae": {
+          "0": 0,
+          "25": 3.262681327160494,
+          "50": 6.2110108024691355,
+          "75": 9.117723765432098,
+          "100": 11.985972222222221
+        },
+        "sceneStats": {
+          "p": {
+            "maeVsOrig": 11.985972222222221,
+            "meanL": 0.26716300826071776,
+            "clipPct": 0,
+            "darkPct": 0
+          },
+          "f": {
+            "maeVsOrig": 12.389732510288066,
+            "meanL": 0.5203229015572561,
+            "clipPct": 0,
+            "darkPct": 0
+          },
+          "n": {
+            "maeVsOrig": 11.936550925925927,
+            "meanL": 0.35600821595867443,
+            "clipPct": 0,
+            "darkPct": 28.028935185185183
+          }
+        }
+      },
+      {
+        "id": "espresso-crisp",
+        "name": "Espresso Crisp",
+        "category": "cafe",
+        "isPro": true,
+        "lookType": "signature",
+        "collectionId": "velvet-series",
+        "ladderMae": {
+          "0": 0,
+          "25": 3.6908796296296296,
+          "50": 6.958329475308642,
+          "75": 10.12820987654321,
+          "100": 13.21630787037037
+        },
+        "sceneStats": {
+          "p": {
+            "maeVsOrig": 13.21630787037037,
+            "meanL": 0.1707279493917939,
+            "clipPct": 0,
+            "darkPct": 11.212962962962964
+          },
+          "f": {
+            "maeVsOrig": 15.827493141289438,
+            "meanL": 0.42787435023805487,
+            "clipPct": 0,
+            "darkPct": 0.013374485596707819
+          },
+          "n": {
+            "maeVsOrig": 13.643028549382716,
+            "meanL": 0.2783673093227697,
+            "clipPct": 0,
+            "darkPct": 33.230324074074076
+          }
+        }
+      },
+      {
+        "id": "brunch-glow",
+        "name": "Brunch Glow",
+        "category": "cafe",
+        "isPro": true,
+        "lookType": "signature",
+        "collectionId": null,
+        "ladderMae": {
+          "0": 0,
+          "25": 4.656751543209877,
+          "50": 9.179359567901235,
+          "75": 13.841554783950617,
+          "100": 18.6085262345679
+        },
+        "sceneStats": {
+          "p": {
+            "maeVsOrig": 18.6085262345679,
+            "meanL": 0.2994382513616502,
+            "clipPct": 0,
+            "darkPct": 0
+          },
+          "f": {
+            "maeVsOrig": 20.030363511659807,
+            "meanL": 0.5491519538045156,
+            "clipPct": 0,
+            "darkPct": 0
+          },
+          "n": {
+            "maeVsOrig": 16.783981481481483,
+            "meanL": 0.37738601334426397,
+            "clipPct": 0,
+            "darkPct": 28.348379629629626
+          }
+        }
+      },
+      {
+        "id": "classic-chrome",
+        "name": "Classic Chrome",
+        "category": "film",
+        "isPro": true,
+        "lookType": "signature",
+        "collectionId": "analog-archive",
+        "ladderMae": {
+          "0": 0,
+          "25": 2.8429668209876544,
+          "50": 5.278676697530864,
+          "75": 7.461550925925926,
+          "100": 9.410270061728395
+        },
+        "sceneStats": {
+          "p": {
+            "maeVsOrig": 9.410270061728395,
+            "meanL": 0.24225635443898866,
+            "clipPct": 0,
+            "darkPct": 0
+          },
+          "f": {
+            "maeVsOrig": 10.881598079561043,
+            "meanL": 0.48226723162271534,
+            "clipPct": 0,
+            "darkPct": 0
+          },
+          "n": {
+            "maeVsOrig": 12.812827932098765,
+            "meanL": 0.3326319204339392,
+            "clipPct": 0,
+            "darkPct": 27.582175925925927
+          }
+        }
+      },
+      {
+        "id": "kodak-gold",
+        "name": "Kodak Gold",
+        "category": "film",
+        "isPro": true,
+        "lookType": "signature",
+        "collectionId": "analog-archive",
+        "ladderMae": {
+          "0": 0,
+          "25": 4.1346797839506175,
+          "50": 8.055817901234567,
+          "75": 11.855003858024691,
+          "100": 15.561697530864198
+        },
+        "sceneStats": {
+          "p": {
+            "maeVsOrig": 15.561697530864198,
+            "meanL": 0.27995401243643947,
+            "clipPct": 0,
+            "darkPct": 0
+          },
+          "f": {
+            "maeVsOrig": 15.906402606310014,
+            "meanL": 0.5085055224320237,
+            "clipPct": 0,
+            "darkPct": 0
+          },
+          "n": {
+            "maeVsOrig": 15.003024691358025,
+            "meanL": 0.35659992383801353,
+            "clipPct": 0,
+            "darkPct": 25.04513888888889
+          }
+        }
+      },
+      {
+        "id": "portra-400",
+        "name": "Portra Skin",
+        "category": "film",
+        "isPro": true,
+        "lookType": "signature",
+        "collectionId": "analog-archive",
+        "ladderMae": {
+          "0": 0,
+          "25": 6.562372685185185,
+          "50": 12.889826388888888,
+          "75": 19.169903549382717,
+          "100": 25.39289351851852
+        },
+        "sceneStats": {
+          "p": {
+            "maeVsOrig": 25.39289351851852,
+            "meanL": 0.31532317497277695,
+            "clipPct": 0,
+            "darkPct": 0
+          },
+          "f": {
+            "maeVsOrig": 24.620919067215365,
+            "meanL": 0.5310031053821684,
+            "clipPct": 0,
+            "darkPct": 0
+          },
+          "n": {
+            "maeVsOrig": 19.352507716049384,
+            "meanL": 0.3739731483296764,
+            "clipPct": 0,
+            "darkPct": 22.836805555555557
+          }
+        }
+      },
+      {
+        "id": "mono-leica",
+        "name": "Leica Mono",
+        "category": "film",
+        "isPro": true,
+        "lookType": "signature",
+        "collectionId": "analog-archive",
+        "ladderMae": {
+          "0": 0,
+          "25": 3.6471720679012347,
+          "50": 6.692411265432098,
+          "75": 9.469868827160493,
+          "100": 12.087010030864198
+        },
+        "sceneStats": {
+          "p": {
+            "maeVsOrig": 12.087010030864198,
+            "meanL": 0.19047771423392343,
+            "clipPct": 0,
+            "darkPct": 0.6979166666666666
+          },
+          "f": {
+            "maeVsOrig": 16.333830589849107,
+            "meanL": 0.46275123053348055,
+            "clipPct": 0,
+            "darkPct": 0
+          },
+          "n": {
+            "maeVsOrig": 20.123375771604938,
+            "meanL": 0.3130559186640149,
+            "clipPct": 0,
+            "darkPct": 31.449074074074073
+          }
+        }
+      },
+      {
+        "id": "neon-shibuya",
+        "name": "Neon Shibuya",
+        "category": "night",
+        "isPro": true,
+        "lookType": "signature",
+        "collectionId": null,
+        "ladderMae": {
+          "0": 0,
+          "25": 4.462785493827161,
+          "50": 8.711886574074073,
+          "75": 12.857689043209877,
+          "100": 16.791554783950616
+        },
+        "sceneStats": {
+          "p": {
+            "maeVsOrig": 16.791554783950616,
+            "meanL": 0.15601758710057623,
+            "clipPct": 0,
+            "darkPct": 35.65046296296296
+          },
+          "f": {
+            "maeVsOrig": 16.9591975308642,
+            "meanL": 0.4100747409424596,
+            "clipPct": 0,
+            "darkPct": 1.580246913580247
+          },
+          "n": {
+            "maeVsOrig": 15.599683641975309,
+            "meanL": 0.26596585330421024,
+            "clipPct": 0,
+            "darkPct": 34.480324074074076
+          }
+        }
+      },
+      {
+        "id": "cinematic-teal",
+        "name": "Teal & Amber",
+        "category": "night",
+        "isPro": true,
+        "lookType": "signature",
+        "collectionId": null,
+        "ladderMae": {
+          "0": 0,
+          "25": 2.599729938271605,
+          "50": 4.949293981481482,
+          "75": 7.26150462962963,
+          "100": 9.517453703703703
+        },
+        "sceneStats": {
+          "p": {
+            "maeVsOrig": 9.517453703703703,
+            "meanL": 0.1849238175835057,
+            "clipPct": 0,
+            "darkPct": 1.0324074074074074
+          },
+          "f": {
+            "maeVsOrig": 12.57712962962963,
+            "meanL": 0.44009862325499927,
+            "clipPct": 0,
+            "darkPct": 0.00102880658436214
+          },
+          "n": {
+            "maeVsOrig": 9.160783179012345,
+            "meanL": 0.29342142692448236,
+            "clipPct": 0,
+            "darkPct": 32.011574074074076
+          }
+        }
+      },
+      {
+        "id": "porcelain-bloom",
+        "name": "Porcelain Bloom",
+        "category": "portrait",
+        "isPro": true,
+        "lookType": "signature",
+        "collectionId": "rosy-portrait",
+        "ladderMae": {
+          "0": 0,
+          "25": 4.605131172839506,
+          "50": 8.371878858024692,
+          "75": 11.887206790123457,
+          "100": 15.292191358024692
+        },
+        "sceneStats": {
+          "p": {
+            "maeVsOrig": 15.302145061728394,
+            "meanL": 0.26379029261982423,
+            "clipPct": 0,
+            "darkPct": 0
+          },
+          "f": {
+            "maeVsOrig": 32.186683813443075,
+            "meanL": 0.4501657883482659,
+            "clipPct": 0,
+            "darkPct": 0
+          },
+          "n": {
+            "maeVsOrig": 18.5786612654321,
+            "meanL": 0.3253687583968613,
+            "clipPct": 0,
+            "darkPct": 26.32523148148148
+          }
+        }
+      },
+      {
+        "id": "velvet-noir",
+        "name": "Velvet Noir",
+        "category": "portrait",
+        "isPro": true,
+        "lookType": "signature",
+        "collectionId": "velvet-series",
+        "ladderMae": {
+          "0": 0,
+          "25": 6.779027777777777,
+          "50": 12.611828703703704,
+          "75": 17.65193287037037,
+          "100": 21.810150462962962
+        },
+        "sceneStats": {
+          "p": {
+            "maeVsOrig": 21.841493055555556,
+            "meanL": 0.12932370733479043,
+            "clipPct": 0,
+            "darkPct": 64.51736111111111
+          },
+          "f": {
+            "maeVsOrig": 47.911611796982164,
+            "meanL": 0.29786186585169505,
+            "clipPct": 0,
+            "darkPct": 14.92695473251029
+          },
+          "n": {
+            "maeVsOrig": 27.307989969135804,
+            "meanL": 0.22414377019789578,
+            "clipPct": 0,
+            "darkPct": 40.979166666666664
+          }
+        }
+      },
+      {
+        "id": "hannam-daylight",
+        "name": "Hannam Daylight",
+        "category": "korean",
+        "isPro": true,
+        "lookType": "signature",
+        "collectionId": "seoul-editorial",
+        "ladderMae": {
+          "0": 0,
+          "25": 6.485459104938272,
+          "50": 11.972974537037038,
+          "75": 17.219155092592594,
+          "100": 22.502596450617283
+        },
+        "sceneStats": {
+          "p": {
+            "maeVsOrig": 22.502596450617283,
+            "meanL": 0.29324558846221443,
+            "clipPct": 0,
+            "darkPct": 0
+          },
+          "f": {
+            "maeVsOrig": 20.542884087791496,
+            "meanL": 0.5182467104413578,
+            "clipPct": 0,
+            "darkPct": 0
+          },
+          "n": {
+            "maeVsOrig": 16.57027777777778,
+            "meanL": 0.3568748262528242,
+            "clipPct": 0,
+            "darkPct": 27.28125
+          }
+        }
+      },
+      {
+        "id": "amber-halation",
+        "name": "Amber Halation",
+        "category": "film",
+        "isPro": true,
+        "lookType": "signature",
+        "collectionId": "analog-archive",
+        "ladderMae": {
+          "0": 0,
+          "25": 2.344637345679012,
+          "50": 4.413263888888889,
+          "75": 6.504988425925926,
+          "100": 8.493931327160494
+        },
+        "sceneStats": {
+          "p": {
+            "maeVsOrig": 8.493931327160494,
+            "meanL": 0.2036912327523591,
+            "clipPct": 0,
+            "darkPct": 0
+          },
+          "f": {
+            "maeVsOrig": 17.08110082304527,
+            "meanL": 0.4239642437666559,
+            "clipPct": 0,
+            "darkPct": 0
+          },
+          "n": {
+            "maeVsOrig": 11.496311728395062,
+            "meanL": 0.28978032430100453,
+            "clipPct": 0,
+            "darkPct": 29.868055555555557
+          }
+        }
+      },
+      {
+        "id": "silver-gelatin",
+        "name": "Silver Gelatin",
+        "category": "film",
+        "isPro": true,
+        "lookType": "signature",
+        "collectionId": "analog-archive",
+        "ladderMae": {
+          "0": 0,
+          "25": 3.566311728395062,
+          "50": 6.660983796296296,
+          "75": 9.456030092592593,
+          "100": 11.892064043209876
+        },
+        "sceneStats": {
+          "p": {
+            "maeVsOrig": 11.892064043209876,
+            "meanL": 0.1878856663036395,
+            "clipPct": 0,
+            "darkPct": 0.0011574074074074073
+          },
+          "f": {
+            "maeVsOrig": 17.85937242798354,
+            "meanL": 0.4393747276690266,
+            "clipPct": 0,
+            "darkPct": 0
+          },
+          "n": {
+            "maeVsOrig": 21.05695987654321,
+            "meanL": 0.3019650054466726,
+            "clipPct": 0,
+            "darkPct": 30.605324074074076
+          }
+        }
+      },
+      {
+        "id": "direct-flash",
+        "name": "Direct Flash",
+        "category": "portrait",
+        "isPro": true,
+        "lookType": "adaptive",
+        "collectionId": "direct-flash",
+        "ladderMae": {
+          "0": 0,
+          "25": 2.9400578703703704,
+          "50": 5.080196759259259,
+          "75": 7.164741512345679,
+          "100": 9.058711419753086
+        },
+        "sceneStats": {
+          "p": {
+            "maeVsOrig": 9.058711419753086,
+            "meanL": 0.2253525791576018,
+            "clipPct": 0,
+            "darkPct": 0
+          },
+          "f": {
+            "maeVsOrig": 9.040747599451302,
+            "meanL": 0.4627110417575053,
+            "clipPct": 0,
+            "darkPct": 0
+          },
+          "n": {
+            "maeVsOrig": 9.15871913580247,
+            "meanL": 0.30032854597855546,
+            "clipPct": 0,
+            "darkPct": 29.714120370370374
+          }
+        }
+      },
+      {
+        "id": "night-cinema",
+        "name": "Night Cinema",
+        "category": "night",
+        "isPro": true,
+        "lookType": "adaptive",
+        "collectionId": "night-cinema",
+        "ladderMae": {
+          "0": 0,
+          "25": 3.3955516975308644,
+          "50": 6.178904320987654,
+          "75": 8.805173611111112,
+          "100": 11.290991512345679
+        },
+        "sceneStats": {
+          "p": {
+            "maeVsOrig": 11.290991512345679,
+            "meanL": 0.195063876497818,
+            "clipPct": 0,
+            "darkPct": 3.1504629629629632
+          },
+          "f": {
+            "maeVsOrig": 11.578569958847737,
+            "meanL": 0.44151191660622036,
+            "clipPct": 0,
+            "darkPct": 0
+          },
+          "n": {
+            "maeVsOrig": 10.796913580246914,
+            "meanL": 0.2819911899509055,
+            "clipPct": 0,
+            "darkPct": 33.64930555555555
+          }
+        }
+      }
+    ],
+    "closestPairs": [
+      {
+        "a": "gangnam-glass",
+        "b": "busan-breeze",
+        "meanMae": 4.4380201188843165
+      },
+      {
+        "a": "warm-latte",
+        "b": "kodak-gold",
+        "meanMae": 4.597535293781436
+      },
+      {
+        "a": "mono-leica",
+        "b": "silver-gelatin",
+        "meanMae": 4.753944187242799
+      },
+      {
+        "a": "midnight-clean",
+        "b": "cinematic-teal",
+        "meanMae": 6.4099044067215365
+      },
+      {
+        "a": "midnight-clean",
+        "b": "neon-shibuya",
+        "meanMae": 6.496809413580247
+      },
+      {
+        "a": "fuji-soft",
+        "b": "hannam-daylight",
+        "meanMae": 6.505219335848193
+      },
+      {
+        "a": "midnight-clean",
+        "b": "night-cinema",
+        "meanMae": 6.653737854366713
+      },
+      {
+        "a": "clean-day",
+        "b": "hannam-daylight",
+        "meanMae": 6.885190329218108
+      }
+    ]
+  },
+  "responsiveUx": [
+    {
+      "viewport": "360x800",
+      "hasCanvas": true,
+      "canvasW": 1080,
+      "canvasH": 720,
+      "cssW": 336,
+      "cssH": 224,
+      "overflow": false,
+      "errors": 0
+    },
+    {
+      "viewport": "390x844",
+      "hasCanvas": true,
+      "canvasW": 1080,
+      "canvasH": 720,
+      "cssW": 366,
+      "cssH": 244,
+      "overflow": false,
+      "errors": 0
+    },
+    {
+      "viewport": "768x1024",
+      "hasCanvas": true,
+      "canvasW": 1080,
+      "canvasH": 720,
+      "cssW": 728,
+      "cssH": 485,
+      "overflow": false,
+      "errors": 0
+    },
+    {
+      "viewport": "1280x800",
+      "hasCanvas": true,
+      "canvasW": 1080,
+      "canvasH": 720,
+      "cssW": 848,
+      "cssH": 565,
+      "overflow": false,
+      "errors": 0
+    },
+    {
+      "viewport": "1440x900",
+      "hasCanvas": true,
+      "canvasW": 1080,
+      "canvasH": 720,
+      "cssW": 1008,
+      "cssH": 672,
+      "overflow": false,
+      "errors": 0
+    }
+  ]
+}
