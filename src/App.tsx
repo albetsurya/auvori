@@ -7,6 +7,7 @@ import { ProModal } from './components/ProModal';
 import { BottomNav } from './components/BottomNav';
 import { TopStudioBar } from './components/TopStudioBar';
 import { GalleryPickerSheet } from './components/GalleryPickerSheet';
+import { StudioSampleLibrary } from './components/StudioSampleLibrary';
 import { PresetDetailModal } from './components/PresetDetailModal';
 import { HomeScreen } from './screens/HomeScreen';
 import { PresetsScreen } from './screens/PresetsScreen';
@@ -33,7 +34,12 @@ import { buildEffectiveRecipe, prepareTransformedSource } from './lib/imageEngin
 import { resolveAdaptiveRelighting } from './engine/analysis/adaptive-relighting';
 import { AnalysisResult } from './engine/analysis/analysis-types';
 import { PhotoPipeline } from './engine/pipeline/photo-pipeline';
-import { createSamplePhotoDataUrl, SamplePhotoId } from './lib/samplePhoto';
+import {
+  getPresetSampleId,
+  getSamplePhotoLabel,
+  getSamplePhotoUrl,
+  SamplePhotoId
+} from './lib/samplePhoto';
 import { loadSavedLicense } from './lib/license';
 import {
   clearRecentEdits,
@@ -80,6 +86,7 @@ export default function App() {
 
   // Modals & sheets
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
+  const [isStudioSamplesOpen, setIsStudioSamplesOpen] = useState(false);
   const [detailPreset, setDetailPreset] = useState<Preset | null>(null);
   const [isExportOpen, setIsExportOpen] = useState(false);
   const [isProOpen, setIsProOpen] = useState(false);
@@ -295,19 +302,15 @@ export default function App() {
   };
 
   const handleStartWithSample = (sampleId: SamplePhotoId, presetId?: string) => {
-    const labelMap: Record<SamplePhotoId, string> = {
-      cafe: 'Café Window',
-      park: 'Garden Shade',
-      window: 'Golden Hour'
-    };
-    const dataUrl = createSamplePhotoDataUrl(sampleId);
-    loadImageIntoEditor(dataUrl, labelMap[sampleId], presetId ? { presetId } : undefined);
+    const label = getSamplePhotoLabel(sampleId);
+    const url = getSamplePhotoUrl(sampleId);
+    loadImageIntoEditor(url, label, presetId ? { presetId } : undefined);
   };
 
   const handleOpenRecentEdit = (recent: RecentEdit) => {
-    const sampleFallback: SamplePhotoId =
-      PRESETS.find((p) => p.id === recent.presetId)?.category === 'portrait' ? 'park' : 'cafe';
-    loadImageIntoEditor(createSamplePhotoDataUrl(sampleFallback), recent.title, {
+    const matchedPreset = PRESETS.find((p) => p.id === recent.presetId);
+    const sampleFallback = getPresetSampleId(recent.presetId, matchedPreset?.category);
+    loadImageIntoEditor(getSamplePhotoUrl(sampleFallback), recent.title, {
       presetId: recent.presetId,
       intensity: recent.intensity,
       manual: recent.manual,
@@ -632,6 +635,7 @@ export default function App() {
                 setProInitialTab('buy');
                 setIsProOpen(true);
               }}
+              onOpenStudioSamples={() => setIsStudioSamplesOpen(true)}
             />
           )}
 
@@ -698,7 +702,20 @@ export default function App() {
         isOpen={isGalleryOpen}
         onClose={() => setIsGalleryOpen(false)}
         onPickDevicePhoto={() => fileInputRef.current?.click()}
-        onSelectSample={(sampleId) => handleStartWithSample(sampleId)}
+        onOpenStudioSamples={() => {
+          setIsGalleryOpen(false);
+          setIsStudioSamplesOpen(true);
+        }}
+      />
+
+      {/* Studio Sample Library */}
+      <StudioSampleLibrary
+        isOpen={isStudioSamplesOpen}
+        onClose={() => setIsStudioSamplesOpen(false)}
+        onSelectSample={(sampleId, presetId) => {
+          setIsStudioSamplesOpen(false);
+          handleStartWithSample(sampleId, presetId);
+        }}
       />
 
       {/* Preset Detail Sheet */}

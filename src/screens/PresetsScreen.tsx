@@ -6,8 +6,12 @@ import { Card } from '../components/ui/Card';
 import { FilterChip } from '../components/ui/Chip';
 import { Input } from '../components/ui/Input';
 import { Button } from '../components/ui/Button';
-import { renderStudioPresetPreview } from '../lib/studioPreviews';
-import { SamplePhotoId } from '../lib/samplePhoto';
+import {
+  renderStudioPresetPreview,
+  getSignatureLookPreviewUrl,
+  getSignatureLookObjectPosition
+} from '../lib/studioPreviews';
+import { getPresetSampleId } from '../lib/samplePhoto';
 
 interface PresetsScreenProps {
   license: LicenseState;
@@ -69,9 +73,8 @@ export const PresetsScreen: React.FC<PresetsScreenProps> = ({
   useEffect(() => {
     let active = true;
     visiblePresets.forEach((p, idx) => {
-      if (previews[p.id]) return;
-      const sampleId: SamplePhotoId =
-        p.category === 'portrait' ? 'park' : p.category === 'film' ? 'window' : 'cafe';
+      if (getSignatureLookPreviewUrl(p.id) || previews[p.id]) return;
+      const sampleId = getPresetSampleId(p.id, p.category);
       setTimeout(() => {
         if (!active) return;
         renderStudioPresetPreview(p.id, sampleId).then((url) => {
@@ -189,7 +192,13 @@ export const PresetsScreen: React.FC<PresetsScreenProps> = ({
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3.5 sm:gap-4">
             {visiblePresets.map((preset) => {
-              const url = previews[preset.id];
+              const signatureUrl = getSignatureLookPreviewUrl(preset.id);
+              const url = signatureUrl || previews[preset.id];
+              const objectPosition = signatureUrl
+                ? getSignatureLookObjectPosition(preset.id)
+                : preset.category === 'portrait' || preset.id === 'gangnam-glass' || preset.id === 'portra-400' || preset.id === 'mono-leica'
+                  ? '50% 25%'
+                  : '50% 50%';
               const isFav = favoriteIds.includes(preset.id);
 
               return (
@@ -205,6 +214,9 @@ export const PresetsScreen: React.FC<PresetsScreenProps> = ({
                         src={url}
                         alt={preset.name}
                         className="w-full h-full object-cover"
+                        style={objectPosition ? { objectPosition } : undefined}
+                        loading="lazy"
+                        decoding="async"
                         draggable={false}
                       />
                     ) : (

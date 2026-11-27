@@ -5,8 +5,18 @@ import { Preset } from '../types';
 import { ModalSheet } from './ui/ModalSheet';
 import { Button } from './ui/Button';
 import { StatusBadge } from './ui/Chip';
-import { renderStudioPresetPreview } from '../lib/studioPreviews';
-import { createSamplePhotoDataUrl, SamplePhotoId } from '../lib/samplePhoto';
+import {
+  renderStudioPresetPreview,
+  getSignatureLookPreviewUrl,
+  getSignatureLookSourceUrl,
+  getSignatureLookObjectPosition
+} from '../lib/studioPreviews';
+import {
+  getPresetSampleId,
+  getSamplePhotoUrl,
+  SamplePhotoId,
+  SIGNATURE_LOOK_PREVIEWS
+} from '../lib/samplePhoto';
 
 interface PresetDetailModalProps {
   preset: Preset | null;
@@ -28,15 +38,27 @@ export const PresetDetailModal: React.FC<PresetDetailModalProps> = ({
   const [afterUrl, setAfterUrl] = useState<string>('');
   const [showBefore, setShowBefore] = useState(false);
 
-  const sampleId: SamplePhotoId =
-    preset?.category === 'portrait' ? 'park' : preset?.category === 'film' ? 'window' : 'cafe';
-  const beforeUrl = preset ? createSamplePhotoDataUrl(sampleId) : '';
+  const signatureMeta = preset ? SIGNATURE_LOOK_PREVIEWS[preset.id] : undefined;
+  const sampleId: SamplePhotoId = preset
+    ? getPresetSampleId(preset.id, preset.category)
+    : 'real:cafe_interior';
+  const beforeUrl = preset
+    ? (getSignatureLookSourceUrl(preset.id) ?? getSamplePhotoUrl(sampleId))
+    : '';
+  const objectPosition = preset && signatureMeta ? getSignatureLookObjectPosition(preset.id) : undefined;
 
   useEffect(() => {
     let active = true;
     setAfterUrl('');
     setShowBefore(false);
     if (!preset) return;
+    const staticSignaturePreview = getSignatureLookPreviewUrl(preset.id);
+    if (staticSignaturePreview) {
+      setAfterUrl(staticSignaturePreview);
+      return () => {
+        active = false;
+      };
+    }
     renderStudioPresetPreview(preset.id, sampleId).then((url) => {
       if (active) setAfterUrl(url);
     });
@@ -101,6 +123,7 @@ export const PresetDetailModal: React.FC<PresetDetailModalProps> = ({
               src={showBefore ? beforeUrl : afterUrl}
               alt={preset.name}
               className="w-full h-full object-cover"
+              style={objectPosition ? { objectPosition } : undefined}
               draggable={false}
             />
           ) : (
