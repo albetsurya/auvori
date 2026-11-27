@@ -9,6 +9,7 @@ import { TopStudioBar } from './components/TopStudioBar';
 import { GalleryPickerSheet } from './components/GalleryPickerSheet';
 import { StudioSampleLibrary } from './components/StudioSampleLibrary';
 import { PresetDetailModal } from './components/PresetDetailModal';
+import { OfflineResourceManager } from './components/OfflineResourceManager';
 import { HomeScreen } from './screens/HomeScreen';
 import { PresetsScreen } from './screens/PresetsScreen';
 import { DiscoverScreen } from './screens/DiscoverScreen';
@@ -53,6 +54,18 @@ import {
   saveRecentEdits,
   syncThemeColorMeta
 } from './lib/storage';
+import {
+  createProject,
+  createProjectFromEditor,
+  getLatestProject,
+  loadFullProjectState,
+  replaceHistory,
+  updateProject,
+  getOfflineState,
+  updateOfflineState,
+  getStorageEstimate,
+  requestPersistentStorage
+} from './lib/idb';
 
 interface EditorSnapshot {
   presetId: string;
@@ -79,6 +92,14 @@ export default function App() {
     typeof navigator !== 'undefined' ? navigator.onLine : true
   );
 
+  // Offline resource state
+  const [offlineState, setOfflineState] = useState<{
+    mandatoryPack: { status: string; progress: number };
+    aiPack: { status: string; progress: number };
+    storage: { estimate: { usage: number; quota: number } | null; persistent: boolean };
+  } | null>(null);
+  const [isOfflineManagerOpen, setIsOfflineManagerOpen] = useState(false);
+
   // Studio collections & history persistence
   const [favoriteIds, setFavoriteIds] = useState<string[]>(() => loadFavoritePresetIds());
   const [recentEdits, setRecentEdits] = useState<RecentEdit[]>(() => loadRecentEdits());
@@ -103,6 +124,9 @@ export default function App() {
   const [sourceRevision, setSourceRevision] = useState<number>(1);
   const [transformRevision, setTransformRevision] = useState<number>(1);
   const [sourceLabel, setSourceLabel] = useState<string>('Studio Photo');
+  const [sourceBlob, setSourceBlob] = useState<Blob | null>(null);
+  const [sourceMimeType, setSourceMimeType] = useState<string>('image/jpeg');
+  const [sourceOrientation, setSourceOrientation] = useState<number>(1);
   const activeObjectUrlRef = useRef<string | null>(null);
   const thumbObjectUrlsRef = useRef<string[]>([]);
   const [editorPipeline, setEditorPipeline] = useState<PhotoPipeline | null>(null);
@@ -122,6 +146,20 @@ export default function App() {
   const [historyIndex, setHistoryIndex] = useState<number>(-1);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState<boolean>(false);
 
+  // Autosave state
+  const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'failed'>('idle');
+  const autosaveTimeoutRef = useRef<number | null>(null);
+  const currentProjectIdRef = useRef<string | null>(null);
+  const pendingAutosaveRef = useRef<Partial<{
+    presetId: string;
+    intensity: number;
+    manual: ManualAdjustments;
+    transform: ImageTransform;
+    history: EditorSnapshot[];
+    historyIndex: number;
+    exportCount: number;
+  }>>({});
+
   // Adaptive Look non-blocking AI analysis state (lazy-triggered only for adaptive presets)
   const analysisSeqRef = useRef<number>(0);
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
@@ -130,10 +168,108 @@ export default function App() {
     label: ''
   });
 
+  // ─── Offline Resource State Sync ─────────────────────────────────────────
   useEffect(() => {
-    syncThemeColorMeta(Boolean(sourceImage), editorBackdrop);
-  }, [sourceImage, editorBackdrop]);
+    const loadOfflineState = async () => {
+      const state = await getOfflineState();
+      if (state) {
+        setOfflineState({
+          mandatoryPack: state.mandatoryPack,
+          aiPack: state.aiPack,
+          storage: state.storage
+        });
+      }
+      const estimate = await getStorageEstimate();
+      const persistent = await requestPersistentStorage();
+      setOfflineState((prev) => prev ? {
+        ...prev,
+        storage: { estimate, persistent, lastChecked: new Date().toISOString() }
+      } : { mandatoryPack: { status: 'pending', progress: 0 }, aiPack: { status: 'not-downloaded', progress: 0 }, storage: { estimate, persistent, lastChecked: new Date().toISOString() } });
+    };
+    loadOfflineState();
+  }, []);
 
+  // ─── Session Recovery on Mount ───────────────────────────────────────────
+  useEffect(() => {
+    let mounted = true;
+    const recoverSession = async () => {
+      try {
+        const latest = await getLatestProject();
+        if (!latest || !mounted) return;
+
+        const fullState = await loadFullProjectState(latest.id);
+        if (!fullState || !mounted) return;
+
+        const { project, image, history: savedHistory } = fullState;
+        currentProjectIdRef.current = project.id;
+
+        // Load image from blob
+        const img = new Image();
+        img.onload = () => {
+          if (!mounted) return;
+          revokeTrackedObjectUrl();
+          revokeThumbnailUrls();
+          activeObjectUrlRef.current = URL.createObjectURL(image.blob);
+
+          const initPreset = PRESETS.find((p) => p.id === project.activePresetId) ?? PRESETS[1];
+          const initSnap: EditorSnapshot = {
+            presetId: project.activePresetId,
+            intensity: project.intensity,
+            manual: project.manual,
+            transform: project.transform
+          };
+
+          setSourceImage(img);
+          setSourceRevision(1);
+          setTransformRevision(1);
+          setSourceLabel(project.name);
+          setSourceBlob(image.blob);
+          setSourceMimeType(image.mimeType);
+          setSourceOrientation(image.width > image.height ? 1 : 1); // Simplified
+          setActivePreset(initPreset);
+          setIntensity(project.intensity);
+          setManual(project.manual);
+          setTransform(project.transform);
+          setThumbnails({});
+          setSplitMode(false);
+          setHistory(savedHistory.length > 0 ? savedHistory : [initSnap]);
+          setHistoryIndex(savedHistory.length - 1);
+          setHasUnsavedChanges(false);
+
+          const nextThumbs: Record<string, string> = {};
+          const pipeline = editorPipelineRef.current;
+          if (pipeline) {
+            pipeline
+              .generateThumbnails(img, 'editor-source', 1, PRESETS, (presetId, thumbUrl) => {
+                if (thumbUrl.startsWith('blob:')) {
+                  thumbObjectUrlsRef.current.push(thumbUrl);
+                }
+                nextThumbs[presetId] = thumbUrl;
+                const count = Object.keys(nextThumbs).length;
+                if (count % 4 === 0 || count === PRESETS.length) {
+                  setThumbnails({ ...nextThumbs });
+                }
+              })
+              .then((finalMap) => {
+                setThumbnails({ ...finalMap });
+              })
+              .catch(() => {});
+          }
+        };
+        img.onerror = () => {
+          if (mounted) showToast('error', 'Failed to restore project image.');
+        };
+        img.src = URL.createObjectURL(image.blob);
+      } catch (err) {
+        console.warn('Session recovery failed:', err);
+      }
+    };
+
+    recoverSession();
+    return () => { mounted = false; };
+  }, []);
+
+  // ─── Connectivity & Online/Offline ───────────────────────────────────────
   useEffect(() => {
     const onOnline = () => setIsOnline(true);
     const onOffline = () => setIsOnline(false);
@@ -145,7 +281,12 @@ export default function App() {
     };
   }, []);
 
-  // Support deep link from Lynk.id thank-you page: /activate or /?code=XXX or /?email=XXX
+  // ─── Theme Sync ──────────────────────────────────────────────────────────
+  useEffect(() => {
+    syncThemeColorMeta(Boolean(sourceImage), editorBackdrop);
+  }, [sourceImage, editorBackdrop]);
+
+  // ─── Deep Link Handling ──────────────────────────────────────────────────
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const codeOrEmail = params.get('code') || params.get('email') || '';
@@ -157,6 +298,7 @@ export default function App() {
     }
   }, []);
 
+  // ─── Helpers ──────────────────────────────────────────────────────────────
   const revokeThumbnailUrls = useCallback(() => {
     for (const u of thumbObjectUrlsRef.current) {
       if (u.startsWith('blob:')) URL.revokeObjectURL(u);
@@ -171,6 +313,7 @@ export default function App() {
     }
   }, []);
 
+  // ─── Pipeline Init ───────────────────────────────────────────────────────
   useEffect(() => {
     const pipeline = new PhotoPipeline({
       preferWebGL2: true,
@@ -195,6 +338,99 @@ export default function App() {
     }, 3600);
   }, []);
 
+  // ─── Autosave ─────────────────────────────────────────────────────────────
+  const scheduleAutosave = useCallback((patch: Partial<{
+    presetId: string;
+    intensity: number;
+    manual: ManualAdjustments;
+    transform: ImageTransform;
+    history: EditorSnapshot[];
+    historyIndex: number;
+    exportCount: number;
+  }>) => {
+    pendingAutosaveRef.current = { ...pendingAutosaveRef.current, ...patch };
+
+    if (autosaveTimeoutRef.current) {
+      clearTimeout(autosaveTimeoutRef.current);
+    }
+
+    autosaveTimeoutRef.current = window.setTimeout(() => {
+      performAutosave();
+    }, 800);
+
+    // Force save after max delay
+    setTimeout(() => {
+      if (pendingAutosaveRef.current && Object.keys(pendingAutosaveRef.current).length > 0) {
+        performAutosave();
+      }
+    }, 5000);
+  }, []);
+
+  const performAutosave = useCallback(async () => {
+    const pending = pendingAutosaveRef.current;
+    if (!pending || Object.keys(pending).length === 0) return;
+    if (!currentProjectIdRef.current && !sourceImage) return;
+
+    setSaveStatus('saving');
+
+    try {
+      if (currentProjectIdRef.current) {
+        // Update existing project
+        await updateProject(currentProjectIdRef.current, {
+          name: sourceLabel,
+          activePresetId: pending.presetId ?? activePreset.id,
+          intensity: pending.intensity ?? intensity,
+          manual: pending.manual ?? manual,
+          transform: pending.transform ?? transform,
+          historyLength: (pending.history ?? history).length,
+          exportCount: pending.exportCount ?? 0,
+          updatedAt: new Date().toISOString()
+        });
+
+        if (pending.history) {
+          await replaceHistory(currentProjectIdRef.current, pending.history);
+        }
+      } else if (sourceImage && sourceBlob) {
+        // Create new project
+        const projectId = await createProjectFromEditor({
+          name: sourceLabel,
+          sourceBlob,
+          sourceWidth: sourceImage.naturalWidth,
+          sourceHeight: sourceImage.naturalHeight,
+          sourceOrientation,
+          sourceMimeType,
+          activePresetId: pending.presetId ?? activePreset.id,
+          intensity: pending.intensity ?? intensity,
+          manual: pending.manual ?? manual,
+          transform: pending.transform ?? transform,
+          history: pending.history ?? history
+        });
+        currentProjectIdRef.current = projectId;
+      }
+
+      pendingAutosaveRef.current = {};
+      setSaveStatus('saved');
+      setHasUnsavedChanges(false);
+      setTimeout(() => setSaveStatus('idle'), 2000);
+    } catch (err) {
+      console.error('Autosave failed:', err);
+      setSaveStatus('failed');
+      setHasUnsavedChanges(true);
+      if (err instanceof Error && err.name === 'QuotaExceededError') {
+        showToast('error', 'Storage full — delete old projects to continue.');
+      }
+    }
+  }, [sourceImage, sourceBlob, sourceLabel, sourceMimeType, sourceOrientation, activePreset, intensity, manual, transform, history, showToast]);
+
+  const forceAutosave = useCallback(() => {
+    if (autosaveTimeoutRef.current) {
+      clearTimeout(autosaveTimeoutRef.current);
+      autosaveTimeoutRef.current = null;
+    }
+    performAutosave();
+  }, [performAutosave]);
+
+  // ─── History Management ──────────────────────────────────────────────────
   const pushHistory = useCallback(
     (snap: EditorSnapshot) => {
       setHistory((prev) => {
@@ -206,16 +442,20 @@ export default function App() {
         return next;
       });
       setHasUnsavedChanges(true);
+      scheduleAutosave({ historyIndex: historyIndex + 1 });
     },
-    [historyIndex]
+    [historyIndex, scheduleAutosave]
   );
 
+  // ─── Image Loading ────────────────────────────────────────────────────────
   const loadImageIntoEditor = useCallback(
     (
       url: string,
       label: string,
       initial?: Partial<EditorSnapshot>,
-      isObjectUrl = false
+      isObjectUrl = false,
+      blob?: Blob,
+      mimeType = 'image/jpeg'
     ) => {
       const seq = ++loadSeqRef.current;
       const img = new Image();
@@ -243,6 +483,10 @@ export default function App() {
         setSourceRevision(nextSourceRev);
         setTransformRevision(1);
         setSourceLabel(label);
+        if (blob) {
+          setSourceBlob(blob);
+          setSourceMimeType(mimeType);
+        }
         setActivePreset(initPreset);
         setIntensity(initSnap.intensity);
         setManual(initSnap.manual);
@@ -252,6 +496,7 @@ export default function App() {
         setHistory([initSnap]);
         setHistoryIndex(0);
         setHasUnsavedChanges(false);
+        currentProjectIdRef.current = null; // New project, will be created on autosave
 
         const nextThumbs: Record<string, string> = {};
         const pipeline = editorPipelineRef.current;
@@ -276,9 +521,7 @@ export default function App() {
                 setThumbnails({ ...finalMap });
               }
             })
-            .catch(() => {
-              // Non-fatal thumbnail error
-            });
+            .catch(() => {});
         }
       };
       img.onerror = () => {
@@ -297,7 +540,7 @@ export default function App() {
     if (!file) return;
     const url = URL.createObjectURL(file);
     const cleanName = file.name.replace(/\.[^/.]+$/, '') || 'Gallery Photo';
-    loadImageIntoEditor(url, cleanName, undefined, true);
+    loadImageIntoEditor(url, cleanName, undefined, true, file, file.type);
     e.target.value = '';
   };
 
@@ -336,6 +579,7 @@ export default function App() {
     const nextIdx = historyIndex - 1;
     setHistoryIndex(nextIdx);
     applySnapshot(history[nextIdx]);
+    scheduleAutosave({ historyIndex: nextIdx });
   };
 
   const handleRedo = () => {
@@ -343,6 +587,7 @@ export default function App() {
     const nextIdx = historyIndex + 1;
     setHistoryIndex(nextIdx);
     applySnapshot(history[nextIdx]);
+    scheduleAutosave({ historyIndex: nextIdx });
   };
 
   const handleSelectPreset = (preset: Preset) => {
@@ -350,6 +595,7 @@ export default function App() {
     setActivePreset(preset);
     setIntensity(nextInt);
     pushHistory({ presetId: preset.id, intensity: nextInt, manual, transform });
+    scheduleAutosave({ presetId: preset.id, intensity: nextInt });
   };
 
   const handleReset = () => {
@@ -361,6 +607,7 @@ export default function App() {
     };
     applySnapshot(resetSnap);
     pushHistory(resetSnap);
+    scheduleAutosave({ presetId: PRESETS[0].id, intensity: 100, manual: DEFAULT_ADJUSTMENTS, transform: DEFAULT_TRANSFORM });
   };
 
   const handleToggleFavorite = (presetId: string) => {
@@ -389,6 +636,8 @@ export default function App() {
     setRecentEdits(nextRecents);
     saveRecentEdits(nextRecents);
     setHasUnsavedChanges(false);
+    scheduleAutosave({ exportCount: 1 });
+    forceAutosave(); // Force immediate save on export
     if (meta) {
       showToast(
         'success',
@@ -400,13 +649,16 @@ export default function App() {
   };
 
   const closeEditor = useCallback(() => {
+    forceAutosave(); // Save before closing
     loadSeqRef.current++;
     editorPipelineRef.current?.cancelThumbnailBatch();
     revokeTrackedObjectUrl();
     revokeThumbnailUrls();
     setThumbnails({});
     setSourceImage(null);
-  }, [revokeThumbnailUrls, revokeTrackedObjectUrl]);
+    setSourceBlob(null);
+    currentProjectIdRef.current = null;
+  }, [forceAutosave, revokeThumbnailUrls, revokeTrackedObjectUrl]);
 
   const handleRequestEditorBack = () => {
     if (hasUnsavedChanges && historyIndex > 0) {
@@ -428,6 +680,7 @@ export default function App() {
 
   const isAdaptivePresetActive = activePreset.lookType === 'adaptive';
 
+  // ─── Adaptive Analysis ───────────────────────────────────────────────────
   useEffect(() => {
     const pipeline = editorPipelineRef.current;
     if (!sourceImage || !pipeline || !isAdaptivePresetActive) {
@@ -511,6 +764,7 @@ export default function App() {
     activePreset.id
   ]);
 
+  // ─── Render ───────────────────────────────────────────────────────────────
   return (
     <div className="h-[100dvh] w-full flex flex-col bg-bg text-textPrimary overflow-hidden">
       <input
@@ -521,11 +775,28 @@ export default function App() {
         className="hidden"
       />
 
+      {/* Offline Banner */}
       {!isOnline && <OfflineBanner />}
+
+      {/* Save Status Indicator */}
+      {sourceImage && saveStatus !== 'idle' && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[50] w-[calc(100%-32px)] max-w-[440px] pointer-events-none">
+          <div className={`flex items-center justify-center gap-2 px-4 py-2 rounded-[10px] bg-surface border shadow-card text-xs font-medium ${
+            saveStatus === 'saving' ? 'border-info/40 text-info' :
+            saveStatus === 'saved' ? 'border-success/40 text-success' :
+            'border-error/40 text-error'
+          }`}>
+            {saveStatus === 'saving' && <> <span className="animate-pulse">●</span> Saving on this device… </>}
+            {saveStatus === 'saved' && <span>Saved on this device</span>}
+            {saveStatus === 'failed' && <span>Save failed — check storage</span>}
+          </div>
+        </div>
+      )}
+
       <ToastBanner toast={toast} onDismiss={() => setToast(null)} />
 
       {sourceImage ? (
-        /* Contextual Photo Editor Workspace (Graphite Dark default or Chalk Light preference) */
+        /* Contextual Photo Editor Workspace */
         <div
           data-editor-backdrop={editorBackdrop}
           className="flex-1 min-h-0 flex flex-col overflow-hidden"
@@ -578,11 +849,17 @@ export default function App() {
               favoriteIds={favoriteIds}
               isProUnlocked={license.isPro}
               onSelectPreset={handleSelectPreset}
-              onChangeIntensity={setIntensity}
+              onChangeIntensity={(val) => {
+                setIntensity(val);
+                scheduleAutosave({ intensity: val });
+              }}
               onCommitIntensity={() =>
                 pushHistory({ presetId: activePreset.id, intensity, manual, transform })
               }
-              onChangeManual={setManual}
+              onChangeManual={(val) => {
+                setManual(val);
+                scheduleAutosave({ manual: val });
+              }}
               onCommitManual={() =>
                 pushHistory({ presetId: activePreset.id, intensity, manual, transform })
               }
@@ -595,13 +872,14 @@ export default function App() {
                   manual,
                   transform: nextTransform
                 });
+                scheduleAutosave({ transform: nextTransform });
               }}
               onToggleFavorite={handleToggleFavorite}
             />
           </div>
         </div>
       ) : (
-        /* Main Studio Browse Shell (always Neutral Analog Light: Chalk / White / Stone / Olive) */
+        /* Main Studio Browse Shell */
         <>
           <TopStudioBar
             activeTab={activeTab}
@@ -612,6 +890,7 @@ export default function App() {
               setProInitialTab('buy');
               setIsProOpen(true);
             }}
+            onOpenOfflineManager={() => setIsOfflineManagerOpen(true)}
           />
 
           {activeTab === 'home' && (
@@ -686,6 +965,7 @@ export default function App() {
                 setRecentEdits([]);
                 showToast('info', 'Recent edits cleared.');
               }}
+              offlineState={offlineState}
             />
           )}
 
@@ -757,6 +1037,12 @@ export default function App() {
         license={license}
         onClose={() => setIsProOpen(false)}
         onLicenseChange={setLicense}
+      />
+
+      {/* Offline Resource Manager */}
+      <OfflineResourceManager
+        isOpen={isOfflineManagerOpen}
+        onClose={() => setIsOfflineManagerOpen(false)}
       />
 
       {/* Unsaved Edit Discard Confirmation */}
