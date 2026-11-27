@@ -79,7 +79,9 @@ def process_manifest(
     stats = {
         "total": len(entries),
         "downloaded": 0,
-        "cached_verified": 0,
+        "cached_sha_verified": 0,
+        "license_verified": 0,
+        "license_pending": 0,
         "skipped_unapproved": 0,
         "failed": 0,
         "duplicates": 0,
@@ -89,11 +91,25 @@ def process_manifest(
 
     for entry in entries:
         fname = entry["filename"]
+        lv = entry.get("license_verification") or {}
+        lic_status = lv.get("status", "pending-review")
+        orig_status = (entry.get("originality_review") or {}).get("status", "unknown")
         status = entry.get("verification_status", "pending-review")
         lic = entry.get("license_name", "")
         out_file = dest_dir / fname
 
-        if status not in ("verified-original", "verified-license", "verified-attribution"):
+        # Require explicit license verification evidence (never trust manifest license_name alone)
+        if lv:
+            if lic_status in ("rejected", "source-unavailable"):
+                stats["failed"] += 1
+                report_rows.append({"filename": fname, "result": f"rejected-license-status-{lic_status}", "license": lic})
+                print(f"[FAIL] Rejected license status on {fname}: {lic_status}")
+                continue
+            if lic_status == "verified":
+                stats["license_verified"] += 1
+            else:
+                stats["license_pending"] += 1
+        elif status not in ("verified-original", "verified-license", "verified-attribution"):
             stats["skipped_unapproved"] += 1
             report_rows.append({"filename": fname, "result": "skipped-unapproved", "status": status})
             continue
@@ -115,10 +131,11 @@ def process_manifest(
                     continue
                 seen_hashes[actual_sha] = fname
                 w, h, fmt = validate_image_bytes(raw)
-                stats["cached_verified"] += 1
+                stats["cached_sha_verified"] += 1
                 report_rows.append({
-                    "filename": fname, "result": "cached-verified", "width": w, "height": h,
-                    "bytes": len(raw), "sha256": actual_sha,
+                    "filename": fname, "result": "cached-sha-verified",
+                    "license_status": lic_status, "originality_status": orig_status,
+                    "width": w, "height": h, "bytes": len(raw), "sha256": actual_sha,
                 })
                 continue
 
@@ -194,7 +211,8 @@ def process_manifest(
 
     print(
         f"[download_sample_photos] total={stats['total']} downloaded={stats['downloaded']} "
-        f"cached_verified={stats['cached_verified']} skipped={stats['skipped_unapproved']} "
+        f"cached_sha_verified={stats['cached_sha_verified']} license_verified={stats['license_verified']} "
+        f"license_pending={stats['license_pending']} skipped={stats['skipped_unapproved']} "
         f"duplicates={stats['duplicates']} failed={stats['failed']}"
     )
     return 0 if stats["failed"] == 0 and stats["duplicates"] == 0 else 1

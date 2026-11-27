@@ -1,0 +1,415 @@
+Test: p6_1_integrity
+Command: python3 tests/run_p6_1_dataset_integrity.py
+Timestamp: 2026-11-27T14:48:25+07:00
+Branch: feat/phase6.1-audit-integrity-hardening
+Commit SHA: 643ab69f7bb79e0821828233680f01e33139ca5b
+Exit Code: 0
+--- OUTPUT ---
+p6_01_window_bus_portrait.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (3456x5184)
+  [PASS] File size (1820086 bytes)
+  [PASS] SHA-256 (39360a26d77d6785...)
+  [PASS] License status: verified (CC0-1.0)
+  [INFO] Originality status: possibly-processed -> tier=exploratory
+p6_02_window_silhouette.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (4240x2384)
+  [PASS] File size (356030 bytes)
+  [PASS] SHA-256 (e37bf094329f1f44...)
+  [PASS] License status: verified (CC0-1.0)
+  [INFO] Originality status: possibly-processed -> tier=exploratory
+p6_03_laundromat_reflection.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (2519x3785)
+  [PASS] File size (3062121 bytes)
+  [PASS] SHA-256 (c8a190dd395f3ed0...)
+  [PASS] License status: verified (CC0-1.0)
+  [PASS] Originality status: reviewed-original -> tier=gold_standard
+p6_04_bw_beard_glasses.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (3648x5472)
+  [PASS] File size (473587 bytes)
+  [PASS] SHA-256 (1152ae148a110a52...)
+  [PASS] License status: verified (CC0-1.0)
+  [INFO] Originality status: possibly-processed -> tier=exploratory
+p6_05_backlit_office_flare.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (5760x3840)
+  [PASS] File size (1637647 bytes)
+  [PASS] SHA-256 (cbd555bcb8fde7ca...)
+  [PASS] License status: verified (CC0-1.0)
+  [INFO] Originality status: possibly-processed -> tier=exploratory
+p6_06_harsh_sun_cliff_couple.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (5472x3648)
+  [PASS] File size (1788291 bytes)
+  [PASS] SHA-256 (33a6f71ea296e0a1...)
+  [PASS] License status: verified (CC0-1.0)
+  [PASS] Originality status: reviewed-original -> tier=gold_standard
+p6_07_daylight_smiling_portrait.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (5184x3456)
+  [PASS] File size (1606627 bytes)
+  [PASS] SHA-256 (065cbd03689fddff...)
+  [PASS] License status: verified (CC0-1.0)
+  [INFO] Originality status: possibly-processed -> tier=exploratory
+p6_08_bw_studio_freckles.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (3456x5184)
+  [PASS] File size (879714 bytes)
+  [PASS] SHA-256 (4efa76df3662c193...)
+  [PASS] License status: verified (CC0-1.0)
+  [INFO] Originality status: possibly-processed -> tier=exploratory
+p6_09_white_aodai_portrait.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (3648x5472)
+  [PASS] File size (2068714 bytes)
+  [PASS] SHA-256 (8524b2aa8a18a961...)
+  [PASS] License status: verified (CC0-1.0)
+  [INFO] Originality status: possibly-processed -> tier=exploratory
+p6_10_golden_crosswalk_street.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (3264x2176)
+  [PASS] File size (1565555 bytes)
+  [PASS] SHA-256 (4d710b1fce754d7b...)
+  [PASS] License status: verified (CC0-1.0)
+  [INFO] Originality status: possibly-processed -> tier=exploratory
+p6_11_burger_salad_food.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (4288x2848)
+  [PASS] File size (2933061 bytes)
+  [PASS] SHA-256 (b1c5b9cdf98e6ee0...)
+  [PASS] License status: verified (CC0-1.0)
+  [PASS] Originality status: reviewed-original -> tier=gold_standard
+p6_12_hibachi_restaurant_food.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (2448x3264)
+  [PASS] File size (827503 bytes)
+  [PASS] SHA-256 (8d66d749fb72e89a...)
+  [PASS] License status: verified (CC0-1.0)
+  [INFO] Originality status: possibly-processed -> tier=exploratory
+p6_13_croissant_sunlight.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (4896x3264)
+  [PASS] File size (1620234 bytes)
+  [PASS] SHA-256 (720948fb4603beeb...)
+  [PASS] License status: verified (CC0-1.0)
+  [INFO] Originality status: possibly-processed -> tier=exploratory
+p6_14_latte_croissant_cafe.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (3264x2448)
+  [PASS] File size (1302192 bytes)
+  [PASS] SHA-256 (8bbf3d69bf8c95c0...)
+  [PASS] License status: verified (CC0-1.0)
+  [INFO] Originality status: possibly-processed -> tier=exploratory
+p6_15_bridesmaid_bouquet.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (3888x2592)
+  [PASS] File size (811822 bytes)
+  [PASS] SHA-256 (488512a77d7fa1e2...)
+  [PASS] License status: verified (CC0-1.0)
+  [INFO] Originality status: possibly-processed -> tier=exploratory
+p6_16_dark_bg_flowers.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (3456x5184)
+  [PASS] File size (2741311 bytes)
+  [PASS] SHA-256 (2fe1135a69c8d1a4...)
+  [PASS] License status: verified (CC0-1.0)
+  [INFO] Originality status: possibly-processed -> tier=exploratory
+p6_17_vibrant_floral_macro.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (5184x3456)
+  [PASS] File size (1382775 bytes)
+  [PASS] SHA-256 (afd84008e3ed9cd2...)
+  [PASS] License status: verified (CC0-1.0)
+  [INFO] Originality status: possibly-processed -> tier=exploratory
+p6_18_white_exterior_arch.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (3248x2165)
+  [PASS] File size (2221086 bytes)
+  [PASS] SHA-256 (62ebee8853e069fc...)
+  [WARN] License status: pending-review (unverified-pending-review)
+  [INFO] Originality status: possibly-processed -> tier=exploratory
+p6_19_concrete_interior_window.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (2496x1664)
+  [PASS] File size (1494444 bytes)
+  [PASS] SHA-256 (726d5e7d45df537d...)
+  [PASS] License status: verified (CC0-1.0)
+  [PASS] Originality status: reviewed-original -> tier=gold_standard
+p6_20_curved_glass_arch.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (5815x3882)
+  [PASS] File size (2630537 bytes)
+  [PASS] SHA-256 (308e0a94de24496c...)
+  [PASS] License status: verified (CC0-1.0)
+  [PASS] Originality status: reviewed-original -> tier=gold_standard
+p6_21_classical_stone_arches.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (3648x5472)
+  [PASS] File size (2260050 bytes)
+  [PASS] SHA-256 (efe4c59e16c60b56...)
+  [PASS] License status: verified (CC0-1.0)
+  [PASS] Originality status: reviewed-original -> tier=gold_standard
+p6_22_tokyo_storefront_street.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (2300x1535)
+  [PASS] File size (1084526 bytes)
+  [PASS] SHA-256 (acbdbbf30062a92d...)
+  [PASS] License status: verified (CC0-1.0)
+  [INFO] Originality status: possibly-processed -> tier=exploratory
+p6_23_pedestrians_motion_street.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (3121x2084)
+  [PASS] File size (1045722 bytes)
+  [PASS] SHA-256 (6a776d222ec34ec8...)
+  [PASS] License status: verified (CC0-1.0)
+  [INFO] Originality status: possibly-processed -> tier=exploratory
+p6_24_capetown_fog_sunset.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (5184x3456)
+  [PASS] File size (1296519 bytes)
+  [PASS] SHA-256 (f2287f1e9d2da5c3...)
+  [PASS] License status: verified (CC0-1.0)
+  [PASS] Originality status: reviewed-original -> tier=gold_standard
+p6_25_sea_waves_sunset.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (4094x2730)
+  [PASS] File size (3451377 bytes)
+  [PASS] SHA-256 (e393528e61f7802c...)
+  [PASS] License status: verified (CC0-1.0)
+  [INFO] Originality status: unknown -> tier=exploratory
+p6_26_cloudy_breaking_waves.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (4240x2832)
+  [PASS] File size (791574 bytes)
+  [PASS] SHA-256 (c058ccc92b665ac2...)
+  [PASS] License status: verified (CC0-1.0)
+  [INFO] Originality status: possibly-processed -> tier=exploratory
+p6_27_sand_ripples_sun.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (3456x2304)
+  [PASS] File size (2152031 bytes)
+  [PASS] SHA-256 (dfe8da23cb59e5f0...)
+  [PASS] License status: verified (CC0-1.0)
+  [INFO] Originality status: possibly-processed -> tier=exploratory
+p6_28_hiker_vast_canyon.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (3200x2368)
+  [PASS] File size (2398518 bytes)
+  [PASS] SHA-256 (66f009e83c18d2e2...)
+  [PASS] License status: verified (CC0-1.0)
+  [INFO] Originality status: possibly-processed -> tier=exploratory
+p6_29_man_vast_ocean.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (4689x2638)
+  [PASS] File size (1659247 bytes)
+  [PASS] SHA-256 (7b4c0b48bedf2ba5...)
+  [PASS] License status: verified (CC0-1.0)
+  [PASS] Originality status: reviewed-original -> tier=gold_standard
+p6_30_forest_bridge_hiker.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (5466x3644)
+  [PASS] File size (1375823 bytes)
+  [PASS] SHA-256 (fac2f3b3ef007357...)
+  [PASS] License status: verified (CC0-1.0)
+  [PASS] Originality status: reviewed-original -> tier=gold_standard
+p6_31_snow_trees_overcast.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (5184x3456)
+  [PASS] File size (2813845 bytes)
+  [PASS] SHA-256 (e5fcb648a325d116...)
+  [PASS] License status: verified (CC0-1.0)
+  [INFO] Originality status: possibly-processed -> tier=exploratory
+p6_32_retro_camera_white.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (3209x2407)
+  [PASS] File size (1939984 bytes)
+  [PASS] SHA-256 (414a59fda182c433...)
+  [PASS] License status: verified (CC0-1.0)
+  [INFO] Originality status: possibly-processed -> tier=exploratory
+p6_33_vintage_camera_map.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (5184x3456)
+  [PASS] File size (2602849 bytes)
+  [PASS] SHA-256 (ce609a5aca2a63dc...)
+  [PASS] License status: verified (CC0-1.0)
+  [INFO] Originality status: possibly-processed -> tier=exploratory
+p6_34_smartwatch_minimal_desk.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (4000x5000)
+  [PASS] File size (834214 bytes)
+  [PASS] SHA-256 (677ced9fd8d098ca...)
+  [WARN] License status: pending-review (unverified-pending-review)
+  [INFO] Originality status: possibly-processed -> tier=exploratory
+p6_35_living_room_window.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (5346x3568)
+  [PASS] File size (2147730 bytes)
+  [PASS] SHA-256 (98e196f52a67abb9...)
+  [WARN] License status: pending-review (unverified-pending-review)
+  [INFO] Originality status: unknown -> tier=exploratory
+p6_36_mixed_tungsten_loft.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (3024x4032)
+  [PASS] File size (2903236 bytes)
+  [PASS] SHA-256 (f73d6744ddaff941...)
+  [PASS] License status: verified (CC0-1.0)
+  [INFO] Originality status: possibly-processed -> tier=exploratory
+p6_37_desk_stationery_flatlay.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (3670x2462)
+  [PASS] File size (2054497 bytes)
+  [PASS] SHA-256 (7ba81b25cbebd0d8...)
+  [PASS] License status: verified (CC0-1.0)
+  [INFO] Originality status: possibly-processed -> tier=exploratory
+p6_38_mixed_led_wine_glasses.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (3456x2304)
+  [PASS] File size (550679 bytes)
+  [PASS] SHA-256 (bbc72a03241295eb...)
+  [PASS] License status: verified (CC0-1.0)
+  [PASS] Originality status: reviewed-original -> tier=gold_standard
+p6_39_wine_bottle_window_glass.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (5380x3586)
+  [PASS] File size (1483630 bytes)
+  [PASS] SHA-256 (ec3b70e9f99851bf...)
+  [PASS] License status: verified (CC0-1.0)
+  [PASS] Originality status: reviewed-original -> tier=gold_standard
+p6_40_black_teapot_dark_bg.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (5472x3648)
+  [PASS] File size (1307936 bytes)
+  [PASS] SHA-256 (2e26df3b83148999...)
+  [PASS] License status: verified (CC0-1.0)
+  [PASS] Originality status: reviewed-original -> tier=gold_standard
+p6_41_wine_eyeglasses_book.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (2300x1533)
+  [PASS] File size (1888138 bytes)
+  [PASS] SHA-256 (b0e7019a06311103...)
+  [PASS] License status: verified (CC0-1.0)
+  [INFO] Originality status: possibly-processed -> tier=exploratory
+p6_42_minimal_black_coffee_white.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (2442x1628)
+  [PASS] File size (104235 bytes)
+  [PASS] SHA-256 (0e49889f50b46762...)
+  [WARN] License status: pending-review (unverified-pending-review)
+  [INFO] Originality status: unknown -> tier=exploratory
+p6_43_white_cup_pen.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (5415x3615)
+  [PASS] File size (3190133 bytes)
+  [PASS] SHA-256 (c81837e7d062a5d4...)
+  [PASS] License status: verified (CC0-1.0)
+  [PASS] Originality status: reviewed-original -> tier=gold_standard
+p6_44_mantis_dark_leaves.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (5184x3456)
+  [PASS] File size (2859551 bytes)
+  [PASS] SHA-256 (a84ecf1884b8a5c2...)
+  [PASS] License status: verified (CC0-1.0)
+  [PASS] Originality status: reviewed-original -> tier=gold_standard
+p6_45_backlit_fern_leaves.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (4512x3000)
+  [PASS] File size (1806431 bytes)
+  [PASS] SHA-256 (c35757a927096166...)
+  [WARN] License status: pending-review (unverified-pending-review)
+  [INFO] Originality status: possibly-processed -> tier=exploratory
+p6_46_potted_cactus_window.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (5562x3708)
+  [PASS] File size (1219044 bytes)
+  [PASS] SHA-256 (6ab335fb47c0ad48...)
+  [PASS] License status: verified (CC0-1.0)
+  [PASS] Originality status: reviewed-original -> tier=gold_standard
+p6_47_cat_dog_golden_grass.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (2896x1704)
+  [PASS] File size (1034810 bytes)
+  [PASS] SHA-256 (3af3d4acaf584fd3...)
+  [PASS] License status: verified (CC0-1.0)
+  [INFO] Originality status: possibly-processed -> tier=exploratory
+p6_48_street_tabby_cat.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (1556x1557)
+  [PASS] File size (570615 bytes)
+  [PASS] SHA-256 (aa2d2bc3ce877597...)
+  [PASS] License status: verified (CC0-1.0)
+  [INFO] Originality status: possibly-processed -> tier=exploratory
+p6_49_dark_cat_black_bg.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (3168x4752)
+  [PASS] File size (2625756 bytes)
+  [PASS] SHA-256 (ba321352e7f578c9...)
+  [PASS] License status: verified (CC0-1.0)
+  [PASS] Originality status: reviewed-original -> tier=gold_standard
+p6_50_arctic_fox_snow.jpg
+  [PASS] File exists & readable
+  [PASS] Image valid & MIME/extension (JPEG)
+  [PASS] Dimensions (3115x3853)
+  [PASS] File size (2753153 bytes)
+  [PASS] SHA-256 (67b65e2b9a2efc00...)
+  [PASS] License status: verified (CC0-1.0)
+  [PASS] Originality status: reviewed-original -> tier=gold_standard
+
+=== PHASE 6.1C DATASET INTEGRITY SUMMARY ===
+Total Manifest Entries : 50
+File Integrity PASS    : 50/50 (failures=0, duplicates=0, unregistered=0, missing=0)
+License Verification   : verified=45, pending-review=5, rejected=0
+Originality Review     : reviewed-original=17, possibly-processed=30, unknown=3, rejected=0
+Partitioning           : gold_standard=17 (dir_match=True), exploratory=33 (dir_match=True), leaks=0
+Saved report           : /home/albet-surya-kembara/Documents/productivity/projects/auvori-app/tests/reports/phase6_1/dataset_integrity_report.json

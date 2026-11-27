@@ -1,0 +1,19 @@
+Test: p0
+Command: python3 tests/run_p0_tests.py --mode p0-all
+Timestamp: 2026-11-27T14:44:11+07:00
+Branch: feat/phase6.1-audit-integrity-hardening
+Commit SHA: 643ab69f7bb79e0821828233680f01e33139ca5b
+Exit Code: 0
+--- OUTPUT ---
+[golden-cpu] 36 cases: worst MAE=0.0000, worst maxDiff=0, redArtifacts=0
+[p0.1-mask-cache] {"presetCount": 27, "freeCount": 6, "proCount": 20, "portraitMethod": "heuristic-skin", "portraitConfidence": 0.92, "landscapeMethod": "heuristic-ellipse", "landscapeConfidence": 0.25, "hitOnRepeat": true, "missOnTransformBump": false, "sliderHitsDelta": 1, "sliderMissesDelta": 1}
+[p0.2-gpu-vs-cpu] 36 cases: worst MAE=0.275/255, worst RMSE=0.834/255, worst grainMAE=0.014/255, worst pct>12=0.000%
+   top delta: portrait-deep-skin__velvet-merona mae=0.275 rmse=0.834 grainMae=0.000 max=12 pct>12=0.00%
+   top delta: cafe-interior__velvet-merona mae=0.217 rmse=0.610 grainMae=0.000 max=5 pct>12=0.00%
+   top delta: landscape-nature__velvet-merona mae=0.101 rmse=0.420 grainMae=0.000 max=6 pct>12=0.00%
+   top delta: portrait-deep-skin__rosy-bokeh mae=0.079 rmse=0.282 grainMae=0.000 max=2 pct>12=0.00%
+   top delta: portrait-fair-hijab__velvet-merona mae=0.075 rmse=0.297 grainMae=0.000 max=4 pct>12=0.00%
+[p0.3-worker-pipeline] {"rOldCancelled": true, "rNewBackend": "worker-canvas2d", "rNewCancelled": false, "rGlBackend": "webgl2", "thumbsCount": 6, "thumbMs": 370.80000000074506, "aiPreferredBackend": "wasm"}
+[p0.4-export] {"proW": 3200, "proH": 2400, "proOriginal": true, "proBlobType": "image/jpeg", "proBlobSize": 319874, "proBackend": "webgl2", "freeW": 1280, "freeH": 960, "cardW": 3084, "cardH": 2102, "cpuFallbackW": 3200, "cpuFallbackH": 2400, "cpuFallbackBackend": "worker-canvas2d"}
+[ui-e2e] studio + export + url lifecycle: {"created": 28, "revoked": 27}
+[ui-e2e-fallback] Full editing without WebGL2 verified cleanly via Worker Canvas2D.

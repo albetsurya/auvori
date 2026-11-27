@@ -102,18 +102,27 @@ def verify_manifest_integrity() -> dict:
         "creator_name", "creator_profile_url", "license_name", "license_version",
         "license_url", "download_date", "original_width", "original_height",
         "file_format", "file_size_bytes", "sha256", "category",
-        "verification_status", "editing_status", "model_release_status",
-        "redistribution_notes",
+        "license_verification", "originality_review", "dataset_tier",
+        "model_release_status", "redistribution_notes",
     }
     covered_cats = set()
+    lic_verified = 0
+    gold_count = 0
     for p in photos:
         missing = required_keys - set(p.keys())
         assert not missing, f"Missing manifest fields on {p['filename']}: {missing}"
         assert p["license_name"] in ("CC0 1.0 Universal", "Public Domain", "CC BY 4.0", "CC BY 3.0")
-        assert p["verification_status"].startswith("verified-")
+        assert p["license_verification"]["status"] in ("verified", "pending-review")
+        assert p["originality_review"]["status"] in ("reviewed-original", "possibly-processed", "unknown")
+        if p["license_verification"]["status"] == "verified":
+            lic_verified += 1
+        if p["dataset_tier"] == "gold_standard":
+            assert p["license_verification"]["status"] == "verified"
+            assert p["originality_review"]["status"] == "reviewed-original"
+            gold_count += 1
         covered_cats.update(p["category"])
-    print(f"[PASS] Phase 6A/6B Library Integrity: {len(photos)} verified CC0 originals spanning {len(covered_cats)} distinct categories")
-    return {"count": len(photos), "distinctCategories": sorted(covered_cats)}
+    print(f"[PASS] Phase 6A/6B Library Integrity: {len(photos)} files SHA-256 OK, license_verified={lic_verified}, gold_standard={gold_count}, categories={len(covered_cats)}")
+    return {"count": len(photos), "licenseVerified": lic_verified, "goldStandard": gold_count, "distinctCategories": sorted(covered_cats)}
 
 
 def run_browser_lab_and_export(playwright, launch_kwargs: dict, base_url: str, label: str, generate_sheets: bool = False):
@@ -205,7 +214,7 @@ def run_browser_lab_and_export(playwright, launch_kwargs: dict, base_url: str, l
                     const eff = buildEffectiveRecipe(pNc.recipe, 100, DEFAULT_ADJUSTMENTS);
                     const r = await glPipe.renderPreview({
                         source: img, sourceId: sc.name, sourceRevision: 1, transformRevision: 1,
-                        recipe: eff, targetCanvas: glC, maxDimension: 1200, analysisResult: aOut.result, includeGrain: false
+                        recipe: eff, targetCanvas: glC, maxDimension: 1200, analysisResult: aOut.result, includeGrain: true
                     });
                     benchTimes.push({ name: sc.name, glMs: r.durationMs, backend: r.backend, w: glC.width, h: glC.height });
                 }
@@ -264,14 +273,14 @@ def run_browser_lab_and_export(playwright, launch_kwargs: dict, base_url: str, l
                     const featureVecs = {}; // concatenated pixel samples across portrait + food + night at 100%
                     const thumbSet = new Set();
 
-                    // Base original bytes for those 3 scenes at maxDim 480
+                    // Base original bytes for those 3 scenes at maxDim 360
                     const baseBytesMap = {};
                     for (const [k, im] of [['p', samplePortrait], ['f', sampleFood], ['n', sampleNight]]) {
                         const tmp = document.createElement('canvas');
                         const origEff = buildEffectiveRecipe(PRESETS[0].recipe, 100, DEFAULT_ADJUSTMENTS);
                         await glPipe.renderPreview({
                             source: im, sourceId: 'cat_' + k, sourceRevision: 1, transformRevision: 1,
-                            recipe: origEff, targetCanvas: tmp, maxDimension: 360, includeGrain: false
+                            recipe: origEff, targetCanvas: tmp, maxDimension: 360, includeGrain: true
                         });
                         baseBytesMap[k] = new Uint8ClampedArray(tmp.getContext('2d').getImageData(0, 0, tmp.width, tmp.height).data);
                     }
@@ -288,7 +297,7 @@ def run_browser_lab_and_export(playwright, launch_kwargs: dict, base_url: str, l
                         const thumbUrl = generatePresetThumbnail(samplePortrait, pr.recipe);
                         if (thumbUrl.length > 100) thumbSet.add(thumbUrl);
 
-                        // Intensity ladder on portrait
+                        // Intensity ladder on portrait (using actual preset grain config)
                         const ladderMae = {};
                         for (const pct of [0, 25, 50, 75, 100]) {
                             const eff = buildEffectiveRecipe(pr.recipe, pct, DEFAULT_ADJUSTMENTS);
@@ -296,7 +305,7 @@ def run_browser_lab_and_export(playwright, launch_kwargs: dict, base_url: str, l
                                 source: samplePortrait, sourceId: 'cat_p', sourceRevision: 1, transformRevision: 1,
                                 recipe: eff, targetCanvas: glC, maxDimension: 360,
                                 analysisResult: pr.lookType === 'adaptive' ? analyses[scenes[0].name] : null,
-                                includeGrain: false,
+                                includeGrain: true,
                             });
                             const pb = glC.getContext('2d').getImageData(0, 0, glC.width, glC.height).data;
                             ladderMae[pct] = byteMae(baseBytesMap.p, pb);
@@ -311,7 +320,7 @@ def run_browser_lab_and_export(playwright, launch_kwargs: dict, base_url: str, l
                                 source: im, sourceId: 'cat_' + k, sourceRevision: 1, transformRevision: 1,
                                 recipe: fullEff, targetCanvas: glC, maxDimension: 360,
                                 analysisResult: pr.lookType === 'adaptive' ? analyses[scName] : null,
-                                includeGrain: false,
+                                includeGrain: true,
                             });
                             const bytes = glC.getContext('2d').getImageData(0, 0, glC.width, glC.height).data;
                             sceneStats[k] = { maeVsOrig: byteMae(baseBytesMap[k], bytes), ...statsOf(bytes) };
@@ -320,7 +329,9 @@ def run_browser_lab_and_export(playwright, launch_kwargs: dict, base_url: str, l
                         featureVecs[pr.id] = vec;
                         catalogRows.push({
                             id: pr.id, name: pr.name, category: pr.category, isPro: pr.isPro,
-                            lookType: pr.lookType || 'legacy', collectionId: pr.collectionId || null,
+                            lookType: pr.lookType || 'legacy', recipeVersion: pr.recipeVersion || 1,
+                            collectionId: pr.collectionId || null,
+                            grain: pr.recipe.grain || 0,
                             ladderMae, sceneStats,
                         });
                     }
@@ -339,14 +350,14 @@ def run_browser_lab_and_export(playwright, launch_kwargs: dict, base_url: str, l
                     }
                     pairs.sort((x, y) => x.meanMae - y.meanMae);
 
-                    // Contact Sheet Renders (maxDimension 380 for fast crisp sheets)
+                    // Contact Sheet Renders (maxDimension 340, actual preset grain enabled)
                     const renderTileUrl = async (scName, img, preset, pct = 100) => {
                         const eff = buildEffectiveRecipe(preset.recipe, pct, DEFAULT_ADJUSTMENTS);
                         await glPipe.renderPreview({
                             source: img, sourceId: 'sheet_' + scName, sourceRevision: 1, transformRevision: 1,
                             recipe: eff, targetCanvas: glC, maxDimension: 340,
                             analysisResult: preset.lookType === 'adaptive' ? analyses[scName] : null,
-                            includeGrain: false,
+                            includeGrain: true,
                         });
                         return glC.toDataURL('image/jpeg', 0.88);
                     };
@@ -354,8 +365,8 @@ def run_browser_lab_and_export(playwright, launch_kwargs: dict, base_url: str, l
                     const loadedScenes = {};
                     for (const sc of scenes) loadedScenes[sc.name] = await loadImg(sc.url);
                     const origP = PRESETS.find(p => p.id === 'original');
-                    const legacyIds = PRESETS.filter(p => p.id !== 'original' && (!p.lookType || p.lookType === 'legacy')).map(p => p.id);
-                    const sigIds = PRESETS.filter(p => p.lookType === 'signature').map(p => p.id);
+                    const legacyIds = PRESETS.filter(p => p.id !== 'original' && (p.recipeVersion === 1 || !p.recipeVersion) && p.lookType !== 'adaptive').map(p => p.id);
+                    const sigIds = PRESETS.filter(p => p.lookType === 'signature' && p.recipeVersion === 2).map(p => p.id);
                     const adapIds = PRESETS.filter(p => p.lookType === 'adaptive').map(p => p.id);
 
                     // Sheet 1: 4 key scenes x (Original + 10 Legacy subset rows or 20 across 2 blocks -> all 20!)
@@ -522,11 +533,11 @@ def main() -> int:
 
             # Save contact sheets
             sp = out_sw["sheetsPayload"]
-            save_grid_sheet("Auvori Phase 6 Visual QA - Legacy Presets (1-10)", sp["legacyHeadersA"], [(r["label"], [data_url_to_rgb(u) for u in r["urls"]]) for r in sp["legacyRowsA"]], SHEETS_DIR / "sheet_01a_legacy_1_10.jpg")
-            save_grid_sheet("Auvori Phase 6 Visual QA - Legacy Presets (11-20)", sp["legacyHeadersB"], [(r["label"], [data_url_to_rgb(u) for u in r["urls"]]) for r in sp["legacyRowsB"]], SHEETS_DIR / "sheet_01b_legacy_11_20.jpg")
-            save_grid_sheet("Auvori Phase 6 Visual QA - 5 Signature Looks", sp["sigHeaders"], [(r["label"], [data_url_to_rgb(u) for u in r["urls"]]) for r in sp["sigRows"]], SHEETS_DIR / "sheet_02_signature_looks.jpg")
-            save_grid_sheet("Auvori Phase 6 Visual QA - Adaptive Looks", sp["adapHeaders"], [(r["label"], [data_url_to_rgb(u) for u in r["urls"]]) for r in sp["adapRows"]], SHEETS_DIR / "sheet_03_adaptive_looks.jpg")
-            save_grid_sheet("Auvori Phase 6 Visual QA - Intensity Ladder (0-100%)", sp["intensityHeaders"], [(r["label"], [data_url_to_rgb(u) for u in r["urls"]]) for r in sp["intensityRows"]], SHEETS_DIR / "sheet_04_intensity_ladder.jpg")
+            save_grid_sheet("Auvori Phase 6.1 Visual QA - Legacy Presets (1-10)", sp["legacyHeadersA"], [(r["label"], [data_url_to_rgb(u) for u in r["urls"]]) for r in sp["legacyRowsA"]], SHEETS_DIR / "sheet_01a_legacy_1_10.jpg")
+            save_grid_sheet("Auvori Phase 6.1 Visual QA - Legacy Presets (11-19)", sp["legacyHeadersB"], [(r["label"], [data_url_to_rgb(u) for u in r["urls"]]) for r in sp["legacyRowsB"]], SHEETS_DIR / "sheet_01b_legacy_11_20.jpg")
+            save_grid_sheet("Auvori Phase 6.1 Visual QA - 5 P1 Signature Looks", sp["sigHeaders"], [(r["label"], [data_url_to_rgb(u) for u in r["urls"]]) for r in sp["sigRows"]], SHEETS_DIR / "sheet_02_signature_looks.jpg")
+            save_grid_sheet("Auvori Phase 6.1 Visual QA - 2 Adaptive Looks", sp["adapHeaders"], [(r["label"], [data_url_to_rgb(u) for u in r["urls"]]) for r in sp["adapRows"]], SHEETS_DIR / "sheet_03_adaptive_looks.jpg")
+            save_grid_sheet("Auvori Phase 6.1 Visual QA - Intensity Ladder (0-100%, Grain ON)", sp["intensityHeaders"], [(r["label"], [data_url_to_rgb(u) for u in r["urls"]]) for r in sp["intensityRows"]], SHEETS_DIR / "sheet_04_intensity_ladder.jpg")
 
             # Export assertions (SwiftShader & CPU Square)
             es = out_sw["exportSummary"]

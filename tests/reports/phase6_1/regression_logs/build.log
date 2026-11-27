@@ -1,0 +1,35 @@
+Test: build
+Command: npm run build
+Timestamp: 2026-11-27T14:44:06+07:00
+Branch: feat/phase6.1-audit-integrity-hardening
+Commit SHA: 643ab69f7bb79e0821828233680f01e33139ca5b
+Exit Code: 0
+--- OUTPUT ---
+
+> auvori@1.0.0 build
+> tsc && vite build
+
+vite v5.4.21 building for production...
+transforming...
+✓ 1624 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/registerSW.js                                          0.13 kB
+dist/manifest.webmanifest                                   0.42 kB
+dist/index.html                                             1.16 kB │ gzip:   0.59 kB
+dist/assets/ai.worker-CdwULL0Y.js                          20.89 kB
+dist/assets/image.worker-B2kn92fL.js                       25.82 kB
+dist/assets/ort.wasm.bundle.min-CXIOZGes.js                77.34 kB
+dist/assets/ort.jspi.bundle.min-Bn8WeMp4.js               121.23 kB
+dist/assets/ort-wasm-simd-threaded-qh98TCA_.wasm       14,848.85 kB
+dist/assets/ort-wasm-simd-threaded.jspi-CbRAdMaW.wasm  17,920.66 kB
+dist/assets/index-BlovWzeD.css                             39.83 kB │ gzip:   7.59 kB
+dist/assets/index-B-LA8jAX.js                             380.50 kB │ gzip: 110.78 kB
+✓ built in 1.66s
+
+PWA v0.20.5
+mode      generateSW
+precache  11 entries (651.95 KiB)
+files generated
+  dist/sw.js
+  dist/workbox-dcde9eb3.js

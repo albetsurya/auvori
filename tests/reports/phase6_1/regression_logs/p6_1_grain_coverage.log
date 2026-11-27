@@ -1,0 +1,24 @@
+Test: p6_1_grain_and_coverage
+Command: python3 tests/run_p6_1_grain_and_coverage_tests.py
+Timestamp: 2026-11-27T14:49:38+07:00
+Branch: feat/phase6.1-audit-integrity-hardening
+Commit SHA: 643ab69f7bb79e0821828233680f01e33139ca5b
+Exit Code: 0
+--- OUTPUT ---
+[Stage 0] Initializing pipelines & analyzing 12 adaptive targets...
+[Stage 1] Running Phase 6.1D Grain Visual QA across 15 presets x 5 intensities...
+  completed grain batch 1/3
+  completed grain batch 2/3
+  completed grain batch 3/3
+[Stage 2] Evaluating Grain Preview vs CPU vs Full-Res Export...
+[Stage 3] Rendering Phase 6.1E Stratified Coverage Sheets...
+Saved grain closeup sheet: /home/albet-surya-kembara/Documents/productivity/projects/auvori-app/tests/reports/phase6_1/grain_quality/sheet_grain_categories.jpg
+Saved grain closeup sheet: /home/albet-surya-kembara/Documents/productivity/projects/auvori-app/tests/reports/phase6_1/grain_quality/sheet_grain_intensity_ladder.jpg
+Saved grain closeup sheet: /home/albet-surya-kembara/Documents/productivity/projects/auvori-app/tests/reports/phase6_1/grain_quality/sheet_grain_preview_vs_export.jpg
+Saved sheet: /home/albet-surya-kembara/Documents/productivity/projects/auvori-app/tests/reports/phase6_1/stratified_coverage/sheet_stratified_adaptive.jpg
+Saved sheet: /home/albet-surya-kembara/Documents/productivity/projects/auvori-app/tests/reports/phase6_1/stratified_coverage/sheet_stratified_signature.jpg
+Saved sheet: /home/albet-surya-kembara/Documents/productivity/projects/auvori-app/tests/reports/phase6_1/stratified_coverage/sheet_stratified_legacy_1_10.jpg
+Saved sheet: /home/albet-surya-kembara/Documents/productivity/projects/auvori-app/tests/reports/phase6_1/stratified_coverage/sheet_stratified_legacy_11_19.jpg
+
+[PASS] Phase 6.1D Grain Visual QA complete (GPU/CPU grain MAE=0.683/255)
+[PASS] Phase 6.1E Stratified Visual Coverage complete

@@ -1,0 +1,55 @@
+Test: p5
+Command: python3 tests/run_p5_night_cinema_tests.py
+Timestamp: 2026-11-27T14:45:02+07:00
+Branch: feat/phase6.1-audit-integrity-hardening
+Commit SHA: 643ab69f7bb79e0821828233680f01e33139ca5b
+Exit Code: 0
+--- OUTPUT ---
+
+=== ENVIRONMENT [headless-swiftshader]: GL=ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver) | WebGPU=False ===
+
+=== NIGHT CINEMA QUANTITATIVE METRICS (36 ORIGINAL + HOLDOUT + NIGHT PHOTOS) ===
+Set      | Photo                          | Mode                 | SubjD  | BgD    | ClipB->A  | P05D   | LumNs | ChrNs | Ch255 | FcDet | SkinH  | Halo  | MAE   | vNS   | vTA   | vDF  
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+night    | holdout_night_cafe_square.jpg  | fallback-signature   | -0.027 | -0.027 |  1.1-> 0.0 | -0.006 |  0.75 |  0.76 |  1.03 |  1.00 |  0.00 | 0.000 | 0.007 |   7.1 |   6.5 |   6.2
+night    | holdout_night_indoor_bar.jpg   | adaptive-portrait    | +0.032 | -0.042 |  3.0-> 0.0 | -0.009 |  0.69 |  0.90 |  1.08 |  0.92 |  2.57 | 0.007 | 0.010 |   8.4 |   6.5 |   6.2
+night    | holdout_night_neon_open.jpg    | conservative-subject | -0.043 | -0.039 |  0.1-> 0.0 | -0.029 |  0.63 |  1.65 |  0.79 |  1.00 |  0.00 | 0.000 | 0.010 |   8.9 |   6.6 |   6.1
+night    | holdout_night_street_tram.jpg  | fallback-signature   | -0.028 | -0.028 |  0.2-> 0.0 | -0.009 |  0.71 |  0.93 |  1.11 |  1.00 |  0.00 | 0.000 | 0.007 |   6.3 |   5.3 |   6.8
+night    | night_backlit_silhouette.jpg   | conservative-subject | -0.023 | -0.070 | 10.8-> 0.0 | -0.045 |  0.88 |  0.95 |  0.51 |  1.00 |  0.00 | 0.020 | 0.011 |   8.6 |   6.8 |   6.5
+night    | night_landscape_skyline.jpg    | conservative-subject | -0.004 | -0.031 |  0.1-> 0.0 | -0.012 |  0.64 |  1.29 |  0.44 |  1.00 |  0.00 | 0.003 | 0.006 |   7.1 |   4.6 |   4.9
+night    | night_mixed_cafe.jpg           | fallback-signature   | -0.029 | -0.029 |  0.7-> 0.0 | -0.019 |  0.68 |  0.98 |  1.25 |  1.00 |  0.00 | 0.000 | 0.013 |   9.7 |   7.3 |   5.5
+night    | night_multi_faces_crowd.jpg    | fallback-signature   | -0.025 | -0.025 |  2.4-> 0.0 | -0.003 |  0.61 |  0.91 |  1.13 |  1.00 |  0.00 | 0.000 | 0.006 |   6.9 |   4.6 |   5.7
+night    | night_neon_portrait.jpg        | conservative-subject | -0.042 | -0.021 |  2.8-> 0.0 | -0.002 |  0.53 |  0.87 |  0.73 |  1.00 |  0.00 | 0.000 | 0.005 |   9.1 |   6.4 |   4.7
+night    | night_object_lantern.jpg       | conservative-subject | -0.034 | -0.012 |  3.6-> 0.0 | -0.003 |  0.72 |  1.57 |  0.26 |  1.00 |  0.00 | 0.000 | 0.003 |   6.0 |   2.8 |   4.0
+night    | night_sooc_portrait.jpg        | adaptive-portrait    | +0.003 | -0.036 |  0.3-> 0.0 | -0.004 |  0.73 |  2.23 |  0.66 |  1.75 |  5.07 | 0.004 | 0.009 |   9.6 |   6.3 |   6.0
+night    | night_street_portrait.jpg      | adaptive-portrait    | +0.004 | -0.055 |  0.7-> 0.0 | -0.003 |  0.78 |  1.07 |  0.57 |  1.33 |  1.48 | 0.023 | 0.011 |  13.6 |  10.4 |   7.0
+original | beach_portrait.jpg             | conservative-subject | -0.077 | -0.120 | 64.0-> 0.0 | -0.018 |  0.74 |  1.26 |  0.99 |  1.00 |  0.00 | 0.036 | 0.009 |   -   |   -   |   -  
+original | button_up_portrait.jpg         | conservative-subject | -0.103 | -0.102 | 33.1-> 0.0 | -0.087 |  1.00 |  1.00 |  0.00 |  1.00 |  0.00 | 0.000 | 0.005 |   -   |   -   |   -  
+original | color_indoor_portrait.jpg      | adaptive-portrait    | +0.048 | -0.056 |  0.0-> 0.0 | -0.002 |  1.00 |  1.00 |  0.00 |  0.99 |  2.88 | 0.028 | 0.025 |   -   |   -   |   -  
+original | dark_hair_man.jpg              | conservative-subject | -0.009 | -0.074 | 19.9-> 0.0 | -0.014 |  0.76 |  1.21 |  1.18 |  1.00 |  0.00 | 0.036 | 0.012 |   -   |   -   |   -  
+original | hijab_portrait.jpg             | adaptive-portrait    | -0.004 | -0.067 |  4.0-> 0.0 | -0.021 |  0.99 |  2.10 |  0.82 |  0.67 |  1.67 | 0.026 | 0.019 |   -   |   -   |   -  
+original | indoor_cafe_woman.jpg          | conservative-subject | +0.001 | -0.034 |  0.0-> 0.0 | -0.033 |  0.76 |  1.28 |  0.55 |  1.00 |  0.00 | 0.023 | 0.017 |   -   |   -   |   -  
+original | indoor_portrait.jpg            | adaptive-portrait    | +0.016 | -0.026 |  0.8-> 0.0 | -0.004 |  0.76 |  1.00 |  0.00 |  1.00 |  0.00 | 0.008 | 0.018 |   -   |   -   |   -  
+original | landscape_lake.jpg             | fallback-signature   | -0.032 | -0.032 |  0.2-> 0.0 | -0.057 |  1.21 |  1.68 |  2.89 |  1.00 |  0.00 | 0.000 | 0.023 |   -   |   -   |   -  
+original | low_light_portrait.jpg         | adaptive-portrait    | -0.002 | -0.008 |  0.0-> 0.0 | -0.006 |  0.66 |  1.93 |  0.61 |  1.09 |  2.80 | 0.000 | 0.002 |   5.9 |   3.3 |   4.2
+original | multiple_faces.jpg             | adaptive-portrait    | +0.017 | -0.043 |  0.7-> 0.0 | -0.006 |  0.95 |  1.32 |  1.53 |  1.09 |  1.57 | 0.028 | 0.016 |  14.7 |  11.5 |   7.3
+original | object_coffee.jpg              | conservative-subject | -0.036 | -0.024 |  1.0-> 0.0 | -0.030 |  0.78 |  0.93 |  0.78 |  1.00 |  0.00 | 0.020 | 0.019 |   -   |   -   |   -  
+original | outdoor_closeup_woman.jpg      | adaptive-portrait    | +0.033 | -0.039 |  0.7-> 0.0 | -0.015 |  1.03 |  1.18 |  1.10 |  1.13 |  1.84 | 0.011 | 0.021 |   -   |   -   |   -  
+original | outdoor_portrait.jpg           | adaptive-portrait    | +0.036 | -0.037 |  0.0-> 0.0 | -0.008 |  0.67 |  0.88 |  1.11 |  1.16 |  1.94 | 0.004 | 0.007 |   -   |   -   |   -  
+original | street_black_clothing.jpg      | adaptive-portrait    | +0.002 | -0.069 |  0.9-> 0.0 | -0.021 |  0.95 |  1.22 |  1.11 |  0.75 |  2.07 | 0.016 | 0.020 |   -   |   -   |   -  
+holdout  | holdout_backlit_portrait.jpg   | conservative-subject | -0.002 | -0.052 |  2.0-> 0.0 | -0.031 |  0.77 |  1.72 |  0.61 |  1.00 |  0.00 | 0.000 | 0.019 |   -   |   -   |   -  
+holdout  | holdout_backlit_sunset.jpg     | adaptive-portrait    | +0.011 | -0.084 | 21.2-> 0.0 | -0.048 |  0.79 |  2.44 |  0.79 |  1.02 |  2.80 | 0.033 | 0.011 |   -   |   -   |   -  
+holdout  | holdout_bw_backlit_hat.jpg     | adaptive-portrait    | +0.009 | -0.060 | 13.6-> 0.0 | -0.044 |  0.88 |  1.00 |  0.00 |  1.00 |  0.00 | 0.000 | 0.013 |   -   |   -   |   -  
+holdout  | holdout_bw_bokeh_portrait.jpg  | adaptive-portrait    | +0.027 | -0.064 | 10.4-> 0.0 | -0.004 |  0.81 |  1.00 |  0.00 |  1.00 |  0.00 | 0.041 | 0.012 |   -   |   -   |   -  
+holdout  | holdout_bw_white_shirt.jpg     | adaptive-portrait    | +0.049 | +0.001 |  0.1-> 0.0 | +0.002 |  0.69 |  1.00 |  0.00 |  1.00 |  0.00 | 0.000 | 0.006 |   -   |   -   |   -  
+holdout  | holdout_color_portrait_1.jpg   | conservative-subject | +0.013 | -0.034 |  0.1-> 0.0 | -0.038 |  0.76 |  1.68 |  0.37 |  1.00 |  0.00 | 0.008 | 0.011 |   -   |   -   |   -  
+holdout  | holdout_color_portrait_2.jpg   | adaptive-portrait    | +0.020 | -0.009 |  0.0-> 0.0 | +0.002 |  1.00 |  1.00 |  0.00 |  1.31 |  1.98 | 0.007 | 0.023 |   -   |   -   |   -  
+holdout  | holdout_hijab.jpg              | adaptive-portrait    | +0.069 | -0.059 |  0.0-> 0.0 | +0.012 |  1.17 |  1.23 |  1.67 |  1.23 |  2.47 | 0.038 | 0.017 |   -   |   -   |   -  
+holdout  | holdout_indoor_cafe.jpg        | conservative-subject | -0.011 | -0.055 | 16.9-> 0.0 | -0.015 |  0.73 |  0.97 |  0.88 |  1.00 |  0.00 | 0.025 | 0.015 |   -   |   -   |   -  
+holdout  | holdout_night_cafe.jpg         | conservative-subject | -0.042 | -0.042 |  0.4-> 0.0 | -0.040 |  0.66 |  1.73 |  0.84 |  1.00 |  0.00 | 0.002 | 0.010 |   9.6 |   6.5 |   6.1
+[PASS] Full-Res 3200x2400 Export Parity: {'glW': 3200, 'glH': 2400, 'glOrig': True, 'glBackend': 'webgl2', 'glMs': 2193, 'cpuW': 3200, 'cpuH': 2400, 'cpuOrig': True, 'cpuBackend': 'worker-canvas2d', 'cpuMs': 4830.5, 'exportPreviewMae': 0.3504479166666667}
+[PASS] Summary across 36 photos: worst GPU/CPU MAE=0.025/255, maxHalo=0.0412, maxLumaNoise=1.21x, maxChromaNoise=2.44x
+
+=== ENVIRONMENT [physical-gpu-angle-egl]: GL=ANGLE (Intel, Mesa Intel(R) Iris(R) Xe Graphics (ADL GT2), OpenGL ES 3.2) | WebGPU=False ===
+[PASS] Physical GPU (ANGLE (Intel, Mesa Intel(R) Iris(R) Xe Graphics (ADL GT2), OpenGL ES 3.2)): preview render median=23.50ms (range 8.50..39.30ms), 3200x2400 export=257.4ms
+[PASS] Editor UX E2E: lazy trigger, Ready='Adaptive Night Ready', Object='Subject Night Ready', Landscape='Signature Fallback · Balanced Tone', Offline='Signature Fallback · Offline Mode'

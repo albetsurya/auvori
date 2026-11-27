@@ -1,0 +1,45 @@
+Command: python3 tests/run_p4_direct_flash_tests.py
+Timestamp: 2026-11-27T14:44:06+07:00
+Branch: feat/phase6.1-audit-integrity-hardening
+Commit SHA: 643ab69f7bb79e0821828233680f01e33139ca5b
+Exit Code: 0
+--- OUTPUT ---
+
+=== ENVIRONMENT [headless-swiftshader]: GL=ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver) | WebGPU=False ===
+
+=== DIRECT FLASH QUANTITATIVE METRICS (24 ORIGINAL + HOLDOUT PHOTOS) ===
+Set     | Photo                          | Mode                 | SubjD  | BgD    | ClipB->A  | SkinHue | Halo  | NsAmp | MAE   | GLms  | CPUms
+-----------------------------------------------------------------------------------------------------------------------------------------------
+original | beach_portrait.jpg             | conservative-subject | -0.063 | -0.104 | 52.1-> 0.0 |   0.00° | 0.026 |  1.00 | 0.006 | 342.1 | 227.0
+original | button_up_portrait.jpg         | conservative-subject | -0.097 | -0.081 | 18.8-> 0.0 |   0.00° | 0.000 |  1.00 | 0.003 |  76.4 | 164.1
+original | color_indoor_portrait.jpg      | adaptive-portrait    | +0.102 | -0.079 |  0.0-> 0.0 |   0.84° | 0.034 |  1.00 | 0.022 |  82.7 | 199.3
+original | dark_hair_man.jpg              | conservative-subject | +0.021 | -0.057 | 19.5-> 0.0 |   0.00° | 0.033 |  0.97 | 0.011 | 106.6 | 255.8
+original | hijab_portrait.jpg             | adaptive-portrait    | +0.031 | -0.076 |  1.8-> 0.0 |   3.08° | 0.028 |  1.00 | 0.019 | 119.8 | 231.9
+   [diff vs 5 Signature Looks] hijab_portrait.jpg minMAE=12.29/255
+original | indoor_cafe_woman.jpg          | conservative-subject | +0.022 | -0.017 |  0.0-> 0.0 |   0.00° | 0.008 |  1.07 | 0.016 |  86.2 | 140.3
+original | indoor_portrait.jpg            | adaptive-portrait    | +0.049 | -0.041 |  0.4-> 0.0 |   0.00° | 0.012 |  0.98 | 0.016 |  91.1 | 143.1
+original | landscape_lake.jpg             | fallback-signature   | -0.015 | -0.015 |  0.1-> 0.0 |   0.00° | 0.000 |  1.00 | 0.020 |  71.4 | 151.2
+original | low_light_portrait.jpg         | adaptive-portrait    | +0.031 | +0.003 |  0.0-> 0.0 |   2.46° | 0.000 |  1.03 | 0.003 |  84.0 | 117.2
+   [diff vs 5 Signature Looks] low_light_portrait.jpg minMAE=5.59/255
+original | multiple_faces.jpg             | adaptive-portrait    | +0.054 | -0.050 |  0.6-> 0.0 |   1.86° | 0.029 |  0.93 | 0.015 |  94.7 | 174.3
+original | object_coffee.jpg              | conservative-subject | -0.026 | -0.016 |  0.3-> 0.0 |   0.00° | 0.006 |  1.01 | 0.017 |  79.0 | 148.4
+original | outdoor_closeup_woman.jpg      | adaptive-portrait    | +0.074 | -0.040 |  0.4-> 0.0 |   1.55° | 0.007 |  1.00 | 0.021 |  83.8 | 163.5
+original | outdoor_portrait.jpg           | adaptive-portrait    | +0.071 | -0.018 |  0.0-> 0.0 |   1.49° | 0.003 |  0.90 | 0.007 | 102.1 | 143.1
+original | street_black_clothing.jpg      | adaptive-portrait    | +0.046 | -0.061 |  0.0-> 0.0 |   4.15° | 0.019 |  1.00 | 0.019 |  72.0 | 147.2
+holdout | holdout_backlit_portrait.jpg   | conservative-subject | +0.023 | -0.040 |  1.3-> 0.0 |   0.00° | 0.000 |  1.00 | 0.017 |  84.4 | 148.0
+holdout | holdout_backlit_sunset.jpg     | adaptive-portrait    | +0.048 | -0.067 | 19.8-> 0.0 |   2.47° | 0.026 |  1.01 | 0.010 |  75.3 | 155.8
+   [diff vs 5 Signature Looks] holdout_backlit_sunset.jpg minMAE=12.87/255
+holdout | holdout_bw_backlit_hat.jpg     | adaptive-portrait    | +0.058 | -0.053 | 12.2-> 0.0 |   0.00° | 0.000 |  1.02 | 0.012 |  78.2 | 121.4
+holdout | holdout_bw_bokeh_portrait.jpg  | adaptive-portrait    | +0.070 | -0.065 |  7.9-> 0.0 |   0.00° | 0.042 |  1.00 | 0.013 |  89.1 | 128.0
+holdout | holdout_bw_white_shirt.jpg     | adaptive-portrait    | +0.117 | +0.004 |  0.0-> 0.0 |   0.00° | 0.000 |  1.06 | 0.006 |  69.4 | 115.5
+holdout | holdout_color_portrait_1.jpg   | conservative-subject | +0.043 | -0.015 |  0.0-> 0.0 |   0.00° | 0.000 |  1.04 | 0.010 | 134.1 | 207.6
+holdout | holdout_color_portrait_2.jpg   | adaptive-portrait    | +0.065 | -0.023 |  0.0-> 0.0 |   0.84° | 0.014 |  1.00 | 0.022 |  82.3 | 148.8
+holdout | holdout_hijab.jpg              | adaptive-portrait    | +0.119 | -0.048 |  0.0-> 0.0 |   0.73° | 0.034 |  1.00 | 0.022 |  92.8 | 167.5
+holdout | holdout_indoor_cafe.jpg        | conservative-subject | +0.016 | -0.049 | 11.1-> 0.0 |   0.00° | 0.012 |  0.99 | 0.015 |  90.2 | 152.5
+holdout | holdout_night_cafe.jpg         | conservative-subject | -0.019 | -0.019 |  0.1-> 0.0 |   0.00° | 0.005 |  1.02 | 0.009 | 122.6 | 206.1
+[PASS] Full-Res 3200x2400 Export Parity: {'glW': 3200, 'glH': 2400, 'glOrig': True, 'glBackend': 'webgl2', 'glMs': 2098.099999997765, 'cpuW': 3200, 'cpuH': 2400, 'cpuOrig': True, 'cpuBackend': 'worker-canvas2d', 'cpuMs': 3963.699999999255, 'exportPreviewMae': 0.8386069444444444}
+[PASS] Summary across 24 photos: worst GPU/CPU MAE=0.022/255, maxHalo=0.0424, maxNoiseAmp=1.07x
+
+=== ENVIRONMENT [physical-gpu-angle-egl]: GL=ANGLE (Intel, Mesa Intel(R) Iris(R) Xe Graphics (ADL GT2), OpenGL ES 3.2) | WebGPU=False ===
+[PASS] Physical GPU (ANGLE (Intel, Mesa Intel(R) Iris(R) Xe Graphics (ADL GT2), OpenGL ES 3.2)): preview render median=19.65ms (range 6.60..42.50ms), 3200x2400 export=389.4ms
+[PASS] Editor UX E2E: lazy trigger, Ready='Adaptive Flash Ready', Landscape='Signature Fallback · Balanced Tone', Offline='Signature Fallback · Offline Mode', Before/After, Undo/Redo

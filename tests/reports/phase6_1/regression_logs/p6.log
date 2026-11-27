@@ -1,0 +1,27 @@
+Test: p6
+Command: python3 tests/run_p6_visual_quality_tests.py
+Timestamp: 2026-11-27T14:47:17+07:00
+Branch: feat/phase6.1-audit-integrity-hardening
+Commit SHA: 643ab69f7bb79e0821828233680f01e33139ca5b
+Exit Code: 0
+--- OUTPUT ---
+[download_sample_photos] total=50 downloaded=0 cached_sha_verified=50 license_verified=45 license_pending=5 skipped=0 duplicates=0 failed=0
+[PASS] Phase 6A/6B Library Integrity: 50 files SHA-256 OK, license_verified=45, gold_standard=17, categories=45
+
+=== ENVIRONMENT [headless-swiftshader]: GL=ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver) | maxTex=8192 | WebGPU=False ===
+[PASS] Phase 6D Catalog Audit: 26 looks verified, 0%==Original identity MAE=0.000, closest pair={'a': 'gangnam-glass', 'b': 'busan-breeze', 'meanMae': 4.4380201188843165}
+Saved contact sheet: /home/albet-surya-kembara/Documents/productivity/projects/auvori-app/tests/reports/phase6_contact_sheets/sheet_01a_legacy_1_10.jpg
+Saved contact sheet: /home/albet-surya-kembara/Documents/productivity/projects/auvori-app/tests/reports/phase6_contact_sheets/sheet_01b_legacy_11_20.jpg
+Saved contact sheet: /home/albet-surya-kembara/Documents/productivity/projects/auvori-app/tests/reports/phase6_contact_sheets/sheet_02_signature_looks.jpg
+Saved contact sheet: /home/albet-surya-kembara/Documents/productivity/projects/auvori-app/tests/reports/phase6_contact_sheets/sheet_03_adaptive_looks.jpg
+Saved contact sheet: /home/albet-surya-kembara/Documents/productivity/projects/auvori-app/tests/reports/phase6_contact_sheets/sheet_04_intensity_ladder.jpg
+[PASS] Phase 6F High-Res Export Matrix (SW): {'freePortrait': {'w': 853, 'h': 1280, 'mime': 'image/jpeg', 'bytes': 107463, 'ms': 508.5, 'backend': 'webgl2'}, 'proPortraitJpg': {'w': 2731, 'h': 4096, 'orig': False, 'mime': 'image/jpeg', 'bytes': 1003178, 'ms': 2508.099999997765, 'backend': 'webgl2'}, 'proLandscapePng': {'w': 4096, 'h': 2731, 'orig': False, 'mime': 'image/png', 'bytes': 12135450, 'ms': 2897.5, 'backend': 'webgl2'}, 'proSquareCpu': {'w': 3456, 'h': 3456, 'mime': 'image/png', 'bytes': 11025496, 'ms': 4175.20000000298, 'backend': 'worker-canvas2d'}, 'proCard': {'w': 3856, 'h': 1578, 'mime': 'image/jpeg', 'bytes': 706838, 'ms': 774.8999999985099}, 'heapUsedMB': 51}
+
+=== ENVIRONMENT [physical-gpu-angle-egl]: GL=ANGLE (Intel, Mesa Intel(R) Iris(R) Xe Graphics (ADL GT2), OpenGL ES 3.2) | maxTex=16384 | WebGPU=False ===
+[PASS] Phase 6F Physical GPU Export Matrix: {'freePortrait': {'w': 853, 'h': 1280, 'mime': 'image/jpeg', 'bytes': 114625, 'ms': 228.90000000223517, 'backend': 'webgl2'}, 'proPortraitJpg': {'w': 2731, 'h': 4096, 'orig': False, 'mime': 'image/jpeg', 'bytes': 1002763, 'ms': 332.30000000074506, 'backend': 'webgl2'}, 'proLandscapePng': {'w': 4096, 'h': 2731, 'orig': False, 'mime': 'image/png', 'bytes': 12288353, 'ms': 536.0999999977648, 'backend': 'webgl2'}, 'proSquareCpu': {'w': 3456, 'h': 3456, 'mime': 'image/png', 'bytes': 11025393, 'ms': 4456.60000000149, 'backend': 'worker-canvas2d'}, 'proCard': {'w': 3856, 'h': 1578, 'mime': 'image/jpeg', 'bytes': 791278, 'ms': 102.29999999701977}, 'heapUsedMB': 51}
+   GPU preview 1200px p6_07_daylight_smiling_portrait.jpg: 196.00ms (1200x800)
+   GPU preview 1200px p6_14_latte_croissant_cafe.jpg: 73.20ms (1200x900)
+   GPU preview 1200px p6_30_forest_bridge_hiker.jpg: 184.60ms (1200x800)
+   GPU preview 1200px p6_25_sea_waves_sunset.jpg: 61.30ms (1200x800)
+[PASS] Phase 6E Responsive Editor UX & Interactions verified cleanly across 5 viewports.
+Saved Phase 6 metrics JSON: /home/albet-surya-kembara/Documents/productivity/projects/auvori-app/tests/reports/phase6_metrics.json

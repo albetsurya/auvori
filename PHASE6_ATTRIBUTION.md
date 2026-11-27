@@ -22,26 +22,32 @@ Auvori uses photographic test fixtures and open-source sample photos exclusively
 
 ---
 
-## 2. Phase 6 Open-Source Photo Library (50 Photos)
+## 2. Phase 6 / 6.1 Open-Source Photo Library (50 Photos)
 
-**Source:** Wikimedia Commons — Unsplash CC0 Archive
-**License:** CC0 1.0 Universal (all 50 photos)
-**Attribution required:** No (CC0 waives all rights)
+**Source:** Wikimedia Commons — Unsplash Archive
+**Declared License:** CC0 1.0 Universal (all 50 entries)
+**License Verification Audit (Phase 6.1A):**
+- **45 photos verified CC0-1.0:** Confirmed via pre-`2017-06-05` Wayback Machine HTML gallery snapshot and/or passed Wikimedia Commons `{{LicenseReview}}` (verified against `https://web.archive.org/web/20170505000000id_/https://unsplash.com/license`).
+- **5 photos `pending-review`:** `p6_18_white_exterior_arch.jpg`, `p6_34_smartwatch_minimal_desk.jpg`, `p6_35_living_room_window.jpg`, `p6_42_minimal_black_coffee_white.jpg`, `p6_45_backlit_fern_leaves.jpg` (listed in `Category:Images from Unsplash (review needed)` with earliest Wayback snapshot post-dating Unsplash's June 5, 2017 license change; excluded from `gold_standard/`).
+**Attribution required:** Optional for CC0; full creator attribution retained in manifest and `ATTRIBUTION.md`.
 
-Full per-photo attribution is in:
-[`tests/fixtures/opensource_photos/ATTRIBUTION.md`](tests/fixtures/opensource_photos/ATTRIBUTION.md)
+Full per-photo attribution, license evidence, and originality review are in:
+- [`tests/fixtures/opensource_photos/ATTRIBUTION.md`](tests/fixtures/opensource_photos/ATTRIBUTION.md)
+- [`PHASE6_1_LICENSE_VERIFICATION.md`](PHASE6_1_LICENSE_VERIFICATION.md)
+- [`PHASE6_1_ORIGINALITY_AUDIT.md`](PHASE6_1_ORIGINALITY_AUDIT.md)
 
 ### Summary Statistics
 
 | Metric | Value |
 |--------|-------|
 | Total photos | 50 |
-| License type | CC0 1.0 Universal (100%) |
-| Source platform | Wikimedia Commons |
+| SHA-256 / File Integrity verified | ✅ 50 / 50 |
+| License verified (`CC0-1.0`) | 45 / 50 |
+| License `pending-review` | 5 / 50 (excluded from `gold_standard/`) |
+| Visual Originality `reviewed-original` | 17 / 50 (`gold_standard/`) |
+| Visual Originality `possibly-processed` / `unknown` | 33 / 50 (30 `possibly-processed`, 3 `unknown` -> `exploratory/`) |
 | Distinct categories covered | 45 |
-| Photos with model release | Documented per-photo in manifest |
 | Photos with identifiable people | Multiple — model release status documented |
-| SHA-256 verified | ✅ All 50 |
 | Download date range | 2026-11 |
 
 > [!CAUTION]
@@ -92,12 +98,12 @@ The existing P0–P5 test fixture libraries retain their original attribution:
 
 ---
 
-## 6. No Excluded Licenses
+## 6. No Excluded Licenses & Audit Transparency
 
-A full audit of all 86 test photos (50 new + 36 existing) confirms:
+A full audit of all 86 test photos (50 Phase 6 open-source + 36 P3–P5 fixtures) confirms:
 
 - ✅ 0 photos with CC BY-NC license
 - ✅ 0 photos with CC BY-ND license
-- ✅ 0 photos with unknown or unverifiable license
 - ✅ 0 photos sourced from watermarked or stock-only platforms
-- ✅ 0 photos with SHA-256 mismatch (all verified on download and verify-only pass)
+- ✅ 0 photos with SHA-256 mismatch (`50/50` open-source files verified)
+- ⚠️ **5 open-source photos marked `pending-review`** (`p6_18`, `p6_34`, `p6_35`, `p6_42`, `p6_45`) because their Wikimedia Commons pages show `Category:Images from Unsplash (review needed)` and their earliest Wayback archive post-dates Unsplash's June 5, 2017 CC0 cutoff; excluded from `gold_standard/` (`17` verified originals) and confined to `exploratory/`.

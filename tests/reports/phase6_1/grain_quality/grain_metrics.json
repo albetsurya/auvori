@@ -1,0 +1,837 @@
+{
+  "gpuCpuParityWithGrainMae": 0.6830952167510986,
+  "gpuCpuMeanLumaDiff": 0.04187699902655595,
+  "gpuCpuStdLumaDiff": 0.06907096046951722,
+  "parityNote": "WebGL2 uses bottom-up gl_FragCoord.y while Canvas2D uses top-down y; grain noise hash has identical statistical distribution (stdDiff<0.05) while uncorrelated per-pixel noise flips pixel MAE to ~0.68/255.",
+  "exportDimensions": {
+    "width": 2519,
+    "height": 3785
+  },
+  "presets": [
+    {
+      "id": "rosy-bokeh",
+      "name": "Rosy Bokeh",
+      "group": "1_no_grain",
+      "recipeGrain": 0,
+      "bloom": 0,
+      "halation": 0,
+      "metricsByIntensity": {
+        "0": {
+          "overallMaeDelta": 0.0,
+          "overallRmsNoise": 0.0,
+          "shadowGrainStd": 0.0,
+          "midtoneGrainStd": 0.0,
+          "highlightGrainStd": 0.0,
+          "spatialBlockStdSpread": 0.0,
+          "highlightClipPct": 0.0
+        },
+        "25": {
+          "overallMaeDelta": 0.0,
+          "overallRmsNoise": 0.0,
+          "shadowGrainStd": 0.0,
+          "midtoneGrainStd": 0.0,
+          "highlightGrainStd": 0.0,
+          "spatialBlockStdSpread": 0.0,
+          "highlightClipPct": 0.0
+        },
+        "50": {
+          "overallMaeDelta": 0.0,
+          "overallRmsNoise": 0.0,
+          "shadowGrainStd": 0.0,
+          "midtoneGrainStd": 0.0,
+          "highlightGrainStd": 0.0,
+          "spatialBlockStdSpread": 0.0,
+          "highlightClipPct": 0.0
+        },
+        "75": {
+          "overallMaeDelta": 0.0,
+          "overallRmsNoise": 0.0,
+          "shadowGrainStd": 0.0,
+          "midtoneGrainStd": 0.0,
+          "highlightGrainStd": 0.0,
+          "spatialBlockStdSpread": 0.0,
+          "highlightClipPct": 0.0
+        },
+        "100": {
+          "overallMaeDelta": 0.0,
+          "overallRmsNoise": 0.0,
+          "shadowGrainStd": 0.0,
+          "midtoneGrainStd": 0.0,
+          "highlightGrainStd": 0.0,
+          "spatialBlockStdSpread": 0.0,
+          "highlightClipPct": 0.0
+        }
+      }
+    },
+    {
+      "id": "seoul-cafe",
+      "name": "Seoul Caf\u00e9",
+      "group": "1_no_grain",
+      "recipeGrain": 0,
+      "bloom": 0,
+      "halation": 0,
+      "metricsByIntensity": {
+        "0": {
+          "overallMaeDelta": 0.0,
+          "overallRmsNoise": 0.0,
+          "shadowGrainStd": 0.0,
+          "midtoneGrainStd": 0.0,
+          "highlightGrainStd": 0.0,
+          "spatialBlockStdSpread": 0.0,
+          "highlightClipPct": 0.0
+        },
+        "25": {
+          "overallMaeDelta": 0.0,
+          "overallRmsNoise": 0.0,
+          "shadowGrainStd": 0.0,
+          "midtoneGrainStd": 0.0,
+          "highlightGrainStd": 0.0,
+          "spatialBlockStdSpread": 0.0,
+          "highlightClipPct": 0.0
+        },
+        "50": {
+          "overallMaeDelta": 0.0,
+          "overallRmsNoise": 0.0,
+          "shadowGrainStd": 0.0,
+          "midtoneGrainStd": 0.0,
+          "highlightGrainStd": 0.0,
+          "spatialBlockStdSpread": 0.0,
+          "highlightClipPct": 0.0
+        },
+        "75": {
+          "overallMaeDelta": 0.0,
+          "overallRmsNoise": 0.0,
+          "shadowGrainStd": 0.0,
+          "midtoneGrainStd": 0.0,
+          "highlightGrainStd": 0.0,
+          "spatialBlockStdSpread": 0.0,
+          "highlightClipPct": 0.0
+        },
+        "100": {
+          "overallMaeDelta": 0.0,
+          "overallRmsNoise": 0.0,
+          "shadowGrainStd": 0.0,
+          "midtoneGrainStd": 0.0,
+          "highlightGrainStd": 0.0,
+          "spatialBlockStdSpread": 0.0,
+          "highlightClipPct": 0.0
+        }
+      }
+    },
+    {
+      "id": "porcelain-bloom",
+      "name": "Porcelain Bloom",
+      "group": "1_no_grain_bloom",
+      "recipeGrain": 0,
+      "bloom": 22,
+      "halation": 0,
+      "metricsByIntensity": {
+        "0": {
+          "overallMaeDelta": 0.0,
+          "overallRmsNoise": 0.0,
+          "shadowGrainStd": 0.0,
+          "midtoneGrainStd": 0.0,
+          "highlightGrainStd": 0.0,
+          "spatialBlockStdSpread": 0.0,
+          "highlightClipPct": 0.0
+        },
+        "25": {
+          "overallMaeDelta": 0.0,
+          "overallRmsNoise": 0.0,
+          "shadowGrainStd": 0.0,
+          "midtoneGrainStd": 0.0,
+          "highlightGrainStd": 0.0,
+          "spatialBlockStdSpread": 0.0,
+          "highlightClipPct": 0.0
+        },
+        "50": {
+          "overallMaeDelta": 0.0,
+          "overallRmsNoise": 0.0,
+          "shadowGrainStd": 0.0,
+          "midtoneGrainStd": 0.0,
+          "highlightGrainStd": 0.0,
+          "spatialBlockStdSpread": 0.0,
+          "highlightClipPct": 0.0
+        },
+        "75": {
+          "overallMaeDelta": 0.0,
+          "overallRmsNoise": 0.0,
+          "shadowGrainStd": 0.0,
+          "midtoneGrainStd": 0.0,
+          "highlightGrainStd": 0.0,
+          "spatialBlockStdSpread": 0.0,
+          "highlightClipPct": 0.0
+        },
+        "100": {
+          "overallMaeDelta": 0.0,
+          "overallRmsNoise": 0.0,
+          "shadowGrainStd": 0.0,
+          "midtoneGrainStd": 0.0,
+          "highlightGrainStd": 0.0,
+          "spatialBlockStdSpread": 0.0,
+          "highlightClipPct": 0.0
+        }
+      }
+    },
+    {
+      "id": "hannam-daylight",
+      "name": "Hannam Daylight",
+      "group": "1_no_grain_bloom",
+      "recipeGrain": 0,
+      "bloom": 14,
+      "halation": 0,
+      "metricsByIntensity": {
+        "0": {
+          "overallMaeDelta": 0.0,
+          "overallRmsNoise": 0.0,
+          "shadowGrainStd": 0.0,
+          "midtoneGrainStd": 0.0,
+          "highlightGrainStd": 0.0,
+          "spatialBlockStdSpread": 0.0,
+          "highlightClipPct": 0.0
+        },
+        "25": {
+          "overallMaeDelta": 0.0,
+          "overallRmsNoise": 0.0,
+          "shadowGrainStd": 0.0,
+          "midtoneGrainStd": 0.0,
+          "highlightGrainStd": 0.0,
+          "spatialBlockStdSpread": 0.0,
+          "highlightClipPct": 0.0
+        },
+        "50": {
+          "overallMaeDelta": 0.0,
+          "overallRmsNoise": 0.0,
+          "shadowGrainStd": 0.0,
+          "midtoneGrainStd": 0.0,
+          "highlightGrainStd": 0.0,
+          "spatialBlockStdSpread": 0.0,
+          "highlightClipPct": 0.0
+        },
+        "75": {
+          "overallMaeDelta": 0.0,
+          "overallRmsNoise": 0.0,
+          "shadowGrainStd": 0.0,
+          "midtoneGrainStd": 0.0,
+          "highlightGrainStd": 0.0,
+          "spatialBlockStdSpread": 0.0,
+          "highlightClipPct": 0.0
+        },
+        "100": {
+          "overallMaeDelta": 0.0,
+          "overallRmsNoise": 0.0,
+          "shadowGrainStd": 0.0,
+          "midtoneGrainStd": 0.0,
+          "highlightGrainStd": 0.0,
+          "spatialBlockStdSpread": 0.0,
+          "highlightClipPct": 0.0
+        }
+      }
+    },
+    {
+      "id": "direct-flash",
+      "name": "Direct Flash",
+      "group": "3_low_grain_adaptive",
+      "recipeGrain": 5,
+      "bloom": 8,
+      "halation": 0,
+      "metricsByIntensity": {
+        "0": {
+          "overallMaeDelta": 0.0,
+          "overallRmsNoise": 0.0,
+          "shadowGrainStd": 0.0,
+          "midtoneGrainStd": 0.0,
+          "highlightGrainStd": 0.0,
+          "spatialBlockStdSpread": 0.0,
+          "highlightClipPct": 0.0
+        },
+        "25": {
+          "overallMaeDelta": 0.17861132323741913,
+          "overallRmsNoise": 0.39673787355422974,
+          "shadowGrainStd": 0.08348159492015839,
+          "midtoneGrainStd": 0.43388593196868896,
+          "highlightGrainStd": 0.2835983633995056,
+          "spatialBlockStdSpread": 0.1617782004155488,
+          "highlightClipPct": 0.0
+        },
+        "50": {
+          "overallMaeDelta": 0.465267151594162,
+          "overallRmsNoise": 0.6622375249862671,
+          "shadowGrainStd": 0.32953742146492004,
+          "midtoneGrainStd": 0.7144277095794678,
+          "highlightGrainStd": 0.5846166610717773,
+          "spatialBlockStdSpread": 0.048562269333508705,
+          "highlightClipPct": 0.0
+        },
+        "75": {
+          "overallMaeDelta": 0.7954407930374146,
+          "overallRmsNoise": 1.0084794759750366,
+          "shadowGrainStd": 0.5012623071670532,
+          "midtoneGrainStd": 1.1138159036636353,
+          "highlightGrainStd": 0.7825880646705627,
+          "spatialBlockStdSpread": 0.0789310257252491,
+          "highlightClipPct": 0.0
+        },
+        "100": {
+          "overallMaeDelta": 1.164631962776184,
+          "overallRmsNoise": 1.4196949005126953,
+          "shadowGrainStd": 0.6947963833808899,
+          "midtoneGrainStd": 1.5673301219940186,
+          "highlightGrainStd": null,
+          "spatialBlockStdSpread": 0.11307016645486087,
+          "highlightClipPct": 0.0
+        }
+      }
+    },
+    {
+      "id": "velvet-noir",
+      "name": "Velvet Noir",
+      "group": "3_low_grain_bloom",
+      "recipeGrain": 8,
+      "bloom": 12,
+      "halation": 0,
+      "metricsByIntensity": {
+        "0": {
+          "overallMaeDelta": 0.0,
+          "overallRmsNoise": 0.0,
+          "shadowGrainStd": 0.0,
+          "midtoneGrainStd": 0.0,
+          "highlightGrainStd": 0.0,
+          "spatialBlockStdSpread": 0.0,
+          "highlightClipPct": 0.0
+        },
+        "25": {
+          "overallMaeDelta": 0.3056076765060425,
+          "overallRmsNoise": 0.5166301131248474,
+          "shadowGrainStd": 0.25535720586776733,
+          "midtoneGrainStd": 0.5518313646316528,
+          "highlightGrainStd": 0.5405164361000061,
+          "spatialBlockStdSpread": 0.05543103405059359,
+          "highlightClipPct": 0.0
+        },
+        "50": {
+          "overallMaeDelta": 0.7743425369262695,
+          "overallRmsNoise": 0.9736518859863281,
+          "shadowGrainStd": 0.5037543177604675,
+          "midtoneGrainStd": 1.0566952228546143,
+          "highlightGrainStd": null,
+          "spatialBlockStdSpread": 0.08805797825366629,
+          "highlightClipPct": 0.0
+        },
+        "75": {
+          "overallMaeDelta": 1.3049917221069336,
+          "overallRmsNoise": 1.5794010162353516,
+          "shadowGrainStd": 0.7913070321083069,
+          "midtoneGrainStd": 1.733126163482666,
+          "highlightGrainStd": null,
+          "spatialBlockStdSpread": 0.165671757447638,
+          "highlightClipPct": 0.0
+        },
+        "100": {
+          "overallMaeDelta": 1.8659310340881348,
+          "overallRmsNoise": 2.2416880130767822,
+          "shadowGrainStd": 1.1127355098724365,
+          "midtoneGrainStd": 2.4866936206817627,
+          "highlightGrainStd": null,
+          "spatialBlockStdSpread": 0.26053180211868676,
+          "highlightClipPct": 0.0
+        }
+      }
+    },
+    {
+      "id": "cinematic-teal",
+      "name": "Teal & Amber",
+      "group": "3_low_grain",
+      "recipeGrain": 9,
+      "bloom": 0,
+      "halation": 0,
+      "metricsByIntensity": {
+        "0": {
+          "overallMaeDelta": 0.0,
+          "overallRmsNoise": 0.0,
+          "shadowGrainStd": 0.0,
+          "midtoneGrainStd": 0.0,
+          "highlightGrainStd": 0.0,
+          "spatialBlockStdSpread": 0.0,
+          "highlightClipPct": 0.0
+        },
+        "25": {
+          "overallMaeDelta": 0.5088886618614197,
+          "overallRmsNoise": 0.6572786569595337,
+          "shadowGrainStd": 0.3875606954097748,
+          "midtoneGrainStd": 0.7352750301361084,
+          "highlightGrainStd": 0.48433393239974976,
+          "spatialBlockStdSpread": 0.056322076189276774,
+          "highlightClipPct": 0.0
+        },
+        "50": {
+          "overallMaeDelta": 1.017113447189331,
+          "overallRmsNoise": 1.2403277158737183,
+          "shadowGrainStd": 0.6303624510765076,
+          "midtoneGrainStd": 1.4044126272201538,
+          "highlightGrainStd": 0.8656114935874939,
+          "spatialBlockStdSpread": 0.11565990946463629,
+          "highlightClipPct": 0.0
+        },
+        "75": {
+          "overallMaeDelta": 1.524977684020996,
+          "overallRmsNoise": 1.8324980735778809,
+          "shadowGrainStd": 0.8832595348358154,
+          "midtoneGrainStd": 2.084691047668457,
+          "highlightGrainStd": 1.2709851264953613,
+          "spatialBlockStdSpread": 0.17689334487492342,
+          "highlightClipPct": 0.0
+        },
+        "100": {
+          "overallMaeDelta": 2.029508113861084,
+          "overallRmsNoise": 2.4299099445343018,
+          "shadowGrainStd": 1.1414124965667725,
+          "midtoneGrainStd": 2.7679591178894043,
+          "highlightGrainStd": 1.7327430248260498,
+          "spatialBlockStdSpread": 0.2337058436212317,
+          "highlightClipPct": 0.0
+        }
+      }
+    },
+    {
+      "id": "fuji-soft",
+      "name": "Fuji Soft",
+      "group": "2_med_grain",
+      "recipeGrain": 10,
+      "bloom": 0,
+      "halation": 0,
+      "metricsByIntensity": {
+        "0": {
+          "overallMaeDelta": 0.0,
+          "overallRmsNoise": 0.0,
+          "shadowGrainStd": 0.0,
+          "midtoneGrainStd": 0.0,
+          "highlightGrainStd": 0.0,
+          "spatialBlockStdSpread": 0.0,
+          "highlightClipPct": 0.0
+        },
+        "25": {
+          "overallMaeDelta": 0.5741494297981262,
+          "overallRmsNoise": 0.7310277223587036,
+          "shadowGrainStd": 0.4414234459400177,
+          "midtoneGrainStd": 0.8123447299003601,
+          "highlightGrainStd": 0.50884610414505,
+          "spatialBlockStdSpread": 0.06474858430374031,
+          "highlightClipPct": 0.0
+        },
+        "50": {
+          "overallMaeDelta": 1.1593610048294067,
+          "overallRmsNoise": 1.3965038061141968,
+          "shadowGrainStd": 0.7781962752342224,
+          "midtoneGrainStd": 1.5663508176803589,
+          "highlightGrainStd": 0.9334071278572083,
+          "spatialBlockStdSpread": 0.13250957150203332,
+          "highlightClipPct": 0.0
+        },
+        "75": {
+          "overallMaeDelta": 1.7589269876480103,
+          "overallRmsNoise": 2.090886116027832,
+          "shadowGrainStd": 1.1548405885696411,
+          "midtoneGrainStd": 2.334341526031494,
+          "highlightGrainStd": 1.4305657148361206,
+          "spatialBlockStdSpread": 0.19256048908914564,
+          "highlightClipPct": 0.0
+        },
+        "100": {
+          "overallMaeDelta": 2.3737409114837646,
+          "overallRmsNoise": 2.799015760421753,
+          "shadowGrainStd": 1.5796438455581665,
+          "midtoneGrainStd": 3.1094753742218018,
+          "highlightGrainStd": 1.989021897315979,
+          "spatialBlockStdSpread": 0.24243676054072663,
+          "highlightClipPct": 0.0
+        }
+      }
+    },
+    {
+      "id": "portra-400",
+      "name": "Portra Skin",
+      "group": "2_med_grain",
+      "recipeGrain": 11,
+      "bloom": 0,
+      "halation": 0,
+      "metricsByIntensity": {
+        "0": {
+          "overallMaeDelta": 0.0,
+          "overallRmsNoise": 0.0,
+          "shadowGrainStd": 0.0,
+          "midtoneGrainStd": 0.0,
+          "highlightGrainStd": 0.0,
+          "spatialBlockStdSpread": 0.0,
+          "highlightClipPct": 0.0
+        },
+        "25": {
+          "overallMaeDelta": 0.6316305994987488,
+          "overallRmsNoise": 0.7932582497596741,
+          "shadowGrainStd": 0.4643685519695282,
+          "midtoneGrainStd": 0.8841217160224915,
+          "highlightGrainStd": 0.5603451728820801,
+          "spatialBlockStdSpread": 0.06869652678659821,
+          "highlightClipPct": 0.0
+        },
+        "50": {
+          "overallMaeDelta": 1.281847596168518,
+          "overallRmsNoise": 1.5356287956237793,
+          "shadowGrainStd": 0.8472638130187988,
+          "midtoneGrainStd": 1.7160085439682007,
+          "highlightGrainStd": 1.073814868927002,
+          "spatialBlockStdSpread": 0.1383024947712102,
+          "highlightClipPct": 0.0
+        },
+        "75": {
+          "overallMaeDelta": 1.948483943939209,
+          "overallRmsNoise": 2.305495500564575,
+          "shadowGrainStd": 1.2653148174285889,
+          "midtoneGrainStd": 2.5683467388153076,
+          "highlightGrainStd": 1.639418125152588,
+          "spatialBlockStdSpread": 0.2011127534608359,
+          "highlightClipPct": 0.0
+        },
+        "100": {
+          "overallMaeDelta": 2.629016637802124,
+          "overallRmsNoise": 3.0895297527313232,
+          "shadowGrainStd": 1.729475736618042,
+          "midtoneGrainStd": 3.4167592525482178,
+          "highlightGrainStd": null,
+          "spatialBlockStdSpread": 0.24432190397114872,
+          "highlightClipPct": 0.0
+        }
+      }
+    },
+    {
+      "id": "classic-chrome",
+      "name": "Classic Chrome",
+      "group": "6_combined_texture",
+      "recipeGrain": 14,
+      "bloom": 0,
+      "halation": 0,
+      "metricsByIntensity": {
+        "0": {
+          "overallMaeDelta": 0.0,
+          "overallRmsNoise": 0.0,
+          "shadowGrainStd": 0.0,
+          "midtoneGrainStd": 0.0,
+          "highlightGrainStd": 0.0,
+          "spatialBlockStdSpread": 0.0,
+          "highlightClipPct": 0.0
+        },
+        "25": {
+          "overallMaeDelta": 0.7957280278205872,
+          "overallRmsNoise": 0.9844455122947693,
+          "shadowGrainStd": 0.5554895401000977,
+          "midtoneGrainStd": 1.1107772588729858,
+          "highlightGrainStd": 0.6652443408966064,
+          "spatialBlockStdSpread": 0.09156975638029904,
+          "highlightClipPct": 0.0
+        },
+        "50": {
+          "overallMaeDelta": 1.5967222452163696,
+          "overallRmsNoise": 1.9125720262527466,
+          "shadowGrainStd": 1.0159955024719238,
+          "midtoneGrainStd": 2.166400194168091,
+          "highlightGrainStd": 1.2569844722747803,
+          "spatialBlockStdSpread": 0.18871620634378938,
+          "highlightClipPct": 0.0
+        },
+        "75": {
+          "overallMaeDelta": 2.405818223953247,
+          "overallRmsNoise": 2.859736680984497,
+          "shadowGrainStd": 1.5219531059265137,
+          "midtoneGrainStd": 3.235196590423584,
+          "highlightGrainStd": 1.9026820659637451,
+          "spatialBlockStdSpread": 0.27826611882527885,
+          "highlightClipPct": 0.0
+        },
+        "100": {
+          "overallMaeDelta": 3.222529649734497,
+          "overallRmsNoise": 3.8172457218170166,
+          "shadowGrainStd": 2.0525124073028564,
+          "midtoneGrainStd": 4.311709880828857,
+          "highlightGrainStd": 2.5646746158599854,
+          "spatialBlockStdSpread": 0.3665396137362631,
+          "highlightClipPct": 0.0
+        }
+      }
+    },
+    {
+      "id": "silver-gelatin",
+      "name": "Silver Gelatin",
+      "group": "6_combined_texture",
+      "recipeGrain": 14,
+      "bloom": 18,
+      "halation": 0,
+      "metricsByIntensity": {
+        "0": {
+          "overallMaeDelta": 0.0,
+          "overallRmsNoise": 0.0,
+          "shadowGrainStd": 0.0,
+          "midtoneGrainStd": 0.0,
+          "highlightGrainStd": 0.0,
+          "spatialBlockStdSpread": 0.0,
+          "highlightClipPct": 0.0
+        },
+        "25": {
+          "overallMaeDelta": 0.5197082757949829,
+          "overallRmsNoise": 0.7162663340568542,
+          "shadowGrainStd": 0.3937138617038727,
+          "midtoneGrainStd": 0.7855050563812256,
+          "highlightGrainStd": 0.5827142000198364,
+          "spatialBlockStdSpread": 0.05577589356482309,
+          "highlightClipPct": 0.0
+        },
+        "50": {
+          "overallMaeDelta": 1.2915645837783813,
+          "overallRmsNoise": 1.5760868787765503,
+          "shadowGrainStd": 0.809511125087738,
+          "midtoneGrainStd": 1.7790759801864624,
+          "highlightGrainStd": 1.1222974061965942,
+          "spatialBlockStdSpread": 0.14697899287557883,
+          "highlightClipPct": 0.0
+        },
+        "75": {
+          "overallMaeDelta": 2.185541868209839,
+          "overallRmsNoise": 2.620939254760742,
+          "shadowGrainStd": 1.3095632791519165,
+          "midtoneGrainStd": 2.9740967750549316,
+          "highlightGrainStd": 1.84971022605896,
+          "spatialBlockStdSpread": 0.25407237146514666,
+          "highlightClipPct": 0.0
+        },
+        "100": {
+          "overallMaeDelta": 3.182659864425659,
+          "overallRmsNoise": 3.800442695617676,
+          "shadowGrainStd": 1.892552375793457,
+          "midtoneGrainStd": 4.307535171508789,
+          "highlightGrainStd": 2.7565078735351562,
+          "spatialBlockStdSpread": 0.36340238803107155,
+          "highlightClipPct": 0.0
+        }
+      }
+    },
+    {
+      "id": "amber-halation",
+      "name": "Amber Halation",
+      "group": "4_high_grain_halation_bloom",
+      "recipeGrain": 15,
+      "bloom": 16,
+      "halation": 28,
+      "metricsByIntensity": {
+        "0": {
+          "overallMaeDelta": 0.0,
+          "overallRmsNoise": 0.0,
+          "shadowGrainStd": 0.0,
+          "midtoneGrainStd": 0.0,
+          "highlightGrainStd": 0.0,
+          "spatialBlockStdSpread": 0.0,
+          "highlightClipPct": 0.0
+        },
+        "25": {
+          "overallMaeDelta": 0.5679576992988586,
+          "overallRmsNoise": 0.7529042959213257,
+          "shadowGrainStd": 0.38372957706451416,
+          "midtoneGrainStd": 0.8340737819671631,
+          "highlightGrainStd": 0.5532719492912292,
+          "spatialBlockStdSpread": 0.0748887431843065,
+          "highlightClipPct": 0.0
+        },
+        "50": {
+          "overallMaeDelta": 1.4324747323989868,
+          "overallRmsNoise": 1.7215303182601929,
+          "shadowGrainStd": 0.8520799279212952,
+          "midtoneGrainStd": 1.897905945777893,
+          "highlightGrainStd": null,
+          "spatialBlockStdSpread": 0.14313464139240556,
+          "highlightClipPct": 0.0
+        },
+        "75": {
+          "overallMaeDelta": 2.4654107093811035,
+          "overallRmsNoise": 2.921818256378174,
+          "shadowGrainStd": 1.398611307144165,
+          "midtoneGrainStd": 3.1906211376190186,
+          "highlightGrainStd": null,
+          "spatialBlockStdSpread": 0.22817650919303128,
+          "highlightClipPct": 0.0
+        },
+        "100": {
+          "overallMaeDelta": 3.631223678588867,
+          "overallRmsNoise": 4.285817623138428,
+          "shadowGrainStd": 2.006706714630127,
+          "midtoneGrainStd": 4.634439945220947,
+          "highlightGrainStd": null,
+          "spatialBlockStdSpread": 0.3238543374979361,
+          "highlightClipPct": 0.0
+        }
+      }
+    },
+    {
+      "id": "kodak-gold",
+      "name": "Kodak Gold",
+      "group": "4_high_grain",
+      "recipeGrain": 16,
+      "bloom": 0,
+      "halation": 0,
+      "metricsByIntensity": {
+        "0": {
+          "overallMaeDelta": 0.0,
+          "overallRmsNoise": 0.0,
+          "shadowGrainStd": 0.0,
+          "midtoneGrainStd": 0.0,
+          "highlightGrainStd": 0.0,
+          "spatialBlockStdSpread": 0.0,
+          "highlightClipPct": 0.0
+        },
+        "25": {
+          "overallMaeDelta": 0.9092796444892883,
+          "overallRmsNoise": 1.111246109008789,
+          "shadowGrainStd": 0.6133060455322266,
+          "midtoneGrainStd": 1.2577584981918335,
+          "highlightGrainStd": 0.7258371114730835,
+          "spatialBlockStdSpread": 0.11124004294063704,
+          "highlightClipPct": 0.0
+        },
+        "50": {
+          "overallMaeDelta": 1.8303252458572388,
+          "overallRmsNoise": 2.185887336730957,
+          "shadowGrainStd": 1.1759135723114014,
+          "midtoneGrainStd": 2.4784300327301025,
+          "highlightGrainStd": 1.4155404567718506,
+          "spatialBlockStdSpread": 0.2207494857102395,
+          "highlightClipPct": 0.0
+        },
+        "75": {
+          "overallMaeDelta": 2.760960102081299,
+          "overallRmsNoise": 3.27418851852417,
+          "shadowGrainStd": 1.7976579666137695,
+          "midtoneGrainStd": 3.7080647945404053,
+          "highlightGrainStd": 2.1562373638153076,
+          "spatialBlockStdSpread": 0.32920874494803043,
+          "highlightClipPct": 0.0
+        },
+        "100": {
+          "overallMaeDelta": 3.702561378479004,
+          "overallRmsNoise": 4.375049591064453,
+          "shadowGrainStd": 2.4474666118621826,
+          "midtoneGrainStd": 4.945095062255859,
+          "highlightGrainStd": 2.967536687850952,
+          "spatialBlockStdSpread": 0.4268109653179413,
+          "highlightClipPct": 0.0
+        }
+      }
+    },
+    {
+      "id": "mono-leica",
+      "name": "Leica Mono",
+      "group": "4_high_grain",
+      "recipeGrain": 18,
+      "bloom": 0,
+      "halation": 0,
+      "metricsByIntensity": {
+        "0": {
+          "overallMaeDelta": 0.0,
+          "overallRmsNoise": 0.0,
+          "shadowGrainStd": 0.0,
+          "midtoneGrainStd": 0.0,
+          "highlightGrainStd": 0.0,
+          "spatialBlockStdSpread": 0.0,
+          "highlightClipPct": 0.0
+        },
+        "25": {
+          "overallMaeDelta": 1.0027048587799072,
+          "overallRmsNoise": 1.2259031534194946,
+          "shadowGrainStd": 0.6431941986083984,
+          "midtoneGrainStd": 1.4053709506988525,
+          "highlightGrainStd": 0.7900949716567993,
+          "spatialBlockStdSpread": 0.1262753831049135,
+          "highlightClipPct": 0.0
+        },
+        "50": {
+          "overallMaeDelta": 1.9728504419326782,
+          "overallRmsNoise": 2.3757641315460205,
+          "shadowGrainStd": 1.1758064031600952,
+          "midtoneGrainStd": 2.7694404125213623,
+          "highlightGrainStd": 1.4733132123947144,
+          "spatialBlockStdSpread": 0.26450168436848753,
+          "highlightClipPct": 0.0
+        },
+        "75": {
+          "overallMaeDelta": 2.9126994609832764,
+          "overallRmsNoise": 3.504298210144043,
+          "shadowGrainStd": 1.7230033874511719,
+          "midtoneGrainStd": 4.141119003295898,
+          "highlightGrainStd": 2.115513324737549,
+          "spatialBlockStdSpread": 0.4143711596465248,
+          "highlightClipPct": 0.0
+        },
+        "100": {
+          "overallMaeDelta": 3.8206913471221924,
+          "overallRmsNoise": 4.616623401641846,
+          "shadowGrainStd": 2.270310878753662,
+          "midtoneGrainStd": 5.525930881500244,
+          "highlightGrainStd": 2.766916275024414,
+          "spatialBlockStdSpread": 0.5625218081597861,
+          "highlightClipPct": 0.0
+        }
+      }
+    },
+    {
+      "id": "night-cinema",
+      "name": "Night Cinema",
+      "group": "5_halation_bloom_nograin",
+      "recipeGrain": 0,
+      "bloom": 12,
+      "halation": 7,
+      "metricsByIntensity": {
+        "0": {
+          "overallMaeDelta": 0.0,
+          "overallRmsNoise": 0.0,
+          "shadowGrainStd": 0.0,
+          "midtoneGrainStd": 0.0,
+          "highlightGrainStd": 0.0,
+          "spatialBlockStdSpread": 0.0,
+          "highlightClipPct": 2.0043807543807546
+        },
+        "25": {
+          "overallMaeDelta": 0.0,
+          "overallRmsNoise": 0.0,
+          "shadowGrainStd": 0.0,
+          "midtoneGrainStd": 0.0,
+          "highlightGrainStd": 0.0,
+          "spatialBlockStdSpread": 0.0,
+          "highlightClipPct": 0.0
+        },
+        "50": {
+          "overallMaeDelta": 0.0,
+          "overallRmsNoise": 0.0,
+          "shadowGrainStd": 0.0,
+          "midtoneGrainStd": 0.0,
+          "highlightGrainStd": 0.0,
+          "spatialBlockStdSpread": 0.0,
+          "highlightClipPct": 0.0
+        },
+        "75": {
+          "overallMaeDelta": 0.0,
+          "overallRmsNoise": 0.0,
+          "shadowGrainStd": 0.0,
+          "midtoneGrainStd": 0.0,
+          "highlightGrainStd": 0.0,
+          "spatialBlockStdSpread": 0.0,
+          "highlightClipPct": 0.0
+        },
+        "100": {
+          "overallMaeDelta": 0.0,
+          "overallRmsNoise": 0.0,
+          "shadowGrainStd": 0.0,
+          "midtoneGrainStd": 0.0,
+          "highlightGrainStd": 0.0,
+          "spatialBlockStdSpread": 0.0,
+          "highlightClipPct": 0.0
+        }
+      }
+    }
+  ]
+}

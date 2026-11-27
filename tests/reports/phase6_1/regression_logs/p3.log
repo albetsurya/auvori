@@ -1,0 +1,35 @@
+Test: p3
+Command: python3 tests/run_p3_adaptive_tests.py
+Timestamp: 2026-11-27T14:44:44+07:00
+Branch: feat/phase6.1-audit-integrity-hardening
+Commit SHA: 643ab69f7bb79e0821828233680f01e33139ca5b
+Exit Code: 0
+--- OUTPUT ---
+[PASS] Lazy-load check: 0 .onnx / ORT WASM requests during initial app load
+[PASS] Lightweight PROBE_CAPABILITIES: preferredBackend=wasm, hasWebGPU=False, hasJSPI=True, modelsLoaded=False
+
+=== BROWSER WASM BENCHMARK ACROSS 14 ORIGINAL PHOTOS ===
+Photo                       | Back | Faces | SegModel           | Fg%   | SubjC | OvC   | Port | Totalms | Det   | Seg  
+beach_portrait.jpg          | wasm |     0 | u2netp-v1          | 10.3% |  0.79 |  0.67 | False |  1587.7 |  44.2 | 1276.7
+button_up_portrait.jpg      | wasm |     0 | u2netp-v1          | 32.9% |  0.78 |  0.67 | False |  1122.4 |  21.8 | 1087.1
+color_indoor_portrait.jpg   | wasm |     1 | pphumanseg-2023mar | 68.4% |  0.97 |  0.94 | True |   149.4 |  21.7 | 111.3
+dark_hair_man.jpg           | wasm |     0 | u2netp-v1          | 22.3% |  0.79 |  0.67 | False |  1140.0 |  23.9 | 1093.4
+hijab_portrait.jpg          | wasm |     1 | pphumanseg-2023mar | 55.4% |  0.97 |  0.92 | True |    91.4 |  31.1 |  37.6
+indoor_cafe_woman.jpg       | wasm |     0 | u2netp-v1          | 12.8% |  0.79 |  0.67 | False |  1135.8 |  21.3 | 1103.0
+indoor_portrait.jpg         | wasm |     1 | pphumanseg-2023mar | 41.4% |  0.97 |  0.85 | True |    74.6 |  24.6 |  37.1
+landscape_lake.jpg          | wasm |     0 | u2netp-v1          |  0.0% |  0.08 |  0.07 | False |  1130.7 |  21.5 | 1099.1
+low_light_portrait.jpg      | wasm |     1 | pphumanseg-2023mar | 32.1% |  0.97 |  0.85 | True |    77.0 |  21.5 |  40.4
+multiple_faces.jpg          | wasm |     4 | pphumanseg-2023mar | 63.8% |  0.97 |  0.93 | True |    72.5 |  21.8 |  38.1
+object_coffee.jpg           | wasm |     0 | u2netp-v1          |  9.7% |  0.79 |  0.68 | False |  1158.2 |  21.5 | 1121.6
+outdoor_closeup_woman.jpg   | wasm |     1 | pphumanseg-2023mar | 74.2% |  0.97 |  0.94 | True |    72.9 |  21.5 |  37.1
+outdoor_portrait.jpg        | wasm |     1 | pphumanseg-2023mar | 26.2% |  0.97 |  0.90 | True |    70.4 |  21.1 |  38.2
+street_black_clothing.jpg   | wasm |     1 | pphumanseg-2023mar | 29.7% |  0.97 |  0.89 | True |    68.4 |  21.1 |  37.0
+[PASS] WebGPU-to-WASM fallback: {'status': 'complete', 'backend': 'wasm', 'faces': 1}
+[PASS] AnalysisCache hit, intensity invariance, and invalidation (crop/srcRev/config)
+[PASS] Stale AI analysis job cancellation
+[PASS] Cache Storage populated (3 models cached in auvori-ai-models-v1)
+[PASS] Offline Cache Storage reuse with /models/*.onnx network aborted: {'fromCache': False, 'status': 'complete', 'faces': 1, 'backend': 'wasm'}
+[PASS] Graceful HTTP 500 degradation -> status=degraded, backend=heuristic-only
+[PASS] SHA-256 tamper check rejected corrupted ONNX bytes gracefully
+[PASS] 0 external network uploads & 0 uncaught page errors
+[PASS] Production bundle (vite preview) compiled ES worker & ONNX WASM verified: {'status': 'complete', 'backend': 'wasm', 'faces': 1, 'seg': 'pphumanseg-2023mar', 'totalMs': 641.5}
