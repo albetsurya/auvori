@@ -258,6 +258,20 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
           </Card>
         </div>
 
+        {/* About & Photo Credits */}
+        <div className="space-y-2.5">
+          <h2 className="text-xs font-semibold uppercase tracking-wider text-textSecondary px-1">
+            About & Credits
+          </h2>
+          <Card variant="settings" className="p-4 space-y-1.5">
+            <div className="text-sm font-medium text-textPrimary">Sample & Collection Photography</div>
+            <p className="text-xs text-textSecondary leading-relaxed">
+              Curated from verified open-source archives under Creative Commons CC0 1.0 Universal public domain.
+              Photographs by Allef Vinicius, Cayton Heath, William Stitt, Pierrick Le Cunff, Nick Clement, Kevin Lee, Matthew Sleeper, Christian Joudrey, David East, Hisu Lee, Dan Bøțan, Sergey Zolkin, Juan Ignacio Tapia, and Angelina Litvin.
+            </p>
+          </Card>
+        </div>
+
         <p className="text-[11px] text-center text-textSecondary pt-2">
           Auvori Studio · Neutral Analog Workspace · 100% private on-device processing.
         </p>

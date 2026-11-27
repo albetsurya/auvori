@@ -5,8 +5,13 @@ import { Preset } from '../types';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { StatusBadge } from '../components/ui/Chip';
-import { renderStudioPresetPreview } from '../lib/studioPreviews';
-import { createSamplePhotoDataUrl, SamplePhotoId } from '../lib/samplePhoto';
+import {
+  renderStudioPresetPreview,
+  getSignatureLookPreviewUrl,
+  getSignatureLookSourceUrl,
+  getSignatureLookObjectPosition
+} from '../lib/studioPreviews';
+import { getPresetSampleId, getSamplePhotoUrl, SamplePhotoId } from '../lib/samplePhoto';
 
 interface DiscoverScreenProps {
   onTryLook: (preset: Preset, sampleId: SamplePhotoId) => void;
@@ -19,7 +24,9 @@ export const DiscoverScreen: React.FC<DiscoverScreenProps> = ({ onTryLook }) => 
   useEffect(() => {
     let active = true;
     DISCOVER_STORIES.forEach((story) => {
-      renderStudioPresetPreview(story.presetId, story.sampleId).then((url) => {
+      if (getSignatureLookPreviewUrl(story.presetId)) return;
+      const realSampleId = getPresetSampleId(story.presetId);
+      renderStudioPresetPreview(story.presetId, realSampleId).then((url) => {
         if (active && url) {
           setPreviews((prev) => ({ ...prev, [story.id]: url }));
         }
@@ -46,14 +53,16 @@ export const DiscoverScreen: React.FC<DiscoverScreenProps> = ({ onTryLook }) => 
           {DISCOVER_STORIES.map((story) => {
             const preset = PRESETS.find((p) => p.id === story.presetId);
             if (!preset) return null;
-            const afterUrl = previews[story.id];
-            const beforeUrl = createSamplePhotoDataUrl(story.sampleId);
+            const realSampleId = getPresetSampleId(story.presetId, preset.category);
+            const afterUrl = getSignatureLookPreviewUrl(story.presetId) || previews[story.id];
+            const beforeUrl = getSignatureLookSourceUrl(story.presetId) || getSamplePhotoUrl(realSampleId);
+            const objectPosition = getSignatureLookObjectPosition(story.presetId);
             const isHolding = holdingId === story.id;
 
             return (
               <Card key={story.id} variant="feature" className="flex flex-col">
                 <div
-                  className="relative aspect-[4/5] bg-surfaceSecondary select-none cursor-pointer"
+                  className="relative aspect-[4/5] bg-surfaceSecondary select-none cursor-pointer overflow-hidden"
                   onPointerDown={() => setHoldingId(story.id)}
                   onPointerUp={() => setHoldingId(null)}
                   onPointerLeave={() => setHoldingId(null)}
@@ -63,6 +72,9 @@ export const DiscoverScreen: React.FC<DiscoverScreenProps> = ({ onTryLook }) => 
                       src={isHolding ? beforeUrl : afterUrl}
                       alt={story.title}
                       className="w-full h-full object-cover"
+                      style={{ objectPosition }}
+                      loading="lazy"
+                      decoding="async"
                       draggable={false}
                     />
                   ) : (
@@ -92,7 +104,7 @@ export const DiscoverScreen: React.FC<DiscoverScreenProps> = ({ onTryLook }) => 
                   <Button
                     variant="soft"
                     fullWidth
-                    onClick={() => onTryLook(preset, story.sampleId)}
+                    onClick={() => onTryLook(preset, realSampleId)}
                   >
                     <Sparkles className="w-4 h-4 text-olive" strokeWidth={1.8} />
                     Try {preset.name} in Editor

@@ -575,13 +575,14 @@ def run_verify_suite(browser, page, base_url: str, stage: str) -> None:
                 return origRevoke(u);
             };
         }""")
-        page.click("text=Preview Rosy Bokeh on studio portrait")
+        page.get_by_role("button", name="Browse studio sample photos").first.click()
+        page.get_by_role("button", name="Open Daylight Portrait in editor").click()
         page.wait_for_selector("canvas", timeout=6000)
         page.wait_for_timeout(450)
 
         # Open Export sheet and inspect honest resolution label
         page.click("button:has-text('Save')")
-        page.wait_for_selector("text=Full original (800×1000 px)", timeout=4000)
+        page.wait_for_selector("text=Full original (1200×800 px)", timeout=4000)
         page.click("button:has-text('Save Photograph')")
         page.wait_for_timeout(500)
 
@@ -605,7 +606,8 @@ def run_verify_suite(browser, page, base_url: str, stage: str) -> None:
             };
         """)
         page_no_gl.goto(base_url, wait_until="networkidle")
-        page_no_gl.click("text=Preview Rosy Bokeh on studio portrait")
+        page_no_gl.get_by_role("button", name="Browse studio sample photos").first.click()
+        page_no_gl.get_by_role("button", name="Open Daylight Portrait in editor").click()
         page_no_gl.wait_for_selector("canvas", timeout=6000)
         page_no_gl.wait_for_timeout(500)
         has_pixels = page_no_gl.evaluate("""() => {

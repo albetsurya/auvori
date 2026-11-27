@@ -1,0 +1,100 @@
+=== p1_signature ===
+EXIT_CODE=0
+   top delta: portrait-deep-skin__porcelain-bloom mae=0.023 rmse=0.153 grainMae=0.000 max=1
+[p1-golden] 30 cases: worst MAE=0.0000
+[p1-export] {"glW": 3200, "glH": 2400, "glType": "image/jpeg", "glSize": 439282, "glBackend": "webgl2", "cpuW": 3200, "cpuH": 2400, "cpuType": "image/png", "cpuSize": 11676203, "cpuBackend": "worker-canvas2d"}
+
+=== p3_adaptive ===
+EXIT_CODE=0
+[PASS] SHA-256 tamper check rejected corrupted ONNX bytes gracefully
+[PASS] 0 external network uploads & 0 uncaught page errors
+[PASS] Production bundle (vite preview) compiled ES worker & ONNX WASM verified: {'status': 'complete', 'backend': 'wasm', 'faces': 1, 'seg': 'pphumanseg-2023mar', 'totalMs': 743.2999999970198}
+
+=== p4_direct_flash ===
+EXIT_CODE=0
+=== ENVIRONMENT [physical-gpu-angle-egl]: GL=ANGLE (Intel, Mesa Intel(R) Iris(R) Xe Graphics (ADL GT2), OpenGL ES 3.2) | WebGPU=False ===
+[PASS] Physical GPU (ANGLE (Intel, Mesa Intel(R) Iris(R) Xe Graphics (ADL GT2), OpenGL ES 3.2)): preview render median=18.60ms (range 7.30..57.20ms), 3200x2400 export=419.9ms
+[PASS] Editor UX E2E: lazy trigger, Ready='Adaptive Flash Ready', Landscape='Signature Fallback · Balanced Tone', Offline='Signature Fallback · Offline Mode', Before/After, Undo/Redo
+
+=== p5_night_cinema ===
+EXIT_CODE=0
+=== ENVIRONMENT [physical-gpu-angle-egl]: GL=ANGLE (Intel, Mesa Intel(R) Iris(R) Xe Graphics (ADL GT2), OpenGL ES 3.2) | WebGPU=False ===
+[PASS] Physical GPU (ANGLE (Intel, Mesa Intel(R) Iris(R) Xe Graphics (ADL GT2), OpenGL ES 3.2)): preview render median=21.15ms (range 7.60..43.40ms), 3200x2400 export=312.6ms
+[PASS] Editor UX E2E: lazy trigger, Ready='Adaptive Night Ready', Object='Subject Night Ready', Landscape='Signature Fallback · Balanced Tone', Offline='Signature Fallback · Offline Mode'
+
+=== p6_1_dataset_integrity ===
+EXIT_CODE=0
+Originality Review     : reviewed-original=22, possibly-processed=30, unknown=3, rejected=0
+Partitioning           : gold_standard=22 (dir_match=True), exploratory=33 (dir_match=True), leaks=0
+Saved report           : /home/albet-surya-kembara/Documents/productivity/projects/auvori-app/tests/reports/phase6_1/dataset_integrity_report.json
+
+=== p6_1_grain_and_coverage ===
+EXIT_CODE=0
+
+[PASS] Phase 6.1D Grain Visual QA complete (GPU/CPU grain MAE=0.683/255)
+[PASS] Phase 6.1E Stratified Visual Coverage complete
+
+=== p6_2_renderer_determinism ===
+EXIT_CODE=0
+
+Overall Determinism: PASS
+Report written to: /home/albet-surya-kembara/Documents/productivity/projects/auvori-app/tests/reports/phase6_2/renderer_determinism_report.json
+
+=== p6_2_grain_determinism ===
+EXIT_CODE=0
+--- Grain Validation Summary ---
+GPU Repeat Determinism: PASS
+CPU Repeat Determinism: PASS
+
+=== p6_2_cross_path_and_perf ===
+EXIT_CODE=0
+Recreate Lifecycle (instantiate + compile) : median 54.55 ms (p95: 63.86 ms)
+WebGPU Hardware Status                     : BLOCKED (navigator.gpu present but requestAdapter() returned null)
+Performance benchmark saved to: /home/albet-surya-kembara/Documents/productivity/projects/auvori-app/tests/reports/phase6_2/performance/perf_benchmark.json
+
+=== p6_visual_quality ===
+EXIT_CODE=0
+   GPU preview 1200px p6_25_sea_waves_sunset.jpg: 56.60ms (1200x800)
+[PASS] Phase 6E Responsive Editor UX & Interactions verified cleanly across 5 viewports.
+Saved Phase 6 metrics JSON: /home/albet-surya-kembara/Documents/productivity/projects/auvori-app/tests/reports/phase6_metrics.json
+
+=== tsc ===
+EXIT_CODE=0
+
+=== build ===
+EXIT_CODE=0
+files generated
+  dist/sw.js
+  dist/workbox-dcde9eb3.js
+
+=== phase6_3_asset_integrity ===
+EXIT_CODE=0
+  ✓ All production WebP files decoded cleanly.
+
+✅ ALL ASSET INTEGRITY TESTS PASSED SUCCESSFULLY.
+
+=== phase6_3_collection_mapping ===
+EXIT_CODE=0
+  ✓ All 9 studio samples exist on disk and reference valid presets: ['rosy-bokeh', 'porcelain-bloom', 'velvet-merona', 'seoul-cafe', 'warm-latte', 'midnight-clean', 'neon-shibuya', 'kodak-gold', 'mono-leica']
+
+✅ ALL COLLECTION MAPPING TESTS PASSED SUCCESSFULLY.
+
+=== phase6_3_signature_looks ===
+EXIT_CODE=0
+[5/5] Captured and verified responsive screenshots at 360px, 390px, 430px, 768px, 1280px.
+
+✅ ALL SIGNATURE LOOKS UI & VISUAL QA TESTS PASSED SUCCESSFULLY.
+
+=== phase6_3_visual_sheets ===
+EXIT_CODE=0
+  "format": "WebP (lossy Q82-84)",
+  "lazy_loading": "loading='lazy' and decoding='async' on all collection, signature look, and library images"
+}
+
+=== p0_all ===
+EXIT_CODE=0
+[p0.4-export] {"proW": 3200, "proH": 2400, "proOriginal": true, "proBlobType": "image/jpeg", "proBlobSize": 319874, "proBackend": "webgl2", "freeW": 1280, "freeH": 960, "cardW": 3084, "cardH": 2102, "cpuFallbackW": 3200, "cpuFallbackH": 2400, "cpuFallbackBackend": "worker-canvas2d"}
+[ui-e2e] studio + export + url lifecycle: {"created": 28, "revoked": 27}
+[ui-e2e-fallback] Full editing without WebGL2 verified cleanly via Worker Canvas2D.
+
+ALL_17_FINAL_GATES_PASSED

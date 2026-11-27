@@ -1,0 +1,14 @@
+{
+  "total_production_assets": 32,
+  "collection_covers_total_bytes": 176364,
+  "studio_samples_full_total_bytes": 821722,
+  "studio_samples_thumbs_total_bytes": 166798,
+  "signature_looks_previews_total_bytes": 202100,
+  "signature_looks_sources_total_bytes": 425300,
+  "average_cover_size_kb": 43.06,
+  "average_thumb_size_kb": 18.1,
+  "average_sample_full_size_kb": 89.16,
+  "average_signature_look_preview_kb": 39.47,
+  "format": "WebP (lossy Q82-84)",
+  "lazy_loading": "loading='lazy' and decoding='async' on all collection, signature look, and library images"
+}

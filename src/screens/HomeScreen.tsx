@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowRight, Crown, Heart, ImagePlus, Sparkles } from 'lucide-react';
+import { ArrowRight, Crown, FlaskConical, Heart, ImagePlus, Sparkles } from 'lucide-react';
 import { PRESETS, SIGNATURE_COLLECTIONS } from '../data/presets';
 import { CuratedCollectionId, LicenseState, Preset, PresetCategory, RecentEdit } from '../types';
 import { Button } from '../components/ui/Button';
 import { Card } from '../components/ui/Card';
 import { StatusBadge } from '../components/ui/Chip';
 import { AuvoriLogo } from '../components/AuvoriLogo';
-import { renderStudioPresetPreview } from '../lib/studioPreviews';
+import {
+  renderStudioPresetPreview,
+  getCollectionCoverUrl,
+  getSignatureLookPreviewUrl,
+  getSignatureLookObjectPosition
+} from '../lib/studioPreviews';
 import { SamplePhotoId } from '../lib/samplePhoto';
 
 interface HomeScreenProps {
@@ -22,9 +27,16 @@ interface HomeScreenProps {
   onOpenDiscover: () => void;
   onOpenProfile: () => void;
   onOpenPro: () => void;
+  onOpenStudioSamples: () => void;
 }
 
-const RECOMMENDED_IDS = ['porcelain-bloom', 'velvet-noir', 'hannam-daylight', 'amber-halation'];
+const SIGNATURE_LOOK_IDS = [
+  'porcelain-bloom',
+  'velvet-noir',
+  'hannam-daylight',
+  'amber-halation',
+  'silver-gelatin'
+] as const;
 
 export const HomeScreen: React.FC<HomeScreenProps> = ({
   license,
@@ -38,29 +50,18 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   onToggleFavorite,
   onOpenDiscover,
   onOpenProfile,
-  onOpenPro
+  onOpenPro,
+  onOpenStudioSamples
 }) => {
   const [previews, setPreviews] = useState<Record<string, string>>({});
 
   useEffect(() => {
     let active = true;
+    // Only render previews for the desktop hero pair using real studio sample photos.
+    // Signature Collection covers and Signature Looks cards are served as static WebP assets.
     const targets: { key: string; presetId: string; sampleId: SamplePhotoId }[] = [
-      ...SIGNATURE_COLLECTIONS.map((c) => ({
-        key: `col:${c.id}`,
-        presetId: c.coverPresetId,
-        sampleId: c.sampleId
-      })),
-      ...RECOMMENDED_IDS.map((pid) => ({
-        key: `rec:${pid}`,
-        presetId: pid,
-        sampleId: (pid === 'porcelain-bloom' || pid === 'velvet-noir' || pid === 'rosy-bokeh'
-          ? 'park'
-          : pid === 'amber-halation' || pid === 'silver-gelatin' || pid === 'portra-400' || pid === 'classic-chrome'
-          ? 'window'
-          : 'cafe') as SamplePhotoId
-      })),
-      { key: 'hero:rosy-bokeh', presetId: 'rosy-bokeh', sampleId: 'park' },
-      { key: 'hero:seoul-cafe', presetId: 'seoul-cafe', sampleId: 'cafe' }
+      { key: 'hero:rosy-bokeh', presetId: 'rosy-bokeh', sampleId: 'real:daylight_portrait' },
+      { key: 'hero:seoul-cafe', presetId: 'seoul-cafe', sampleId: 'real:cafe_interior' }
     ];
 
     targets.forEach(({ key, presetId, sampleId }) => {
@@ -76,7 +77,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
     };
   }, []);
 
-  const recommendedPresets = RECOMMENDED_IDS.map((id) => PRESETS.find((p) => p.id === id)).filter(
+  const signatureLookPresets = SIGNATURE_LOOK_IDS.map((id) => PRESETS.find((p) => p.id === id)).filter(
     (p): p is Preset => Boolean(p)
   );
 
@@ -108,7 +109,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           </button>
         </header>
 
-        {/* 2. Hero Editorial Block (1 col mobile/tablet, 2 col asymmetric studio showcase on lg+) */}
+        {/* 2. Hero Editorial Block */}
         <section className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-10 items-center">
           <div className="lg:col-span-6 space-y-5">
             <div className="space-y-2.5">
@@ -129,11 +130,12 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 Open a Photo
               </Button>
               <button
-                onClick={() => onStartWithSample('park', 'rosy-bokeh')}
+                onClick={onOpenStudioSamples}
                 className="min-h-[44px] px-4 rounded-[10px] border border-border bg-surface hover:bg-surfaceSecondary text-xs font-medium text-textPrimary transition duration-fast flex items-center justify-center gap-2"
+                aria-label="Browse studio sample photos"
               >
-                <Sparkles className="w-3.5 h-3.5 text-olive" strokeWidth={1.8} />
-                <span>Preview Rosy Bokeh on studio portrait</span>
+                <FlaskConical className="w-3.5 h-3.5 text-olive" strokeWidth={1.8} />
+                <span>Try a Studio Sample</span>
               </button>
             </div>
           </div>
@@ -144,14 +146,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               {
                 key: 'hero:rosy-bokeh',
                 presetId: 'rosy-bokeh',
-                sampleId: 'park' as SamplePhotoId,
+                sampleId: 'real:daylight_portrait' as SamplePhotoId,
                 title: 'Rosy Bokeh',
                 caption: 'Luminous Portrait'
               },
               {
                 key: 'hero:seoul-cafe',
                 presetId: 'seoul-cafe',
-                sampleId: 'cafe' as SamplePhotoId,
+                sampleId: 'real:cafe_interior' as SamplePhotoId,
                 title: 'Seoul Café',
                 caption: 'Clean Indoor Light'
               }
@@ -162,6 +164,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   key={item.key}
                   onClick={() => onStartWithSample(item.sampleId, item.presetId)}
                   className="text-left group focus:outline-none"
+                  aria-label={`Preview ${item.title} preset`}
                 >
                   <Card variant="photo" interactive>
                     <div className="relative aspect-[4/5] bg-surfaceSecondary">
@@ -173,7 +176,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                           draggable={false}
                         />
                       ) : (
-                        <div className="w-full h-full animate-pulse bg-surfaceSecondary" />
+                        <div className="w-full h-full animate-pulse bg-surfaceSecondary" aria-hidden="true" />
                       )}
                       <span className="absolute bottom-2.5 left-2.5 px-2.5 py-1 rounded-[6px] bg-graphite/80 text-chalk text-[11px] font-medium">
                         {item.title}
@@ -202,7 +205,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
 
           {recentEdits.length === 0 ? (
             <Card variant="info" className="p-6 text-center space-y-3">
-              <div className="w-11 h-11 mx-auto rounded-[10px] bg-olive-soft border border-stone flex items-center justify-center text-olive">
+              <div className="w-11 h-11 mx-auto rounded-[10px] bg-olive-soft border border-stone flex items-center justify-center text-olive" aria-hidden="true">
                 <Sparkles className="w-5 h-5" strokeWidth={1.75} />
               </div>
               <div className="space-y-1">
@@ -211,9 +214,19 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   Open a photo from your device or start with a studio sample.
                 </p>
               </div>
-              <Button variant="soft" onClick={onStartEditing} className="px-4 text-xs">
-                Open a Photo
-              </Button>
+              <div className="flex flex-col sm:flex-row gap-2 justify-center">
+                <Button variant="soft" onClick={onStartEditing} className="px-4 text-xs">
+                  Open a Photo
+                </Button>
+                <button
+                  onClick={onOpenStudioSamples}
+                  className="min-h-[44px] px-4 rounded-[10px] border border-border bg-surface hover:bg-surfaceSecondary text-xs font-medium text-textPrimary transition duration-fast flex items-center justify-center gap-1.5"
+                  aria-label="Browse studio sample photos"
+                >
+                  <FlaskConical className="w-3.5 h-3.5 text-olive" strokeWidth={1.8} />
+                  Try a Studio Sample
+                </button>
+              </div>
             </Card>
           ) : (
             <div className="flex md:grid md:grid-cols-4 lg:grid-cols-6 gap-3.5 overflow-x-auto no-scrollbar pb-1">
@@ -222,6 +235,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   key={item.id}
                   onClick={() => onOpenRecentEdit(item)}
                   className="w-[122px] md:w-auto shrink-0 text-left group focus:outline-none"
+                  aria-label={`Open recent edit: ${item.presetName}`}
                 >
                   <Card variant="photo" interactive className="aspect-[4/5]">
                     <img
@@ -241,7 +255,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           )}
         </section>
 
-        {/* 4. Signature Collections */}
+        {/* 4. Signature Collections — real photographic covers */}
         <section className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-semibold text-textPrimary tracking-tight">
@@ -250,7 +264,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
             {SIGNATURE_COLLECTIONS.map((col) => {
-              const coverUrl = previews[`col:${col.id}`];
+              const coverUrl = getCollectionCoverUrl(col.id);
               const memberCount = PRESETS.filter((p) => p.collectionId === col.id).length;
               return (
                 <Card
@@ -264,12 +278,14 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                     {coverUrl ? (
                       <img
                         src={coverUrl}
-                        alt={col.title}
+                        alt={`${col.title} collection — real photograph`}
                         className="w-full h-full object-cover"
                         draggable={false}
+                        loading="lazy"
+                        style={{ objectPosition: col.id === 'rosy-portrait' ? '50% 30%' : col.id === 'velvet-series' ? '50% 25%' : '50% 50%' }}
                       />
                     ) : (
-                      <div className="w-full h-full animate-pulse bg-surfaceSecondary" />
+                      <div className="w-full h-full animate-pulse bg-surfaceSecondary" aria-hidden="true" />
                     )}
                     <span className="absolute bottom-2 left-2 px-2 py-0.5 rounded-[6px] bg-graphite/80 text-chalk text-[10px] font-medium tabular-nums">
                       {memberCount} looks
@@ -285,8 +301,8 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           </div>
         </section>
 
-        {/* 5. Signature Looks */}
-        <section className="space-y-3">
+        {/* 5. Signature Looks — preset-rendered photographic previews */}
+        <section className="space-y-3" aria-label="Signature Looks">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-semibold text-textPrimary tracking-tight">
               Signature Looks
@@ -294,6 +310,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
             <button
               onClick={() => onOpenCollection('all')}
               className="min-h-[44px] px-2 text-xs font-medium text-olive hover:underline flex items-center gap-1"
+              aria-label="See all presets"
             >
               See all
               <ArrowRight className="w-3.5 h-3.5" strokeWidth={1.8} />
@@ -301,8 +318,9 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           </div>
 
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3.5">
-            {recommendedPresets.map((preset) => {
-              const thumbUrl = previews[`rec:${preset.id}`];
+            {signatureLookPresets.map((preset) => {
+              const thumbUrl = getSignatureLookPreviewUrl(preset.id);
+              const objectPosition = getSignatureLookObjectPosition(preset.id);
               const isFav = favoriteIds.includes(preset.id);
 
               return (
@@ -312,16 +330,19 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                   interactive
                   onClick={() => onSelectPresetDetail(preset)}
                 >
-                  <div className="relative aspect-[4/5] bg-surfaceSecondary">
+                  <div className="relative aspect-[4/5] bg-surfaceSecondary overflow-hidden">
                     {thumbUrl ? (
                       <img
                         src={thumbUrl}
-                        alt={preset.name}
+                        alt={`${preset.name} Signature Look photographic preview`}
                         className="w-full h-full object-cover"
+                        style={{ objectPosition }}
+                        loading="lazy"
+                        decoding="async"
                         draggable={false}
                       />
                     ) : (
-                      <div className="w-full h-full animate-pulse bg-surfaceSecondary" />
+                      <div className="w-full h-full animate-pulse bg-surfaceSecondary" aria-hidden="true" />
                     )}
 
                     <button
@@ -329,7 +350,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                         e.stopPropagation();
                         onToggleFavorite(preset.id);
                       }}
-                      aria-label={`Favorite ${preset.name}`}
+                      aria-label={`${isFav ? 'Remove from' : 'Add to'} favorites: ${preset.name}`}
                       className="absolute top-2 right-2 min-w-[44px] min-h-[44px] w-11 h-11 rounded-[8px] bg-surface/90 backdrop-blur-sm border border-border flex items-center justify-center text-textPrimary shadow-card hover:scale-105 transition duration-fast"
                     >
                       <Heart
@@ -379,7 +400,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
                 Explore tonal recipes &amp; natural portrait lighting
               </h3>
             </div>
-            <div className="min-w-[44px] min-h-[44px] w-11 h-11 rounded-[10px] bg-surface border border-border flex items-center justify-center text-olive shrink-0">
+            <div className="min-w-[44px] min-h-[44px] w-11 h-11 rounded-[10px] bg-surface border border-border flex items-center justify-center text-olive shrink-0" aria-hidden="true">
               <ArrowRight className="w-5 h-5" strokeWidth={1.8} />
             </div>
           </Card>
