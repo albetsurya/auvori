@@ -21,6 +21,7 @@ import { PRESETS } from './data/presets';
 import {
   AppTab,
   CuratedCollectionId,
+  DEFAULT_ADAPTIVE_COLOR_STRENGTH,
   DEFAULT_ADJUSTMENTS,
   DEFAULT_TRANSFORM,
   EditorBackdrop,
@@ -32,6 +33,8 @@ import {
   RecentEdit
 } from './types';
 import { buildEffectiveRecipe, prepareTransformedSource } from './lib/imageEngine';
+import { toAdaptiveColorRenderParams } from './engine/adaptive-color/adaptiveCorrectionPipeline';
+import type { AdaptiveCorrectionResult } from './engine/adaptive-color/types';
 import { resolveAdaptiveRelighting } from './engine/analysis/adaptive-relighting';
 import { AnalysisResult } from './engine/analysis/analysis-types';
 import { PhotoPipeline } from './engine/pipeline/photo-pipeline';
@@ -72,11 +75,13 @@ interface EditorSnapshot {
   intensity: number;
   manual: ManualAdjustments;
   transform: ImageTransform;
+  adaptiveColorStrength?: number;
 }
 
 const snapshotsEqual = (a: EditorSnapshot, b: EditorSnapshot): boolean =>
   a.presetId === b.presetId &&
   a.intensity === b.intensity &&
+  (a.adaptiveColorStrength ?? 0) === (b.adaptiveColorStrength ?? 0) &&
   JSON.stringify(a.manual) === JSON.stringify(b.manual) &&
   JSON.stringify(a.transform) === JSON.stringify(b.transform);
 
@@ -156,6 +161,9 @@ export default function App() {
   const [intensity, setIntensity] = useState<number>(85);
   const [manual, setManual] = useState<ManualAdjustments>(DEFAULT_ADJUSTMENTS);
   const [transform, setTransform] = useState<ImageTransform>(DEFAULT_TRANSFORM);
+  const [adaptiveColorStrength, setAdaptiveColorStrength] = useState<number>(
+    DEFAULT_ADAPTIVE_COLOR_STRENGTH
+  );
   const [splitMode, setSplitMode] = useState<boolean>(false);
 
   // Undo / Redo history
@@ -178,6 +186,7 @@ export default function App() {
     intensity: number;
     manual: ManualAdjustments;
     transform: ImageTransform;
+    adaptiveColorStrength: number;
     history: EditorSnapshot[];
     historyIndex: number;
     exportCount: number;
@@ -190,6 +199,12 @@ export default function App() {
     status: 'idle',
     label: ''
   });
+
+  // Adaptive Color Correction analysis state (lazy-triggered when strength > 0)
+  const adaptiveColorSeqRef = useRef<number>(0);
+  const [adaptiveColorResult, setAdaptiveColorResult] = useState<AdaptiveCorrectionResult | null>(null);
+  const [adaptiveColorStatus, setAdaptiveColorStatus] = useState<'idle' | 'analyzing' | 'ready' | 'error'>('idle');
+  const [adaptiveColorError, setAdaptiveColorError] = useState<string | null>(null);
 
   // ─── Offline Resource State Sync ─────────────────────────────────────────
   useEffect(() => {
@@ -241,11 +256,16 @@ export default function App() {
           activeObjectUrlRef.current = URL.createObjectURL(image.blob);
 
           const initPreset = PRESETS.find((p) => p.id === project.activePresetId) ?? PRESETS[1];
+          const initAdaptiveColorStrength =
+            typeof project.adaptiveColorStrength === 'number'
+              ? project.adaptiveColorStrength
+              : DEFAULT_ADAPTIVE_COLOR_STRENGTH;
           const initSnap: EditorSnapshot = {
             presetId: project.activePresetId,
             intensity: project.intensity,
             manual: project.manual,
-            transform: project.transform
+            transform: project.transform,
+            adaptiveColorStrength: initAdaptiveColorStrength
           };
 
           setSourceImage(img);
@@ -259,6 +279,10 @@ export default function App() {
           setIntensity(project.intensity);
           setManual(project.manual);
           setTransform(project.transform);
+          setAdaptiveColorStrength(initAdaptiveColorStrength);
+          setAdaptiveColorResult(null);
+          setAdaptiveColorStatus('idle');
+          setAdaptiveColorError(null);
           setThumbnails({});
           setSplitMode(false);
           setHistory(savedHistory.length > 0 ? savedHistory : [initSnap]);
@@ -373,6 +397,7 @@ export default function App() {
     intensity: number;
     manual: ManualAdjustments;
     transform: ImageTransform;
+    adaptiveColorStrength: number;
     history: EditorSnapshot[];
     historyIndex: number;
     exportCount: number;
@@ -411,6 +436,7 @@ export default function App() {
           intensity: pending.intensity ?? intensity,
           manual: pending.manual ?? manual,
           transform: pending.transform ?? transform,
+          adaptiveColorStrength: pending.adaptiveColorStrength ?? adaptiveColorStrength,
           historyLength: (pending.history ?? history).length,
           exportCount: pending.exportCount ?? 0,
           sourceType: sourceTypeRef.current,
@@ -434,6 +460,7 @@ export default function App() {
           intensity: pending.intensity ?? intensity,
           manual: pending.manual ?? manual,
           transform: pending.transform ?? transform,
+          adaptiveColorStrength: pending.adaptiveColorStrength ?? adaptiveColorStrength,
           history: pending.history ?? history,
           sourceType: sourceTypeRef.current,
           sourceAssetId: sourceAssetIdRef.current
@@ -461,7 +488,7 @@ export default function App() {
         showToast('error', 'Storage full — delete old projects to continue.');
       }
     }
-  }, [sourceImage, sourceBlob, sourceLabel, sourceMimeType, sourceOrientation, activePreset, intensity, manual, transform, history, showToast]);
+  }, [sourceImage, sourceBlob, sourceLabel, sourceMimeType, sourceOrientation, activePreset, intensity, manual, transform, adaptiveColorStrength, history, showToast]);
 
   useEffect(() => {
     performAutosaveRef.current = performAutosave;
@@ -522,7 +549,8 @@ export default function App() {
           presetId: initPreset.id,
           intensity: initial?.intensity ?? (initPreset.id === 'original' ? 100 : 85),
           manual: initial?.manual ?? DEFAULT_ADJUSTMENTS,
-          transform: initial?.transform ?? DEFAULT_TRANSFORM
+          transform: initial?.transform ?? DEFAULT_TRANSFORM,
+          adaptiveColorStrength: initial?.adaptiveColorStrength ?? DEFAULT_ADAPTIVE_COLOR_STRENGTH
         };
 
         const nextSourceRev = sourceRevision + 1;
@@ -545,6 +573,10 @@ export default function App() {
         setIntensity(initSnap.intensity);
         setManual(initSnap.manual);
         setTransform(initSnap.transform);
+        setAdaptiveColorStrength(initSnap.adaptiveColorStrength ?? DEFAULT_ADAPTIVE_COLOR_STRENGTH);
+        setAdaptiveColorResult(null);
+        setAdaptiveColorStatus('idle');
+        setAdaptiveColorError(null);
         setThumbnails({});
         setSplitMode(false);
         setHistory([initSnap]);
@@ -654,7 +686,8 @@ export default function App() {
             presetId: recent.presetId,
             intensity: recent.intensity,
             manual: recent.manual,
-            transform: recent.transform
+            transform: recent.transform,
+            adaptiveColorStrength: recent.adaptiveColorStrength ?? DEFAULT_ADAPTIVE_COLOR_STRENGTH
           },
           false,
           blob,
@@ -673,7 +706,8 @@ export default function App() {
             presetId: recent.presetId,
             intensity: recent.intensity,
             manual: recent.manual,
-            transform: recent.transform
+            transform: recent.transform,
+            adaptiveColorStrength: recent.adaptiveColorStrength ?? DEFAULT_ADAPTIVE_COLOR_STRENGTH
           },
           false,
           undefined,
@@ -693,6 +727,7 @@ export default function App() {
     setActivePreset(preset);
     setIntensity(snap.intensity);
     setManual(snap.manual);
+    setAdaptiveColorStrength(snap.adaptiveColorStrength ?? DEFAULT_ADAPTIVE_COLOR_STRENGTH);
     setTransform((prev) => {
       if (JSON.stringify(prev) !== JSON.stringify(snap.transform)) {
         setTransformRevision((r) => r + 1);
@@ -721,7 +756,7 @@ export default function App() {
     const nextInt = preset.id !== 'original' && intensity === 0 ? 85 : intensity;
     setActivePreset(preset);
     setIntensity(nextInt);
-    pushHistory({ presetId: preset.id, intensity: nextInt, manual, transform });
+    pushHistory({ presetId: preset.id, intensity: nextInt, manual, transform, adaptiveColorStrength });
     scheduleAutosave({ presetId: preset.id, intensity: nextInt });
   };
 
@@ -730,11 +765,18 @@ export default function App() {
       presetId: PRESETS[0].id,
       intensity: 100,
       manual: DEFAULT_ADJUSTMENTS,
-      transform: DEFAULT_TRANSFORM
+      transform: DEFAULT_TRANSFORM,
+      adaptiveColorStrength: DEFAULT_ADAPTIVE_COLOR_STRENGTH
     };
     applySnapshot(resetSnap);
     pushHistory(resetSnap);
-    scheduleAutosave({ presetId: PRESETS[0].id, intensity: 100, manual: DEFAULT_ADJUSTMENTS, transform: DEFAULT_TRANSFORM });
+    scheduleAutosave({
+      presetId: PRESETS[0].id,
+      intensity: 100,
+      manual: DEFAULT_ADJUSTMENTS,
+      transform: DEFAULT_TRANSFORM,
+      adaptiveColorStrength: DEFAULT_ADAPTIVE_COLOR_STRENGTH
+    });
   };
 
   const handleToggleFavorite = (presetId: string) => {
@@ -756,6 +798,7 @@ export default function App() {
       intensity,
       manual,
       transform,
+      adaptiveColorStrength,
       thumbDataUrl,
       savedAt: new Date().toISOString()
     };
@@ -784,6 +827,10 @@ export default function App() {
     setThumbnails({});
     setSourceImage(null);
     setSourceBlob(null);
+    setAdaptiveColorStrength(DEFAULT_ADAPTIVE_COLOR_STRENGTH);
+    setAdaptiveColorResult(null);
+    setAdaptiveColorStatus('idle');
+    setAdaptiveColorError(null);
     currentProjectIdRef.current = null;
     // Reset source metadata for next session
     sourceTypeRef.current = 'local-upload';
@@ -800,9 +847,16 @@ export default function App() {
     }
   };
 
+  const isAdaptiveColorEnabled = adaptiveColorStrength > 0;
+
+  const adaptiveColorRenderParams = useMemo(() => {
+    if (!adaptiveColorResult || adaptiveColorStrength <= 0) return undefined;
+    return toAdaptiveColorRenderParams(adaptiveColorResult.parameters, adaptiveColorStrength);
+  }, [adaptiveColorResult, adaptiveColorStrength]);
+
   const effectiveRecipe = useMemo(
-    () => buildEffectiveRecipe(activePreset.recipe, intensity, manual),
-    [activePreset, intensity, manual]
+    () => buildEffectiveRecipe(activePreset.recipe, intensity, manual, adaptiveColorRenderParams),
+    [activePreset, intensity, manual, adaptiveColorRenderParams]
   );
 
   const transformRevisionKey = useMemo(
@@ -811,6 +865,60 @@ export default function App() {
   );
 
   const isAdaptivePresetActive = activePreset.lookType === 'adaptive';
+
+  // ─── Adaptive Color Correction Analysis (cached per source + transform) ──
+  useEffect(() => {
+    const pipeline = editorPipelineRef.current;
+    if (!sourceImage || !pipeline || !isAdaptiveColorEnabled) {
+      adaptiveColorSeqRef.current++;
+      pipeline?.cancelAdaptiveColorAnalysis();
+      if (!isAdaptiveColorEnabled) {
+        setAdaptiveColorStatus((cur) => (cur === 'analyzing' ? 'idle' : cur));
+      }
+      return;
+    }
+
+    const seq = ++adaptiveColorSeqRef.current;
+    const hasTransform =
+      transform.rotate !== 0 || transform.flipH || transform.aspect !== 'original';
+    const targetSrc = hasTransform ? prepareTransformedSource(sourceImage, transform) : sourceImage;
+
+    const cached = pipeline.getCachedAdaptiveColor({
+      source: targetSrc,
+      sourceId: 'editor-source',
+      sourceRevision,
+      transformRevision: transformRevisionKey
+    });
+
+    if (cached) {
+      setAdaptiveColorResult(cached);
+      setAdaptiveColorStatus('ready');
+      setAdaptiveColorError(null);
+      return;
+    }
+
+    setAdaptiveColorStatus('analyzing');
+    setAdaptiveColorError(null);
+
+    pipeline
+      .analyzeAdaptiveColor({
+        source: targetSrc,
+        sourceId: 'editor-source',
+        sourceRevision,
+        transformRevision: transformRevisionKey
+      })
+      .then((outcome) => {
+        if (seq !== adaptiveColorSeqRef.current || outcome.cancelled) return;
+        setAdaptiveColorResult(outcome.result);
+        setAdaptiveColorStatus('ready');
+        setAdaptiveColorError(null);
+      })
+      .catch(() => {
+        if (seq !== adaptiveColorSeqRef.current) return;
+        setAdaptiveColorStatus('error');
+        setAdaptiveColorError('Unable to analyze photo right now.');
+      });
+  }, [sourceImage, sourceRevision, transform, transformRevisionKey, isAdaptiveColorEnabled]);
 
   // ─── Adaptive Analysis ───────────────────────────────────────────────────
   useEffect(() => {
@@ -978,6 +1086,8 @@ export default function App() {
                 activePreset={activePreset}
                 analysisResult={analysisResult}
                 adaptiveStatus={adaptiveStatus}
+                adaptiveColorStrength={adaptiveColorStrength}
+                adaptiveColorStatus={adaptiveColorStatus}
                 isProUnlocked={license.isPro}
                 splitMode={splitMode}
                 onOpenPro={() => {
@@ -992,6 +1102,9 @@ export default function App() {
               intensity={intensity}
               manual={manual}
               transform={transform}
+              adaptiveColorStrength={adaptiveColorStrength}
+              adaptiveColorStatus={adaptiveColorStatus}
+              adaptiveColorError={adaptiveColorError}
               thumbnails={thumbnails}
               favoriteIds={favoriteIds}
               isProUnlocked={license.isPro}
@@ -1001,14 +1114,27 @@ export default function App() {
                 scheduleAutosave({ intensity: val });
               }}
               onCommitIntensity={() =>
-                pushHistory({ presetId: activePreset.id, intensity, manual, transform })
+                pushHistory({ presetId: activePreset.id, intensity, manual, transform, adaptiveColorStrength })
               }
               onChangeManual={(val) => {
                 setManual(val);
                 scheduleAutosave({ manual: val });
               }}
               onCommitManual={() =>
-                pushHistory({ presetId: activePreset.id, intensity, manual, transform })
+                pushHistory({ presetId: activePreset.id, intensity, manual, transform, adaptiveColorStrength })
+              }
+              onChangeAdaptiveColorStrength={(val) => {
+                setAdaptiveColorStrength(val);
+                scheduleAutosave({ adaptiveColorStrength: val });
+              }}
+              onCommitAdaptiveColorStrength={(val) =>
+                pushHistory({
+                  presetId: activePreset.id,
+                  intensity,
+                  manual,
+                  transform,
+                  adaptiveColorStrength: val ?? adaptiveColorStrength
+                })
               }
               onChangeTransform={(nextTransform) => {
                 setTransform(nextTransform);
@@ -1017,7 +1143,8 @@ export default function App() {
                   presetId: activePreset.id,
                   intensity,
                   manual,
-                  transform: nextTransform
+                  transform: nextTransform,
+                  adaptiveColorStrength
                 });
                 scheduleAutosave({ transform: nextTransform });
               }}

@@ -1,3 +1,5 @@
+import type { AdaptiveColorRenderParams } from '../engine/adaptive-color/types';
+
 export type PresetCategory = 'all' | 'free' | 'favorites' | 'portrait' | 'cafe' | 'korean' | 'film' | 'night';
 
 export type AppTab = 'home' | 'presets' | 'discover' | 'profile';
@@ -30,6 +32,7 @@ export interface RecentEdit {
   intensity: number;
   manual: ManualAdjustments;
   transform: ImageTransform;
+  adaptiveColorStrength?: number;
   thumbDataUrl: string;
   savedAt: string;
 }
@@ -140,6 +143,8 @@ export interface ColorRecipe {
   colorGrading?: ColorGrading3Way;
   effects?: OpticalEffectsRecipe;
   relighting?: RelightingRecipe;
+  /* ── Adaptive Color Correction (optional; undefined = exact baseline) ── */
+  adaptiveColor?: AdaptiveColorRenderParams;
 }
 
 export interface Preset {
@@ -190,7 +195,11 @@ export interface EditorSnapshot {
   intensity: number;
   manual: ManualAdjustments;
   transform: ImageTransform;
+  adaptiveColorStrength?: number;
 }
+
+export const DEFAULT_ADAPTIVE_COLOR_STRENGTH = 0;
+export const ACTIVE_ADAPTIVE_COLOR_DEFAULT_STRENGTH = 75;
 
 export const DEFAULT_ADJUSTMENTS: ManualAdjustments = {
   exposure: 0,

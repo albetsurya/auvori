@@ -1,5 +1,12 @@
 import { ColorRecipe } from '../types';
 import {
+  analyzeAndSolveAdaptiveColorFromRgba
+} from '../engine/adaptive-color/adaptiveCorrectionPipeline';
+import type {
+  AdaptiveColorConfig,
+  AdaptiveCorrectionResult
+} from '../engine/adaptive-color/types';
+import {
   AdaptiveFlashMode,
   AdaptiveRenderMap,
   ResolvedRelightingParams
@@ -61,11 +68,23 @@ export interface WorkerCancelBatchPayload {
   batchId: number;
 }
 
+export interface WorkerAdaptiveColorPayload {
+  id: number;
+  type: 'ANALYZE_ADAPTIVE_COLOR';
+  bitmap?: ImageBitmap;
+  rgbaBuffer?: ArrayBuffer;
+  width: number;
+  height: number;
+  sourceSignature: string;
+  config?: Partial<AdaptiveColorConfig>;
+}
+
 export type ImageWorkerRequest =
   | WorkerRenderPayload
   | WorkerMaskPayload
   | WorkerThumbnailBatchPayload
-  | WorkerCancelBatchPayload;
+  | WorkerCancelBatchPayload
+  | WorkerAdaptiveColorPayload;
 
 export type ImageWorkerResponse =
   | {
@@ -90,6 +109,11 @@ export type ImageWorkerResponse =
       method: PortraitMaskResult['method'];
       fromCache: boolean;
       durationMs: number;
+    }
+  | {
+      id: number;
+      type: 'ADAPTIVE_COLOR_DONE';
+      result: AdaptiveCorrectionResult;
     }
   | {
       id: number;
@@ -280,6 +304,25 @@ self.onmessage = async (event: MessageEvent<ImageWorkerRequest>) => {
           durationMs: performance.now() - t0
         };
         (self as unknown as Worker).postMessage(resp, [outBuf.buffer]);
+      } finally {
+        msg.bitmap?.close();
+      }
+      return;
+    }
+
+    if (msg.type === 'ANALYZE_ADAPTIVE_COLOR') {
+      try {
+        const data = extractRgbaFromSource(msg.width, msg.height, msg.bitmap, msg.rgbaBuffer);
+        const result = analyzeAndSolveAdaptiveColorFromRgba(data, msg.width, msg.height, {
+          config: msg.config,
+          sourceSignature: msg.sourceSignature
+        });
+        const resp: ImageWorkerResponse = {
+          id: msg.id,
+          type: 'ADAPTIVE_COLOR_DONE',
+          result
+        };
+        (self as unknown as Worker).postMessage(resp);
       } finally {
         msg.bitmap?.close();
       }

@@ -23,6 +23,7 @@ export interface LocalProject {
   intensity: number;
   manual: ManualAdjustments;
   transform: ImageTransform;
+  adaptiveColorStrength?: number;
   historyLength: number;
   exportCount: number;
   schemaVersion: number;
@@ -164,6 +165,7 @@ export async function createProject(params: {
   intensity: number;
   manual: ManualAdjustments;
   transform: ImageTransform;
+  adaptiveColorStrength?: number;
   sourceType?: 'local-upload' | 'studio-sample';
   sourceAssetId?: string | null;
 }): Promise<string> {
@@ -228,6 +230,7 @@ export async function createProject(params: {
         intensity: params.intensity,
         manual: params.manual,
         transform: params.transform,
+        adaptiveColorStrength: params.adaptiveColorStrength ?? 0,
         historyLength: 1,
         exportCount: 0,
         schemaVersion: 1
@@ -558,6 +561,7 @@ export async function createProjectFromEditor(params: {
   intensity: number;
   manual: ManualAdjustments;
   transform: ImageTransform;
+  adaptiveColorStrength?: number;
   history: EditorSnapshot[];
   sourceType?: 'local-upload' | 'studio-sample';
   sourceAssetId?: string | null;
@@ -573,6 +577,7 @@ export async function createProjectFromEditor(params: {
     intensity: params.intensity,
     manual: params.manual,
     transform: params.transform,
+    adaptiveColorStrength: params.adaptiveColorStrength ?? 0,
     sourceType: params.sourceType,
     sourceAssetId: params.sourceAssetId
   });

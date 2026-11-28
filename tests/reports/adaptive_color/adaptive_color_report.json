@@ -1,0 +1,777 @@
+{
+  "scenarioCount": 12,
+  "distinctParameterSets": 12,
+  "worstParityMae255": 1.5465,
+  "avgColdAnalysisMs": 82.72,
+  "avgCachedLookupMs": 0.0,
+  "exportTest": {
+    "glSingle": {
+      "width": 720,
+      "height": 480,
+      "size": 131603,
+      "backend": "webgl2"
+    },
+    "glCard": {
+      "width": 1543,
+      "height": 632,
+      "size": 209100,
+      "backend": "webgl2"
+    },
+    "cpuSingle": {
+      "width": 720,
+      "height": 480,
+      "size": 131554,
+      "backend": "worker-canvas2d"
+    }
+  },
+  "uiRecoveryStrength": "50%",
+  "scenarios": [
+    {
+      "name": "outdoor_portrait",
+      "coldMs": 73.2,
+      "cachedMs": 0,
+      "parameters": {
+        "exposure": 0.6273217158433696,
+        "highlights": 0.16,
+        "shadows": 0.6094118345288204,
+        "contrast": 0.34,
+        "temperature": -0.021564432479829934,
+        "tint": 0.013758246853867397,
+        "vibrance": -0.03121192932128906,
+        "saturation": -0.13525169372558593,
+        "greenCorrection": 0.35,
+        "blackPoint": 0,
+        "whitePoint": 0.065
+      },
+      "confidence": {
+        "overall": 0.8081508331840996,
+        "exposure": 1,
+        "whiteBalance": 0.45185952338314206,
+        "skin": 0.9878415457718982,
+        "foliage": 1
+      },
+      "warnings": [],
+      "isLowKey": false,
+      "cpu0VsRaw": {
+        "mae": 0,
+        "rmse": 0,
+        "maxDiff": 0
+      },
+      "gl0VsRaw": {
+        "mae": 0,
+        "rmse": 0,
+        "maxDiff": 0
+      },
+      "parity0": {
+        "mae": 0.6297253024193549,
+        "rmse": 0.9319063739766243,
+        "maxDiff": 14
+      },
+      "parity50": {
+        "mae": 0.7093013043743891,
+        "rmse": 1.0705136313344743,
+        "maxDiff": 14
+      },
+      "parity100": {
+        "mae": 0.7754020802785924,
+        "rmse": 1.1783430777870763,
+        "maxDiff": 16
+      },
+      "delta0vs100": {
+        "mae": 13.42366202346041,
+        "rmse": 18.374302071949064,
+        "maxDiff": 64
+      },
+      "glRepeat": {
+        "mae": 0,
+        "rmse": 0,
+        "maxDiff": 0
+      }
+    },
+    {
+      "name": "underexposed_portrait",
+      "coldMs": 21.6,
+      "cachedMs": 0,
+      "parameters": {
+        "exposure": 0.38,
+        "highlights": 0,
+        "shadows": 0.26010000000000005,
+        "contrast": 0,
+        "temperature": 0.038453346363266264,
+        "tint": -0.044849361546165006,
+        "vibrance": 0.0019336318077513533,
+        "saturation": 0,
+        "greenCorrection": 0,
+        "blackPoint": 0,
+        "whitePoint": 0
+      },
+      "confidence": {
+        "overall": 0.4237181617346204,
+        "exposure": 0.6039746259513176,
+        "whiteBalance": 0.20551308587579292,
+        "skin": 0.26046510730375033,
+        "foliage": 0
+      },
+      "warnings": [
+        "low-wb-confidence-damped",
+        "low-light-noise-guard"
+      ],
+      "isLowKey": false,
+      "cpu0VsRaw": {
+        "mae": 0,
+        "rmse": 0,
+        "maxDiff": 0
+      },
+      "gl0VsRaw": {
+        "mae": 0,
+        "rmse": 0,
+        "maxDiff": 0
+      },
+      "parity0": {
+        "mae": 0.40629142992424244,
+        "rmse": 0.6871541255773553,
+        "maxDiff": 13
+      },
+      "parity50": {
+        "mae": 0.4903330176767677,
+        "rmse": 0.8352416596713224,
+        "maxDiff": 16
+      },
+      "parity100": {
+        "mae": 0.5872020991161616,
+        "rmse": 0.9879911433655095,
+        "maxDiff": 18
+      },
+      "delta0vs100": {
+        "mae": 5.928272964015152,
+        "rmse": 6.8036615297565985,
+        "maxDiff": 27
+      },
+      "glRepeat": {
+        "mae": 0,
+        "rmse": 0,
+        "maxDiff": 0
+      }
+    },
+    {
+      "name": "bright_snow",
+      "coldMs": 129,
+      "cachedMs": 0,
+      "parameters": {
+        "exposure": -0.68,
+        "highlights": -0.78,
+        "shadows": 0.30600000000000005,
+        "contrast": 0,
+        "temperature": 0.1018801699051392,
+        "tint": -0.026129424211335683,
+        "vibrance": 0.4265509888285024,
+        "saturation": 0.1,
+        "greenCorrection": 0,
+        "blackPoint": -0.065,
+        "whitePoint": -0.04
+      },
+      "confidence": {
+        "overall": 0.8703355501082186,
+        "exposure": 0.9785234446849301,
+        "whiteBalance": 1,
+        "skin": 0,
+        "foliage": 0
+      },
+      "warnings": [],
+      "isLowKey": false,
+      "cpu0VsRaw": {
+        "mae": 0,
+        "rmse": 0,
+        "maxDiff": 0
+      },
+      "gl0VsRaw": {
+        "mae": 0,
+        "rmse": 0,
+        "maxDiff": 0
+      },
+      "parity0": {
+        "mae": 0.5030932341988728,
+        "rmse": 0.8098722293537555,
+        "maxDiff": 15
+      },
+      "parity50": {
+        "mae": 0.46109475644122383,
+        "rmse": 0.7589894206245353,
+        "maxDiff": 13
+      },
+      "parity100": {
+        "mae": 0.43324149557165864,
+        "rmse": 0.7156550937178127,
+        "maxDiff": 10
+      },
+      "delta0vs100": {
+        "mae": 66.38840925674316,
+        "rmse": 66.98804081254865,
+        "maxDiff": 82
+      },
+      "glRepeat": {
+        "mae": 0,
+        "rmse": 0,
+        "maxDiff": 0
+      }
+    },
+    {
+      "name": "warm_indoor",
+      "coldMs": 21.7,
+      "cachedMs": 0,
+      "parameters": {
+        "exposure": 0.00888058188330144,
+        "highlights": 0,
+        "shadows": 0.68,
+        "contrast": 0.04521499886140687,
+        "temperature": 0.014187341412949389,
+        "tint": 0.005440778898005652,
+        "vibrance": 0.026451518791865743,
+        "saturation": -0.020320716670456013,
+        "greenCorrection": 0,
+        "blackPoint": -0.019012780573818645,
+        "whitePoint": 0.065
+      },
+      "confidence": {
+        "overall": 0.9804334439629234,
+        "exposure": 1,
+        "whiteBalance": 0.9460735667378827,
+        "skin": 0.9965384780233224,
+        "foliage": 0
+      },
+      "warnings": [],
+      "isLowKey": false,
+      "cpu0VsRaw": {
+        "mae": 0,
+        "rmse": 0,
+        "maxDiff": 0
+      },
+      "gl0VsRaw": {
+        "mae": 0,
+        "rmse": 0,
+        "maxDiff": 0
+      },
+      "parity0": {
+        "mae": 0.4676554124025341,
+        "rmse": 0.7316881528336208,
+        "maxDiff": 11
+      },
+      "parity50": {
+        "mae": 0.47864126461988304,
+        "rmse": 0.7537016756561841,
+        "maxDiff": 12
+      },
+      "parity100": {
+        "mae": 0.48821081566764135,
+        "rmse": 0.773031824147767,
+        "maxDiff": 12
+      },
+      "delta0vs100": {
+        "mae": 7.320297270955166,
+        "rmse": 7.778079143858633,
+        "maxDiff": 25
+      },
+      "glRepeat": {
+        "mae": 0,
+        "rmse": 0,
+        "maxDiff": 0
+      }
+    },
+    {
+      "name": "cool_daylight_lake",
+      "coldMs": 25.1,
+      "cachedMs": 0,
+      "parameters": {
+        "exposure": -0.023774114990366097,
+        "highlights": 0,
+        "shadows": 0.6272645031962015,
+        "contrast": 0.34,
+        "temperature": 0.01692682263712188,
+        "tint": 0.006305788167131098,
+        "vibrance": 0.3747040077683616,
+        "saturation": 0.1,
+        "greenCorrection": 0.09564315642560184,
+        "blackPoint": -0.04225,
+        "whitePoint": 0.065
+      },
+      "confidence": {
+        "overall": 0.9656800363787112,
+        "exposure": 1,
+        "whiteBalance": 1,
+        "skin": 0.8284001818935562,
+        "foliage": 0.5468298404127695
+      },
+      "warnings": [],
+      "isLowKey": false,
+      "cpu0VsRaw": {
+        "mae": 0,
+        "rmse": 0,
+        "maxDiff": 0
+      },
+      "gl0VsRaw": {
+        "mae": 0,
+        "rmse": 0,
+        "maxDiff": 0
+      },
+      "parity0": {
+        "mae": 1.0370119026600753,
+        "rmse": 1.5608141800173763,
+        "maxDiff": 26
+      },
+      "parity50": {
+        "mae": 1.137763359227872,
+        "rmse": 1.7175324184091119,
+        "maxDiff": 24
+      },
+      "parity100": {
+        "mae": 1.2411189824623352,
+        "rmse": 1.8743412409933053,
+        "maxDiff": 24
+      },
+      "delta0vs100": {
+        "mae": 10.832994938794727,
+        "rmse": 13.26613373446946,
+        "maxDiff": 34
+      },
+      "glRepeat": {
+        "mae": 0,
+        "rmse": 0,
+        "maxDiff": 0
+      }
+    },
+    {
+      "name": "high_contrast",
+      "coldMs": 84,
+      "cachedMs": 0,
+      "parameters": {
+        "exposure": -0.0011963609790675554,
+        "highlights": -0.03226546483995067,
+        "shadows": 0.68,
+        "contrast": 0.038634332881421034,
+        "temperature": -0.007148370078610395,
+        "tint": -0.0061795057495120575,
+        "vibrance": 0.33960781250000005,
+        "saturation": 0.1,
+        "greenCorrection": 0,
+        "blackPoint": -0.014497384332088867,
+        "whitePoint": 0.065
+      },
+      "confidence": {
+        "overall": 0.9944117783848887,
+        "exposure": 1,
+        "whiteBalance": 0.9999966528379335,
+        "skin": 0.9720647494580604,
+        "foliage": 0
+      },
+      "warnings": [],
+      "isLowKey": false,
+      "cpu0VsRaw": {
+        "mae": 0,
+        "rmse": 0,
+        "maxDiff": 0
+      },
+      "gl0VsRaw": {
+        "mae": 0,
+        "rmse": 0,
+        "maxDiff": 0
+      },
+      "parity0": {
+        "mae": 0.8921065493646139,
+        "rmse": 1.7212611066207244,
+        "maxDiff": 28
+      },
+      "parity50": {
+        "mae": 0.9800525415444771,
+        "rmse": 1.8084273521558492,
+        "maxDiff": 29
+      },
+      "parity100": {
+        "mae": 1.0448015945747802,
+        "rmse": 1.8910753944146976,
+        "maxDiff": 30
+      },
+      "delta0vs100": {
+        "mae": 6.846613819648094,
+        "rmse": 8.002764778771768,
+        "maxDiff": 31
+      },
+      "glRepeat": {
+        "mae": 0,
+        "rmse": 0,
+        "maxDiff": 0
+      }
+    },
+    {
+      "name": "green_foliage",
+      "coldMs": 109.3,
+      "cachedMs": 0,
+      "parameters": {
+        "exposure": 0.48377040729948584,
+        "highlights": 0.16,
+        "shadows": 0.5974426527102054,
+        "contrast": 0.34,
+        "temperature": 0.009775069424193015,
+        "tint": -0.005467179779048713,
+        "vibrance": -0.014662399291992196,
+        "saturation": -0.06353706359863286,
+        "greenCorrection": 0.35,
+        "blackPoint": 0,
+        "whitePoint": 0.065
+      },
+      "confidence": {
+        "overall": 0.8815183937640365,
+        "exposure": 1,
+        "whiteBalance": 0.6614811250401046,
+        "skin": 0.3180763480824742,
+        "foliage": 1
+      },
+      "warnings": [],
+      "isLowKey": false,
+      "cpu0VsRaw": {
+        "mae": 0,
+        "rmse": 0,
+        "maxDiff": 0
+      },
+      "gl0VsRaw": {
+        "mae": 0,
+        "rmse": 0,
+        "maxDiff": 0
+      },
+      "parity0": {
+        "mae": 0.6558261546920822,
+        "rmse": 0.9772975911270212,
+        "maxDiff": 11
+      },
+      "parity50": {
+        "mae": 0.733916788856305,
+        "rmse": 1.1223086085846556,
+        "maxDiff": 13
+      },
+      "parity100": {
+        "mae": 0.7999201948924731,
+        "rmse": 1.2395049087211758,
+        "maxDiff": 15
+      },
+      "delta0vs100": {
+        "mae": 11.993848515395895,
+        "rmse": 16.467440321930845,
+        "maxDiff": 56
+      },
+      "glRepeat": {
+        "mae": 0,
+        "rmse": 0,
+        "maxDiff": 0
+      }
+    },
+    {
+      "name": "dark_cinematic",
+      "coldMs": 169.8,
+      "cachedMs": 0,
+      "parameters": {
+        "exposure": 0.05547647921545337,
+        "highlights": -0.585,
+        "shadows": 0.68,
+        "contrast": -0.06811231676762843,
+        "temperature": -0.0037782121908276982,
+        "tint": -0.01917572205569751,
+        "vibrance": 0.2715822027439025,
+        "saturation": 0.1,
+        "greenCorrection": 0.12889947734030652,
+        "blackPoint": -0.054220922261543444,
+        "whitePoint": -0.013448356150854575
+      },
+      "confidence": {
+        "overall": 0.993587039561237,
+        "exposure": 1,
+        "whiteBalance": 1,
+        "skin": 0.9679351978061846,
+        "foliage": 0.37299493704896014
+      },
+      "warnings": [],
+      "isLowKey": false,
+      "cpu0VsRaw": {
+        "mae": 0,
+        "rmse": 0,
+        "maxDiff": 0
+      },
+      "gl0VsRaw": {
+        "mae": 0,
+        "rmse": 0,
+        "maxDiff": 0
+      },
+      "parity0": {
+        "mae": 1.2544588414634146,
+        "rmse": 1.6664316399327954,
+        "maxDiff": 14
+      },
+      "parity50": {
+        "mae": 1.314500762195122,
+        "rmse": 1.7584156316231339,
+        "maxDiff": 14
+      },
+      "parity100": {
+        "mae": 1.3607993521341464,
+        "rmse": 1.8475493099627687,
+        "maxDiff": 13
+      },
+      "delta0vs100": {
+        "mae": 17.22139862804878,
+        "rmse": 25.960256081813473,
+        "maxDiff": 68
+      },
+      "glRepeat": {
+        "mae": 0,
+        "rmse": 0,
+        "maxDiff": 0
+      }
+    },
+    {
+      "name": "no_skin_object",
+      "coldMs": 12.6,
+      "cachedMs": 0,
+      "parameters": {
+        "exposure": 0,
+        "highlights": 0,
+        "shadows": 0.68,
+        "contrast": 0.030324374975517335,
+        "temperature": -0.0203212468652126,
+        "tint": -0.015664082423892736,
+        "vibrance": 0.06647478070175439,
+        "saturation": 0,
+        "greenCorrection": 0,
+        "blackPoint": -0.014805606091897423,
+        "whitePoint": 0
+      },
+      "confidence": {
+        "overall": 0.9966475214689676,
+        "exposure": 1,
+        "whiteBalance": 1,
+        "skin": 0.9832376073448379,
+        "foliage": 0
+      },
+      "warnings": [],
+      "isLowKey": false,
+      "cpu0VsRaw": {
+        "mae": 0,
+        "rmse": 0,
+        "maxDiff": 0
+      },
+      "gl0VsRaw": {
+        "mae": 0,
+        "rmse": 0,
+        "maxDiff": 0
+      },
+      "parity0": {
+        "mae": 0.6289577987536656,
+        "rmse": 0.9594838152441877,
+        "maxDiff": 14
+      },
+      "parity50": {
+        "mae": 0.6403691654447703,
+        "rmse": 0.9720931144782538,
+        "maxDiff": 15
+      },
+      "parity100": {
+        "mae": 0.6526091306207233,
+        "rmse": 0.9876059048968352,
+        "maxDiff": 16
+      },
+      "delta0vs100": {
+        "mae": 5.921491248167156,
+        "rmse": 6.468071354435223,
+        "maxDiff": 20
+      },
+      "glRepeat": {
+        "mae": 0,
+        "rmse": 0,
+        "maxDiff": 0
+      }
+    },
+    {
+      "name": "deep_skin_portrait",
+      "coldMs": 183.2,
+      "cachedMs": 0,
+      "parameters": {
+        "exposure": -0.0893419276149792,
+        "highlights": 0,
+        "shadows": 0.6537130275425138,
+        "contrast": 0.06,
+        "temperature": -0.007553093480228475,
+        "tint": -0.04898961717535749,
+        "vibrance": 0.364601653874269,
+        "saturation": 0.1,
+        "greenCorrection": 0,
+        "blackPoint": -0.065,
+        "whitePoint": 0
+      },
+      "confidence": {
+        "overall": 0.9976351501440025,
+        "exposure": 1,
+        "whiteBalance": 1,
+        "skin": 0.9881757507200123,
+        "foliage": 0
+      },
+      "warnings": [],
+      "isLowKey": false,
+      "cpu0VsRaw": {
+        "mae": 0,
+        "rmse": 0,
+        "maxDiff": 0
+      },
+      "gl0VsRaw": {
+        "mae": 0,
+        "rmse": 0,
+        "maxDiff": 0
+      },
+      "parity0": {
+        "mae": 1.23126489186217,
+        "rmse": 1.6175062426131384,
+        "maxDiff": 8
+      },
+      "parity50": {
+        "mae": 1.3859302449902249,
+        "rmse": 1.848456319613229,
+        "maxDiff": 9
+      },
+      "parity100": {
+        "mae": 1.5464683376099706,
+        "rmse": 2.0507562627940583,
+        "maxDiff": 10
+      },
+      "delta0vs100": {
+        "mae": 2.958004948680352,
+        "rmse": 3.6273455981901805,
+        "maxDiff": 16
+      },
+      "glRepeat": {
+        "mae": 0,
+        "rmse": 0,
+        "maxDiff": 0
+      }
+    },
+    {
+      "name": "harsh_sun_couple",
+      "coldMs": 106.8,
+      "cachedMs": 0,
+      "parameters": {
+        "exposure": 3.3103652334676644e-05,
+        "highlights": 0,
+        "shadows": 0.6769609626448542,
+        "contrast": 0.05847498457591223,
+        "temperature": -0.031814788007542984,
+        "tint": 0.008817648816246486,
+        "vibrance": 0.036824012569271834,
+        "saturation": 0,
+        "greenCorrection": 0,
+        "blackPoint": -0.065,
+        "whitePoint": 0.065
+      },
+      "confidence": {
+        "overall": 0.8427743286987587,
+        "exposure": 1,
+        "whiteBalance": 0.5592466388934609,
+        "skin": 0.9851900254302364,
+        "foliage": 0
+      },
+      "warnings": [],
+      "isLowKey": false,
+      "cpu0VsRaw": {
+        "mae": 0,
+        "rmse": 0,
+        "maxDiff": 0
+      },
+      "gl0VsRaw": {
+        "mae": 0,
+        "rmse": 0,
+        "maxDiff": 0
+      },
+      "parity0": {
+        "mae": 1.1883877840909092,
+        "rmse": 1.5523970788730719,
+        "maxDiff": 11
+      },
+      "parity50": {
+        "mae": 1.1981992302052786,
+        "rmse": 1.5847403006882896,
+        "maxDiff": 12
+      },
+      "parity100": {
+        "mae": 1.2076536534701858,
+        "rmse": 1.6140399907196317,
+        "maxDiff": 12
+      },
+      "delta0vs100": {
+        "mae": 3.060250946969697,
+        "rmse": 4.126706599192173,
+        "maxDiff": 15
+      },
+      "glRepeat": {
+        "mae": 0,
+        "rmse": 0,
+        "maxDiff": 0
+      }
+    },
+    {
+      "name": "warm_lanterns",
+      "coldMs": 56.3,
+      "cachedMs": 0,
+      "parameters": {
+        "exposure": 0.017268028418326687,
+        "highlights": -0.04541270083039752,
+        "shadows": 0.68,
+        "contrast": 0.039740131456495464,
+        "temperature": -0.0015148554092101715,
+        "tint": 0.0012036308600727257,
+        "vibrance": -0.04126991317103144,
+        "saturation": -0.20800000000000002,
+        "greenCorrection": 0,
+        "blackPoint": 0,
+        "whitePoint": 0
+      },
+      "confidence": {
+        "overall": 0.867531452359439,
+        "exposure": 1,
+        "whiteBalance": 0.6392172885881467,
+        "skin": 0.9690270067679378,
+        "foliage": 0
+      },
+      "warnings": [],
+      "isLowKey": false,
+      "cpu0VsRaw": {
+        "mae": 0,
+        "rmse": 0,
+        "maxDiff": 0
+      },
+      "gl0VsRaw": {
+        "mae": 0,
+        "rmse": 0,
+        "maxDiff": 0
+      },
+      "parity0": {
+        "mae": 1.1114235856549364,
+        "rmse": 2.3985307449014566,
+        "maxDiff": 55
+      },
+      "parity50": {
+        "mae": 1.0702036748533725,
+        "rmse": 2.2346454777364873,
+        "maxDiff": 51
+      },
+      "parity100": {
+        "mae": 1.0352230724584555,
+        "rmse": 2.130428259595128,
+        "maxDiff": 46
+      },
+      "delta0vs100": {
+        "mae": 9.18072420271261,
+        "rmse": 10.951332284670299,
+        "maxDiff": 50
+      },
+      "glRepeat": {
+        "mae": 0,
+        "rmse": 0,
+        "maxDiff": 0
+      }
+    }
+  ]
+}

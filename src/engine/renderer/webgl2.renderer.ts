@@ -9,6 +9,7 @@ import {
 } from '../analysis/adaptive-relighting';
 import { assignSourceId, getCachedPortraitMask, setCachedPortraitMask } from '../analysis/mask-cache';
 import { computePortraitMaskFromRgba, PortraitMaskResult } from '../analysis/portrait-mask';
+import { hasActiveAdaptiveColor } from '../adaptive-color/adaptiveCorrectionPipeline';
 import {
   buildEffectiveHsl,
   clamp01,
@@ -772,6 +773,24 @@ export class WebGL2Renderer implements IPhotoRenderer {
       gl.uniform3f(getUniform(gl, gp, 'uCgMidtone'), cg.midtoneTint[0], cg.midtoneTint[1], cg.midtoneTint[2]);
       gl.uniform3f(getUniform(gl, gp, 'uCgHighlight'), cg.highlightTint[0], cg.highlightTint[1], cg.highlightTint[2]);
       gl.uniform1f(getUniform(gl, gp, 'uCgBalance'), cg.balance);
+    }
+
+    const acc = recipe.adaptiveColor;
+    const hasAcc = hasActiveAdaptiveColor(acc);
+    gl.uniform1i(getUniform(gl, gp, 'uHasAdaptiveColor'), hasAcc ? 1 : 0);
+    if (hasAcc && acc) {
+      gl.uniform1f(getUniform(gl, gp, 'uAccStrength'), acc.strength);
+      gl.uniform1f(getUniform(gl, gp, 'uAccExposure'), acc.exposure);
+      gl.uniform1f(getUniform(gl, gp, 'uAccHighlights'), acc.highlights);
+      gl.uniform1f(getUniform(gl, gp, 'uAccShadows'), acc.shadows);
+      gl.uniform1f(getUniform(gl, gp, 'uAccContrast'), acc.contrast);
+      gl.uniform1f(getUniform(gl, gp, 'uAccTemperature'), acc.temperature);
+      gl.uniform1f(getUniform(gl, gp, 'uAccTint'), acc.tint);
+      gl.uniform1f(getUniform(gl, gp, 'uAccVibrance'), acc.vibrance);
+      gl.uniform1f(getUniform(gl, gp, 'uAccSaturation'), acc.saturation);
+      gl.uniform1f(getUniform(gl, gp, 'uAccGreenCorrection'), acc.greenCorrection);
+      gl.uniform1f(getUniform(gl, gp, 'uAccBlackPoint'), acc.blackPoint);
+      gl.uniform1f(getUniform(gl, gp, 'uAccWhitePoint'), acc.whitePoint);
     }
 
     this.drawPass(gp, this.gradeFbo, w, h, false);
