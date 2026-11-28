@@ -20,6 +20,8 @@ interface LocalProject {
   sourceHeight: number;
   sourceOrientation: number;     // EXIF orientation (1-8)
   sourceMimeType: string;        // 'image/jpeg' | 'image/png' | 'image/webp' | 'image/heic'
+  sourceType?: 'local-upload' | 'studio-sample';  // Source classification (additive, v1)
+  sourceAssetId?: string | null; // Studio sample ID when sourceType='studio-sample' (additive, v1)
   activePresetId: string;
   intensity: number;             // 0-100
   manual: ManualAdjustments;
@@ -172,7 +174,13 @@ async function requestPersistentStorage(): Promise<boolean>
 
 ## Schema Migration (Future)
 
-**Version 1**: Initial schema as defined above.
+**Version 1**: Initial schema as defined above. Additive fields `sourceType` and `sourceAssetId` do not require a version bump.
+
+**Migration Strategy**:
+- Increment `version` in `openDB()`
+- `upgrade` callback handles `oldVersion < newVersion`
+- Add stores/indexes, transform data
+- Bump `schemaVersion` in records after migration
 
 **Migration Strategy**:
 - Increment `version` in `openDB()`
@@ -218,6 +226,14 @@ const AUTOSAVE_MAX_DELAY_MS = 5000;
 - Never compress or transform before storage
 - `createObjectURL(blob)` for editor display
 - Revoke on project close/delete
+
+### Studio Sample Persistence (Phase 6.4 Fix)
+- When a Studio Sample is selected, `loadSampleWithBlob(sampleId)` fetches the original full-resolution asset via same-origin `fetch` (Service Worker cache satisfies the request offline).
+- Blob is validated with `assertDecodableImage()` before use.
+- Editor receives `sourceType='studio-sample'` and `sourceAssetId=sampleId` via `loadImageIntoEditor`.
+- Autosave persists these fields in `LocalProject` so the sample identity survives reload.
+- On failure to fetch Blob: `saveErrorKind='source'`, `saveStatus='failed'`, UI shows "Not saved — original asset unavailable" with Retry; no invalid project created.
+- Recovery: session restore reads `sourceType` / `sourceAssetId` from project and re-establishes refs for subsequent autosaves.
 
 ### Hash Verification
 - SHA-256 computed on project creation

@@ -17,6 +17,8 @@ export interface LocalProject {
   sourceHeight: number;
   sourceOrientation: number;
   sourceMimeType: string;
+  sourceType?: 'local-upload' | 'studio-sample';
+  sourceAssetId?: string | null;
   activePresetId: string;
   intensity: number;
   manual: ManualAdjustments;
@@ -162,6 +164,8 @@ export async function createProject(params: {
   intensity: number;
   manual: ManualAdjustments;
   transform: ImageTransform;
+  sourceType?: 'local-upload' | 'studio-sample';
+  sourceAssetId?: string | null;
 }): Promise<string> {
   const db = await getDB();
   const projectId = crypto.randomUUID();
@@ -218,6 +222,8 @@ export async function createProject(params: {
         sourceHeight: params.sourceHeight,
         sourceOrientation: params.sourceOrientation,
         sourceMimeType: params.sourceMimeType,
+        sourceType: params.sourceType ?? 'local-upload',
+        sourceAssetId: params.sourceAssetId ?? null,
         activePresetId: params.presetId,
         intensity: params.intensity,
         manual: params.manual,
@@ -553,6 +559,8 @@ export async function createProjectFromEditor(params: {
   manual: ManualAdjustments;
   transform: ImageTransform;
   history: EditorSnapshot[];
+  sourceType?: 'local-upload' | 'studio-sample';
+  sourceAssetId?: string | null;
 }): Promise<string> {
   const projectId = await createProject({
     name: params.name,
@@ -564,7 +572,9 @@ export async function createProjectFromEditor(params: {
     presetId: params.activePresetId,
     intensity: params.intensity,
     manual: params.manual,
-    transform: params.transform
+    transform: params.transform,
+    sourceType: params.sourceType,
+    sourceAssetId: params.sourceAssetId
   });
 
   if (params.history.length > 1) {

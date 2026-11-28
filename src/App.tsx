@@ -80,6 +80,23 @@ const snapshotsEqual = (a: EditorSnapshot, b: EditorSnapshot): boolean =>
   JSON.stringify(a.manual) === JSON.stringify(b.manual) &&
   JSON.stringify(a.transform) === JSON.stringify(b.transform);
 
+// Decode check: a fetched sample must be a usable image before it becomes a project source.
+function assertDecodableImage(blob: Blob): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const objectUrl = URL.createObjectURL(blob);
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(objectUrl);
+      resolve();
+    };
+    img.onerror = () => {
+      URL.revokeObjectURL(objectUrl);
+      reject(new Error('Sample asset failed to decode'));
+    };
+    img.src = objectUrl;
+  });
+}
+
 export default function App() {
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -150,6 +167,12 @@ export default function App() {
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'failed'>('idle');
   const autosaveTimeoutRef = useRef<number | null>(null);
   const currentProjectIdRef = useRef<string | null>(null);
+  // Latest autosave callback; timers must not capture the mount-time closure (sourceImage null)
+  const performAutosaveRef = useRef<() => void>(() => {});
+  const sourceTypeRef = useRef<'local-upload' | 'studio-sample'>('local-upload');
+  const sourceAssetIdRef = useRef<string | null>(null);
+  const retrySourceRef = useRef<(() => void) | null>(null);
+  const [saveErrorKind, setSaveErrorKind] = useState<'none' | 'storage' | 'source'>('none');
   const pendingAutosaveRef = useRef<Partial<{
     presetId: string;
     intensity: number;
@@ -202,6 +225,12 @@ export default function App() {
 
         const { project, image, history: savedHistory } = fullState;
         currentProjectIdRef.current = project.id;
+
+        // Restore source metadata for autosave
+        if (project.sourceType) sourceTypeRef.current = project.sourceType;
+        if (project.sourceAssetId) sourceAssetIdRef.current = project.sourceAssetId;
+        retrySourceRef.current = null;
+        setSaveErrorKind('none');
 
         // Load image from blob
         const img = new Image();
@@ -355,13 +384,13 @@ export default function App() {
     }
 
     autosaveTimeoutRef.current = window.setTimeout(() => {
-      performAutosave();
+      performAutosaveRef.current();
     }, 800);
 
     // Force save after max delay
     setTimeout(() => {
       if (pendingAutosaveRef.current && Object.keys(pendingAutosaveRef.current).length > 0) {
-        performAutosave();
+        performAutosaveRef.current();
       }
     }, 5000);
   }, []);
@@ -384,6 +413,8 @@ export default function App() {
           transform: pending.transform ?? transform,
           historyLength: (pending.history ?? history).length,
           exportCount: pending.exportCount ?? 0,
+          sourceType: sourceTypeRef.current,
+          sourceAssetId: sourceAssetIdRef.current,
           updatedAt: new Date().toISOString()
         });
 
@@ -403,24 +434,38 @@ export default function App() {
           intensity: pending.intensity ?? intensity,
           manual: pending.manual ?? manual,
           transform: pending.transform ?? transform,
-          history: pending.history ?? history
+          history: pending.history ?? history,
+          sourceType: sourceTypeRef.current,
+          sourceAssetId: sourceAssetIdRef.current
         });
         currentProjectIdRef.current = projectId;
+      } else {
+        // No source Blob: cannot create a recoverable project. Never report "saved".
+        setSaveStatus('failed');
+        setSaveErrorKind('source');
+        setHasUnsavedChanges(true);
+        return;
       }
 
       pendingAutosaveRef.current = {};
+      setSaveErrorKind('none');
       setSaveStatus('saved');
       setHasUnsavedChanges(false);
       setTimeout(() => setSaveStatus('idle'), 2000);
     } catch (err) {
       console.error('Autosave failed:', err);
       setSaveStatus('failed');
+      setSaveErrorKind('storage');
       setHasUnsavedChanges(true);
       if (err instanceof Error && err.name === 'QuotaExceededError') {
         showToast('error', 'Storage full — delete old projects to continue.');
       }
     }
   }, [sourceImage, sourceBlob, sourceLabel, sourceMimeType, sourceOrientation, activePreset, intensity, manual, transform, history, showToast]);
+
+  useEffect(() => {
+    performAutosaveRef.current = performAutosave;
+  }, [performAutosave]);
 
   const forceAutosave = useCallback(() => {
     if (autosaveTimeoutRef.current) {
@@ -455,7 +500,9 @@ export default function App() {
       initial?: Partial<EditorSnapshot>,
       isObjectUrl = false,
       blob?: Blob,
-      mimeType = 'image/jpeg'
+      mimeType = 'image/jpeg',
+      sourceType?: 'local-upload' | 'studio-sample',
+      sourceAssetId?: string | null
     ) => {
       const seq = ++loadSeqRef.current;
       const img = new Image();
@@ -487,6 +534,13 @@ export default function App() {
           setSourceBlob(blob);
           setSourceMimeType(mimeType);
         }
+        // Track source metadata for autosave
+        if (sourceType) sourceTypeRef.current = sourceType;
+        if (sourceAssetId !== undefined) sourceAssetIdRef.current = sourceAssetId;
+        // Clear any pending retry on successful load
+        retrySourceRef.current = null;
+        setSaveErrorKind('none');
+
         setActivePreset(initPreset);
         setIntensity(initSnap.intensity);
         setManual(initSnap.manual);
@@ -497,6 +551,11 @@ export default function App() {
         setHistoryIndex(0);
         setHasUnsavedChanges(false);
         currentProjectIdRef.current = null; // New project, will be created on autosave
+
+        // Schedule autosave for studio samples immediately so they get persisted
+        if (sourceType === 'studio-sample') {
+          scheduleAutosave({ historyIndex: 0 });
+        }
 
         const nextThumbs: Record<string, string> = {};
         const pipeline = editorPipelineRef.current;
@@ -532,33 +591,101 @@ export default function App() {
       };
       img.src = url;
     },
-    [revokeThumbnailUrls, revokeTrackedObjectUrl, showToast, sourceRevision]
+    [revokeThumbnailUrls, revokeTrackedObjectUrl, showToast, sourceRevision, scheduleAutosave]
   );
+
+  // Fetch sample asset and load with original Blob for offline persistence
+  const loadSampleWithBlob = useCallback(async (sampleId: SamplePhotoId, presetId?: string) => {
+    const label = getSamplePhotoLabel(sampleId);
+    const url = getSamplePhotoUrl(sampleId);
+    if (!url) {
+      showToast('error', 'Sample not found.');
+      return;
+    }
+    try {
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`Fetch failed: ${response.status}`);
+      const blob = await response.blob();
+      await assertDecodableImage(blob);
+      const mimeType = blob.type || 'image/jpeg';
+      loadImageIntoEditor(url, label, presetId ? { presetId } : undefined, false, blob, mimeType, 'studio-sample', sampleId);
+    } catch (err) {
+      console.error('Sample load failed:', err);
+      // Fallback: load without blob so UI still works, but mark as not-saved
+      loadImageIntoEditor(url, label, presetId ? { presetId } : undefined, false, undefined, 'image/jpeg', 'studio-sample', sampleId);
+      setSaveErrorKind('source');
+      setSaveStatus('failed');
+      setHasUnsavedChanges(true);
+      retrySourceRef.current = () => loadSampleWithBlob(sampleId, presetId);
+    }
+  }, [loadImageIntoEditor, showToast]);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const url = URL.createObjectURL(file);
     const cleanName = file.name.replace(/\.[^/.]+$/, '') || 'Gallery Photo';
-    loadImageIntoEditor(url, cleanName, undefined, true, file, file.type);
+    loadImageIntoEditor(url, cleanName, undefined, true, file, file.type, 'local-upload', null);
     e.target.value = '';
   };
 
   const handleStartWithSample = (sampleId: SamplePhotoId, presetId?: string) => {
-    const label = getSamplePhotoLabel(sampleId);
-    const url = getSamplePhotoUrl(sampleId);
-    loadImageIntoEditor(url, label, presetId ? { presetId } : undefined);
+    loadSampleWithBlob(sampleId, presetId);
   };
 
   const handleOpenRecentEdit = (recent: RecentEdit) => {
     const matchedPreset = PRESETS.find((p) => p.id === recent.presetId);
     const sampleFallback = getPresetSampleId(recent.presetId, matchedPreset?.category);
-    loadImageIntoEditor(getSamplePhotoUrl(sampleFallback), recent.title, {
-      presetId: recent.presetId,
-      intensity: recent.intensity,
-      manual: recent.manual,
-      transform: recent.transform
-    });
+    const label = recent.title;
+    const url = getSamplePhotoUrl(sampleFallback);
+    // Fetch the original sample Blob for offline persistence
+    fetch(url)
+      .then((r) => {
+        if (!r.ok) throw new Error(`Fetch failed: ${r.status}`);
+        return r.blob();
+      })
+      .then(async (blob) => {
+        await assertDecodableImage(blob);
+        const mimeType = blob.type || 'image/jpeg';
+        loadImageIntoEditor(
+          url,
+          label,
+          {
+            presetId: recent.presetId,
+            intensity: recent.intensity,
+            manual: recent.manual,
+            transform: recent.transform
+          },
+          false,
+          blob,
+          mimeType,
+          'studio-sample',
+          sampleFallback
+        );
+      })
+      .catch((err) => {
+        console.error('Recent edit sample load failed:', err);
+        // Fallback without blob
+        loadImageIntoEditor(
+          url,
+          label,
+          {
+            presetId: recent.presetId,
+            intensity: recent.intensity,
+            manual: recent.manual,
+            transform: recent.transform
+          },
+          false,
+          undefined,
+          'image/jpeg',
+          'studio-sample',
+          sampleFallback
+        );
+        setSaveErrorKind('source');
+        setSaveStatus('failed');
+        setHasUnsavedChanges(true);
+        retrySourceRef.current = () => handleOpenRecentEdit(recent);
+      });
   };
 
   const applySnapshot = (snap: EditorSnapshot) => {
@@ -658,6 +785,11 @@ export default function App() {
     setSourceImage(null);
     setSourceBlob(null);
     currentProjectIdRef.current = null;
+    // Reset source metadata for next session
+    sourceTypeRef.current = 'local-upload';
+    sourceAssetIdRef.current = null;
+    retrySourceRef.current = null;
+    setSaveErrorKind('none');
   }, [forceAutosave, revokeThumbnailUrls, revokeTrackedObjectUrl]);
 
   const handleRequestEditorBack = () => {
@@ -778,9 +910,9 @@ export default function App() {
       {/* Offline Banner */}
       {!isOnline && <OfflineBanner />}
 
-      {/* Save Status Indicator */}
-      {sourceImage && saveStatus !== 'idle' && (
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[50] w-[calc(100%-32px)] max-w-[440px] pointer-events-none">
+      {/* Save Status Indicator — shows even without sourceImage when source fetch failed */}
+      {(sourceImage || saveErrorKind === 'source') && saveStatus !== 'idle' && (
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-[50] w-[calc(100%-32px)] max-w-[440px] pointer-events-auto">
           <div className={`flex items-center justify-center gap-2 px-4 py-2 rounded-[10px] bg-surface border shadow-card text-xs font-medium ${
             saveStatus === 'saving' ? 'border-info/40 text-info' :
             saveStatus === 'saved' ? 'border-success/40 text-success' :
@@ -788,7 +920,22 @@ export default function App() {
           }`}>
             {saveStatus === 'saving' && <> <span className="animate-pulse">●</span> Saving on this device… </>}
             {saveStatus === 'saved' && <span>Saved on this device</span>}
-            {saveStatus === 'failed' && <span>Save failed — check storage</span>}
+            {saveStatus === 'failed' && saveErrorKind === 'source' && (
+              <>
+                <span>Not saved — original asset unavailable</span>
+                {retrySourceRef.current && (
+                  <button
+                    type="button"
+                    onClick={retrySourceRef.current}
+                    className="ml-2 px-3 py-1 text-xs font-medium text-primary bg-primary/10 border border-primary/30 rounded-[6px] hover:bg-primary/20"
+                  >
+                    Retry
+                  </button>
+                )}
+              </>
+            )}
+            {saveStatus === 'failed' && saveErrorKind === 'storage' && <span>Save failed — check storage</span>}
+            {saveStatus === 'failed' && saveErrorKind === 'none' && <span>Save failed</span>}
           </div>
         </div>
       )}
