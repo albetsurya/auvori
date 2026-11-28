@@ -22,6 +22,11 @@ import {
   smoothstep
 } from '../analysis/portrait-mask';
 import {
+  applyAdaptiveColorToPixel,
+  hasActiveAdaptiveColor
+} from '../adaptive-color/adaptiveCorrectionPipeline';
+import type { AdaptiveColorRenderParams } from '../adaptive-color/types';
+import {
   buildMonotoneToneCurveKnots,
   evalMonotoneToneCurve,
   isNeutralToneCurve,
@@ -174,9 +179,16 @@ export function computeEffectBlendFactors(intensity: number): {
 export function buildEffectiveRecipe(
   recipe: ColorRecipe,
   intensity: number,
-  manual: ManualAdjustments
+  manual: ManualAdjustments,
+  adaptiveColor?: AdaptiveColorRenderParams | null
 ): ColorRecipe {
   const k = Math.max(0, Math.min(100, intensity)) / 100;
+  const activeAdaptive =
+    adaptiveColor && hasActiveAdaptiveColor(adaptiveColor)
+      ? adaptiveColor
+      : recipe.adaptiveColor && hasActiveAdaptiveColor(recipe.adaptiveColor)
+        ? recipe.adaptiveColor
+        : undefined;
   const isLayered = Boolean(
     recipe.toneCurve || recipe.colorGrading || recipe.effects || recipe.relighting
   );
@@ -204,7 +216,8 @@ export function buildEffectiveRecipe(
       fade: recipe.fade * k,
       grain: Math.min(45, recipe.grain * k + manual.grain),
       vignette: recipe.vignette * k,
-      hsl: buildEffectiveHsl(recipe.hsl, k)
+      hsl: buildEffectiveHsl(recipe.hsl, k),
+      ...(activeAdaptive ? { adaptiveColor: activeAdaptive } : {})
     };
   }
 
@@ -236,7 +249,8 @@ export function buildEffectiveRecipe(
     toneCurve: scaleToneCurve(recipe.toneCurve, kTone),
     colorGrading: scaleColorGrading(recipe.colorGrading, kColor),
     effects: scaleOpticalEffects(recipe.effects, kOptical),
-    relighting: scaleRelighting(recipe.relighting, kTone, kContrast)
+    relighting: scaleRelighting(recipe.relighting, kTone, kContrast),
+    ...(activeAdaptive ? { adaptiveColor: activeAdaptive } : {})
   };
 }
 
@@ -246,6 +260,7 @@ export function isNeutralRecipe(recipe: ColorRecipe): boolean {
   if (hasActiveColorGrading(recipe.colorGrading)) return false;
   if (hasActiveOpticalEffects(recipe.effects)) return false;
   if (hasActiveRelighting(recipe.relighting)) return false;
+  if (hasActiveAdaptiveColor(recipe.adaptiveColor)) return false;
   return Object.entries(recipe).every(
     ([key, val]) =>
       key === 'hsl' ||
@@ -253,6 +268,7 @@ export function isNeutralRecipe(recipe: ColorRecipe): boolean {
       key === 'colorGrading' ||
       key === 'effects' ||
       key === 'relighting' ||
+      key === 'adaptiveColor' ||
       typeof val !== 'number' ||
       Math.abs(val) < 0.01
   );
@@ -864,6 +880,7 @@ export function applyRecipeToPixelBuffer(
   const hasActiveAdaptiveRl = Boolean(
     rl?.active && adaptiveMap && adaptiveMap.mode !== 'fallback-signature' && hasActiveRelighting(recipe.relighting)
   );
+  const adaptiveColor = hasActiveAdaptiveColor(recipe.adaptiveColor) ? recipe.adaptiveColor! : null;
 
   const halfW = w * 0.5;
   const halfH = h * 0.5;
@@ -1146,6 +1163,11 @@ export function applyRecipeToPixelBuffer(
             }
           }
         }
+      }
+
+      // 0e. Adaptive Color Correction (independent image-aware correction with linear-light strength blend)
+      if (adaptiveColor) {
+        [r, g, b] = applyAdaptiveColorToPixel(r, g, b, adaptiveColor);
       }
 
       // 1. Smooth Dehaze (monotonic toe curve in [0, 1])

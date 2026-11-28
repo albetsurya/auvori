@@ -1,5 +1,20 @@
 import { ColorRecipe, Preset } from '../../types';
 import {
+  analyzeAndSolveAdaptiveColorFromRgba
+} from '../adaptive-color/adaptiveCorrectionPipeline';
+import {
+  AdaptiveColorCacheKeyParts,
+  buildAdaptiveColorCacheKey,
+  getCachedAdaptiveColorResult,
+  setCachedAdaptiveColorResult
+} from '../adaptive-color/cache';
+import {
+  ADAPTIVE_COLOR_VERSION,
+  AdaptiveColorConfig,
+  AdaptiveCorrectionResult,
+  DEFAULT_ADAPTIVE_COLOR_CONFIG
+} from '../adaptive-color/types';
+import {
   AdaptiveAnalyzeOutcome,
   AdaptiveAnalyzeRequest,
   AdaptiveAnalyzer,
@@ -34,6 +49,20 @@ export interface PreviewRequest {
   maxDimension?: number;
   analysisResult?: AnalysisResult | null;
   includeGrain?: boolean;
+}
+
+export interface AdaptiveColorAnalyzeRequest {
+  source: ImageSourceLike;
+  sourceId?: string;
+  sourceRevision: number;
+  transformRevision: string | number;
+  config?: Partial<AdaptiveColorConfig>;
+}
+
+export interface AdaptiveColorAnalyzeOutcome {
+  result: AdaptiveCorrectionResult;
+  fromCache: boolean;
+  cancelled: boolean;
 }
 
 function getSourceDims(source: ImageSourceLike): { width: number; height: number } {
@@ -107,8 +136,10 @@ export class PhotoPipeline {
 
   private jobSeq = 1;
   private latestPreviewJobId = 0;
+  private latestAdaptiveColorSeq = 0;
   private activeBatchId = 0;
   private pendingJobs = new Map<number, PendingJob>();
+  private inFlightAdaptiveColor = new Map<string, Promise<AdaptiveColorAnalyzeOutcome>>();
 
   // Coalescing slot for CPU Worker renders so rapid slider scrubbing skips stale intermediate frames
   private workerRenderInFlight = false;
@@ -655,6 +686,112 @@ export class PhotoPipeline {
 
   probeAiCapabilities() {
     return this.getAdaptiveAnalyzer().probeCapabilities();
+  }
+
+  getCachedAdaptiveColor(
+    req: AdaptiveColorAnalyzeRequest
+  ): AdaptiveCorrectionResult | null {
+    const sourceId = req.sourceId || assignSourceId(req.source);
+    const analysisMaxDim = req.config?.analysisMaxDim ?? DEFAULT_ADAPTIVE_COLOR_CONFIG.analysisMaxDim;
+    const keyParts: AdaptiveColorCacheKeyParts = {
+      sourceId,
+      sourceRevision: req.sourceRevision,
+      transformRevision: req.transformRevision,
+      analysisMaxDim,
+      version: ADAPTIVE_COLOR_VERSION
+    };
+    return getCachedAdaptiveColorResult(keyParts);
+  }
+
+  async analyzeAdaptiveColor(
+    req: AdaptiveColorAnalyzeRequest
+  ): Promise<AdaptiveColorAnalyzeOutcome> {
+    const seq = ++this.latestAdaptiveColorSeq;
+    const { width: srcW, height: srcH } = getSourceDims(req.source);
+    const sourceId = req.sourceId || assignSourceId(req.source);
+    const analysisMaxDim = req.config?.analysisMaxDim ?? DEFAULT_ADAPTIVE_COLOR_CONFIG.analysisMaxDim;
+    const keyParts: AdaptiveColorCacheKeyParts = {
+      sourceId,
+      sourceRevision: req.sourceRevision,
+      transformRevision: req.transformRevision,
+      analysisMaxDim,
+      version: ADAPTIVE_COLOR_VERSION
+    };
+
+    const cached = getCachedAdaptiveColorResult(keyParts);
+    if (cached) {
+      return { result: cached, fromCache: true, cancelled: false };
+    }
+
+    const cacheKey = buildAdaptiveColorCacheKey(keyParts);
+    const existing = this.inFlightAdaptiveColor.get(cacheKey);
+    if (existing) {
+      return existing;
+    }
+
+    const { w, h } = computeTargetSize(srcW, srcH, analysisMaxDim);
+
+    const promise = (async (): Promise<AdaptiveColorAnalyzeOutcome> => {
+      const worker = this.ensureWorker();
+      if (worker && srcW > 0 && srcH > 0) {
+        try {
+          const id = ++this.jobSeq;
+          const payload = await sourceToTransferPayload(req.source, w, h);
+          const resp = await this.callWorker(
+            {
+              id,
+              type: 'ANALYZE_ADAPTIVE_COLOR',
+              bitmap: payload.bitmap,
+              rgbaBuffer: payload.rgbaBuffer,
+              width: w,
+              height: h,
+              sourceSignature: cacheKey,
+              config: req.config
+            },
+            payload.transfer
+          );
+          if (resp.type === 'ADAPTIVE_COLOR_DONE') {
+            setCachedAdaptiveColorResult(keyParts, resp.result);
+            return {
+              result: resp.result,
+              fromCache: false,
+              cancelled: seq !== this.latestAdaptiveColorSeq
+            };
+          }
+        } catch {
+          // Fallback to synchronous analysis on CPU below
+        }
+      }
+
+      const staging = document.createElement('canvas');
+      staging.width = w;
+      staging.height = h;
+      const ctx = staging.getContext('2d', { willReadFrequently: true });
+      const data = ctx && srcW > 0 && srcH > 0
+        ? (ctx.drawImage(req.source as CanvasImageSource, 0, 0, w, h), ctx.getImageData(0, 0, w, h).data)
+        : new Uint8ClampedArray(0);
+      const result = analyzeAndSolveAdaptiveColorFromRgba(data, w, h, {
+        config: req.config,
+        sourceSignature: cacheKey
+      });
+      setCachedAdaptiveColorResult(keyParts, result);
+      return {
+        result,
+        fromCache: false,
+        cancelled: seq !== this.latestAdaptiveColorSeq
+      };
+    })();
+
+    this.inFlightAdaptiveColor.set(cacheKey, promise);
+    try {
+      return await promise;
+    } finally {
+      this.inFlightAdaptiveColor.delete(cacheKey);
+    }
+  }
+
+  cancelAdaptiveColorAnalysis(): void {
+    this.latestAdaptiveColorSeq++;
   }
 
   cancelThumbnailBatch(): void {

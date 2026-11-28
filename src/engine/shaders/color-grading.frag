@@ -77,6 +77,21 @@ uniform vec3 uCgMidtone;
 uniform vec3 uCgHighlight;
 uniform float uCgBalance;
 
+// Adaptive Color Correction (optional additive stage; uHasAdaptiveColor == 0 by default)
+uniform int uHasAdaptiveColor;
+uniform float uAccStrength;
+uniform float uAccExposure;
+uniform float uAccHighlights;
+uniform float uAccShadows;
+uniform float uAccContrast;
+uniform float uAccTemperature;
+uniform float uAccTint;
+uniform float uAccVibrance;
+uniform float uAccSaturation;
+uniform float uAccGreenCorrection;
+uniform float uAccBlackPoint;
+uniform float uAccWhitePoint;
+
 float clamp01(float v) {
   return clamp(v, 0.0, 1.0);
 }
@@ -256,6 +271,204 @@ vec3 sampleAdaptiveChannels(vec2 uv) {
   return texture(uAdaptiveTex, aligned).rgb;
 }
 
+float srgbToLinear(float c) {
+  float x = clamp01(c);
+  return x <= 0.04045 ? x / 12.92 : pow((x + 0.055) / 1.055, 2.4);
+}
+
+vec3 srgbToLinear3(vec3 c) {
+  return vec3(srgbToLinear(c.r), srgbToLinear(c.g), srgbToLinear(c.b));
+}
+
+float linearToSrgb(float c) {
+  float x = clamp01(c);
+  return x <= 0.0031308 ? x * 12.92 : 1.055 * pow(x, 1.0 / 2.4) - 0.055;
+}
+
+vec3 linearToSrgb3(vec3 c) {
+  return vec3(linearToSrgb(c.r), linearToSrgb(c.g), linearToSrgb(c.b));
+}
+
+float softHighlightCompress(float v, float knee) {
+  if (v <= 0.0) return 0.0;
+  if (v <= knee) return v;
+  float span = 1.0 - knee;
+  float t = (v - knee) / max(1e-5, span);
+  return knee + span * (t / (1.0 + t));
+}
+
+vec3 accRgbToHsv(vec3 c) {
+  float maxC = max(c.r, max(c.g, c.b));
+  float minC = min(c.r, min(c.g, c.b));
+  float d = maxC - minC;
+  float s = maxC > 1e-5 ? d / maxC : 0.0;
+  float h = 0.0;
+  if (d > 1e-5) {
+    if (maxC == c.r) h = mod((c.g - c.b) / d, 6.0);
+    else if (maxC == c.g) h = (c.b - c.r) / d + 2.0;
+    else h = (c.r - c.g) / d + 4.0;
+    if (h < 0.0) h += 6.0;
+    h *= 60.0;
+  }
+  return vec3(h, s, maxC);
+}
+
+vec3 accHsvToRgb(float h, float s, float v) {
+  if (s <= 1e-5) return vec3(v);
+  float hn = mod(mod(h, 360.0) + 360.0, 360.0);
+  float c = v * s;
+  float x = c * (1.0 - abs(mod(hn / 60.0, 2.0) - 1.0));
+  float m = v - c;
+  vec3 rp = vec3(0.0);
+  if (hn < 60.0) rp = vec3(c, x, 0.0);
+  else if (hn < 120.0) rp = vec3(x, c, 0.0);
+  else if (hn < 180.0) rp = vec3(0.0, c, x);
+  else if (hn < 240.0) rp = vec3(0.0, x, c);
+  else if (hn < 300.0) rp = vec3(x, 0.0, c);
+  else rp = vec3(c, 0.0, x);
+  return clamp(rp + m, 0.0, 1.0);
+}
+
+vec3 applyAdaptiveColorCorrection(vec3 rgbIn) {
+  float k = clamp01(uAccStrength);
+  if (k <= 1e-4) return rgbIn;
+
+  vec3 orig = clamp(rgbIn, 0.0, 1.0);
+  vec3 linOrig = srgbToLinear3(orig);
+
+  // 1. Skin-protected White Balance in linear RGB
+  float skinPre = computeSkinWeight(orig);
+  float wbProtect = 1.0 - skinPre * 0.48;
+  float gainR = max(0.5, 1.0 + uAccTemperature * 0.26 * wbProtect + uAccTint * 0.10 * wbProtect);
+  float gainG = max(0.5, 1.0 - uAccTint * 0.18 * wbProtect);
+  float gainB = max(0.5, 1.0 - uAccTemperature * 0.28 * wbProtect + uAccTint * 0.10 * wbProtect);
+
+  vec3 lin = max(vec3(0.0), linOrig * vec3(gainR, gainG, gainB));
+
+  // 2. Exposure in linear RGB with ratio-preserving soft highlight shoulder
+  if (abs(uAccExposure) > 1e-4) {
+    float expMult = pow(2.0, uAccExposure);
+    lin *= expMult;
+    float maxLin = max(lin.r, max(lin.g, lin.b));
+    if (maxLin > 0.72) {
+      lin *= softHighlightCompress(maxLin, 0.72) / maxLin;
+    }
+  }
+
+  vec3 c = linearToSrgb3(lin);
+
+  // 3. Black Point & White Point tonal depth anchoring
+  if (abs(uAccBlackPoint) > 1e-4 || abs(uAccWhitePoint) > 1e-4) {
+    float lumBW = clamp01(0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b);
+    if (uAccBlackPoint < -1e-4) {
+      float toeMask = (1.0 - lumBW) * (1.0 - lumBW);
+      c *= max(0.65, 1.0 + uAccBlackPoint * 3.2 * toeMask);
+    } else if (uAccBlackPoint > 1e-4) {
+      float toeMask = (1.0 - lumBW) * (1.0 - lumBW);
+      c = clamp(c + uAccBlackPoint * 0.45 * toeMask, 0.0, 1.0);
+    }
+
+    if (uAccWhitePoint > 1e-4) {
+      float hlMaskW = smoothstep(0.45, 1.0, lumBW);
+      float scaleW = 1.0 + uAccWhitePoint * 1.45 * hlMaskW;
+      c = vec3(
+        softHighlightCompress(c.r * scaleW, 0.84),
+        softHighlightCompress(c.g * scaleW, 0.84),
+        softHighlightCompress(c.b * scaleW, 0.84)
+      );
+    } else if (uAccWhitePoint < -1e-4) {
+      float hlMaskW = smoothstep(0.55, 1.0, lumBW);
+      c *= max(0.75, 1.0 + uAccWhitePoint * 1.5 * hlMaskW);
+    }
+  }
+
+  // 4. Luminance-aware Shadows & Highlights (ratio-preserving)
+  float lum = clamp01(0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b);
+  if (abs(uAccShadows) > 1e-4 && lum > 1e-4) {
+    float shMask = (1.0 - lum) * (1.0 - lum);
+    if (uAccShadows > 0.0) {
+      float lift = uAccShadows * 0.22 * sqrt(lum) * shMask;
+      c *= (lum + lift) / lum;
+      float maxC = max(c.r, max(c.g, c.b));
+      if (maxC > 0.84) {
+        c *= softHighlightCompress(maxC, 0.84) / maxC;
+      }
+    } else {
+      c *= max(0.5, 1.0 + uAccShadows * 0.30 * shMask);
+    }
+  }
+
+  if (abs(uAccHighlights) > 1e-4) {
+    float hlMask = lum * lum;
+    if (uAccHighlights < 0.0) {
+      c *= max(0.45, 1.0 + uAccHighlights * 0.34 * hlMask);
+    } else {
+      float add = uAccHighlights * 0.14 * hlMask;
+      c = vec3(
+        softHighlightCompress(c.r + add, 0.84),
+        softHighlightCompress(c.g + add, 0.84),
+        softHighlightCompress(c.b + add, 0.84)
+      );
+    }
+  }
+
+  // 5. Smooth Monotonic Midtone Contrast (skin-hue preserving)
+  if (abs(uAccContrast) > 1e-4) {
+    float cK = uAccContrast * 1.35;
+    vec3 sRgb = clamp(c + cK * c * (1.0 - c) * (2.0 * c - 1.0), 0.0, 1.0);
+    float cLum = clamp01(0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b);
+    float tLum = clamp01(cLum + cK * cLum * (1.0 - cLum) * (2.0 * cLum - 1.0));
+    float lRatio = cLum > 1e-4 ? tLum / cLum : 1.0;
+    vec3 lRgb = clamp(c * lRatio, 0.0, 1.0);
+    float skinMid = computeSkinWeight(c);
+    float lumaBlend = 0.25 + skinMid * 0.50;
+    c = mix(sRgb, lRgb, lumaBlend);
+  }
+
+  // 6. Natural Foliage Green Correction (skin-masked)
+  if (uAccGreenCorrection > 0.005) {
+    vec3 hsv = accRgbToHsv(c);
+    if (hsv.y > 0.08 && hsv.z > 1e-4) {
+      float skinPost = computeSkinWeight(c);
+      float greenBell = smoothstep(68.0, 96.0, hsv.x) * (1.0 - smoothstep(142.0, 168.0, hsv.x));
+      float satGate = smoothstep(0.08, 0.24, hsv.y);
+      float gWeight = greenBell * satGate * (1.0 - skinPost) * uAccGreenCorrection;
+      if (gWeight > 0.002) {
+        float hNew = hsv.x;
+        if (hsv.x < 120.0) {
+          hNew = hsv.x + (122.0 - hsv.x) * (0.28 * gWeight);
+        } else if (hsv.x > 134.0) {
+          hNew = hsv.x + (128.0 - hsv.x) * (0.24 * gWeight);
+        }
+        float sNew = clamp01(hsv.y * (1.0 - gWeight * 0.24 * smoothstep(0.22, 0.75, hsv.y)));
+        float vNew = clamp01(hsv.z * (1.0 - gWeight * 0.06 * smoothstep(0.35, 0.90, hsv.z)));
+        c = accHsvToRgb(hNew, sNew, vNew);
+      }
+    }
+  }
+
+  // 7. Skin-Protected Vibrance & Saturation
+  if (abs(uAccVibrance) > 1e-4 || abs(uAccSaturation) > 1e-4) {
+    float skinPost = computeSkinWeight(c);
+    float gray = clamp01(0.2126 * c.r + 0.7152 * c.g + 0.0722 * c.b);
+    float maxC = max(c.r, max(c.g, c.b));
+    float minC = min(c.r, min(c.g, c.b));
+    float curSat = maxC > 1e-5 ? (maxC - minC) / maxC : 0.0;
+    float darkGuard = smoothstep(0.03, 0.14, gray);
+    float vibBoost = uAccVibrance * (1.0 - curSat) * (1.0 - skinPost * 0.55) * darkGuard;
+    float satScale = 1.0 + uAccSaturation * (1.0 - skinPost * 0.45);
+    float effSat = max(0.0, satScale * (1.0 + vibBoost));
+    c = clamp(vec3(gray) + (c - vec3(gray)) * effSat, 0.0, 1.0);
+  }
+
+  // 8. Linear-light Strength Blending between Original and Fully Corrected
+  if (k >= 1.0 - 1e-4) {
+    return clamp(c, 0.0, 1.0);
+  }
+  vec3 linCorr = srgbToLinear3(c);
+  return linearToSrgb3(mix(linOrig, linCorr, k));
+}
+
 void main() {
   int x = int(gl_FragCoord.x);
   int y = int(gl_FragCoord.y);
@@ -402,6 +615,11 @@ void main() {
         }
       }
     }
+  }
+
+  // 0e. Adaptive Color Correction (independent image-aware correction with linear-light strength blend)
+  if (uHasAdaptiveColor == 1) {
+    rgb = applyAdaptiveColorCorrection(rgb);
   }
 
   // 1. Smooth Dehaze (monotonic toe curve in [0, 1])

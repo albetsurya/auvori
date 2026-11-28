@@ -11,7 +11,9 @@ import {
   Sparkles
 } from 'lucide-react';
 import {
+  ACTIVE_ADAPTIVE_COLOR_DEFAULT_STRENGTH,
   AspectRatioOption,
+  DEFAULT_ADAPTIVE_COLOR_STRENGTH,
   DEFAULT_ADJUSTMENTS,
   DEFAULT_TRANSFORM,
   ImageTransform,
@@ -28,6 +30,9 @@ interface PresetDrawerProps {
   intensity: number;
   manual: ManualAdjustments;
   transform: ImageTransform;
+  adaptiveColorStrength: number;
+  adaptiveColorStatus: 'idle' | 'analyzing' | 'ready' | 'error';
+  adaptiveColorError?: string | null;
   thumbnails: Record<string, string>;
   favoriteIds: string[];
   isProUnlocked: boolean;
@@ -36,6 +41,8 @@ interface PresetDrawerProps {
   onCommitIntensity: () => void;
   onChangeManual: (next: ManualAdjustments) => void;
   onCommitManual: () => void;
+  onChangeAdaptiveColorStrength: (val: number) => void;
+  onCommitAdaptiveColorStrength: (val?: number) => void;
   onChangeTransform: (next: ImageTransform) => void;
   onToggleFavorite: (presetId: string) => void;
 }
@@ -63,6 +70,9 @@ export const PresetDrawer: React.FC<PresetDrawerProps> = ({
   intensity,
   manual,
   transform,
+  adaptiveColorStrength,
+  adaptiveColorStatus,
+  adaptiveColorError,
   thumbnails,
   favoriteIds,
   isProUnlocked,
@@ -71,6 +81,8 @@ export const PresetDrawer: React.FC<PresetDrawerProps> = ({
   onCommitIntensity,
   onChangeManual,
   onCommitManual,
+  onChangeAdaptiveColorStrength,
+  onCommitAdaptiveColorStrength,
   onChangeTransform,
   onToggleFavorite
 }) => {
@@ -99,9 +111,14 @@ export const PresetDrawer: React.FC<PresetDrawerProps> = ({
         {/* Mode Switcher: right-aligned on mobile, full-width top segmented control on desktop */}
         <div className="order-2 lg:order-1 flex lg:grid lg:grid-cols-3 items-center gap-0.5 lg:gap-1 bg-surfaceSecondary rounded-[8px] p-0.5 lg:p-1 border border-border shrink-0">
           {[
-            { id: 'presets', label: 'Looks', icon: Sparkles },
-            { id: 'adjust', label: 'Adjust', icon: SlidersHorizontal },
-            { id: 'crop', label: 'Crop', icon: Crop }
+            { id: 'presets', label: 'Looks', icon: Sparkles, activeDot: false },
+            {
+              id: 'adjust',
+              label: 'Adjust',
+              icon: SlidersHorizontal,
+              activeDot: adaptiveColorStrength > 0 || hasManualChanges
+            },
+            { id: 'crop', label: 'Crop', icon: Crop, activeDot: false }
           ].map((tab) => {
             const Icon = tab.icon;
             const selected = activeTab === tab.id;
@@ -112,7 +129,7 @@ export const PresetDrawer: React.FC<PresetDrawerProps> = ({
                 aria-label={tab.label}
                 aria-pressed={selected}
                 onClick={() => setActiveTab(tab.id as 'presets' | 'adjust' | 'crop')}
-                className={`min-w-[44px] min-h-[44px] lg:min-h-[40px] px-2 lg:px-2.5 py-1.5 rounded-[6px] text-[11px] lg:text-xs font-medium flex items-center justify-center gap-1.5 transition duration-fast ${
+                className={`relative min-w-[44px] min-h-[44px] lg:min-h-[40px] px-2 lg:px-2.5 py-1.5 rounded-[6px] text-[11px] lg:text-xs font-medium flex items-center justify-center gap-1.5 transition duration-fast ${
                   selected
                     ? 'bg-primary text-primaryText shadow-card'
                     : 'text-textSecondary hover:text-textPrimary'
@@ -120,6 +137,12 @@ export const PresetDrawer: React.FC<PresetDrawerProps> = ({
               >
                 <Icon className="w-3.5 h-3.5" strokeWidth={1.8} />
                 <span className="hidden sm:inline">{tab.label}</span>
+                {tab.activeDot && !selected && (
+                  <span
+                    aria-hidden="true"
+                    className="w-1.5 h-1.5 rounded-full bg-primary shrink-0"
+                  />
+                )}
               </button>
             );
           })}
@@ -269,11 +292,104 @@ export const PresetDrawer: React.FC<PresetDrawerProps> = ({
           </div>
         </div>
       ) : activeTab === 'adjust' ? (
-        /* Quick Fine-Tune Sliders */
+        /* Adaptive Color Correction + Quick Fine-Tune Sliders */
         <div
-          className="px-4 py-1.5 space-y-2 max-h-[164px] lg:max-h-none lg:flex-1 overflow-y-auto no-scrollbar"
+          className="px-4 py-1.5 space-y-2.5 max-h-[164px] lg:max-h-none lg:flex-1 overflow-y-auto no-scrollbar"
           onPointerUp={onCommitManual}
         >
+          {/* Adaptive Color Correction Card */}
+          <section
+            aria-label="Adaptive Color Correction"
+            data-testid="adaptive-color-card"
+            className="p-3 rounded-[10px] bg-surfaceSecondary border border-border space-y-1.5"
+          >
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5 min-w-0">
+                <span className="text-xs font-semibold text-textPrimary truncate">
+                  Adaptive Color Correction
+                </span>
+                <span
+                  data-testid="adaptive-color-badge"
+                  className={`px-1.5 py-0.5 rounded-[5px] text-[10px] font-semibold uppercase tracking-wide shrink-0 ${
+                    adaptiveColorStrength > 0
+                      ? 'bg-primary text-primaryText'
+                      : 'bg-surface border border-border text-textSecondary'
+                  }`}
+                >
+                  Auto
+                </span>
+              </div>
+
+              {adaptiveColorStrength > 0 ? (
+                <button
+                  type="button"
+                  data-testid="adaptive-color-reset"
+                  onClick={() => {
+                    onChangeAdaptiveColorStrength(DEFAULT_ADAPTIVE_COLOR_STRENGTH);
+                    onCommitAdaptiveColorStrength(DEFAULT_ADAPTIVE_COLOR_STRENGTH);
+                  }}
+                  className="min-h-[32px] px-2 rounded-[6px] text-[11px] font-medium text-textSecondary hover:text-textPrimary hover:bg-surface inline-flex items-center gap-1 transition duration-fast shrink-0"
+                >
+                  <RotateCcw className="w-3 h-3" strokeWidth={1.8} />
+                  Reset
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  data-testid="adaptive-color-apply"
+                  onClick={() => {
+                    onChangeAdaptiveColorStrength(ACTIVE_ADAPTIVE_COLOR_DEFAULT_STRENGTH);
+                    onCommitAdaptiveColorStrength(ACTIVE_ADAPTIVE_COLOR_DEFAULT_STRENGTH);
+                  }}
+                  className="min-h-[32px] px-2.5 rounded-[6px] text-[11px] font-medium bg-surface border border-border text-textPrimary hover:border-primary/60 transition duration-fast shrink-0"
+                >
+                  Apply
+                </button>
+              )}
+            </div>
+
+            <p className="text-[11px] text-textSecondary leading-snug">
+              Automatically adjusts color and lighting based on your photo.
+            </p>
+
+            <div className="flex items-center gap-2.5 pt-0.5">
+              <input
+                type="range"
+                min={0}
+                max={100}
+                step={1}
+                value={adaptiveColorStrength}
+                onChange={(e) => onChangeAdaptiveColorStrength(Number(e.target.value))}
+                onPointerUp={(e) => {
+                  e.stopPropagation();
+                  onCommitAdaptiveColorStrength();
+                }}
+                onKeyUp={() => onCommitAdaptiveColorStrength()}
+                style={{ '--slider-pct': `${adaptiveColorStrength}%` } as React.CSSProperties}
+                className="auvori-slider flex-1 min-w-[60px]"
+                aria-label="Adaptive Color Correction Strength"
+                data-testid="adaptive-color-slider"
+              />
+              <span
+                data-testid="adaptive-color-percent"
+                className="text-xs font-medium text-textSecondary w-10 text-right tabular-nums shrink-0"
+              >
+                {adaptiveColorStrength}%
+              </span>
+            </div>
+
+            {adaptiveColorStatus === 'analyzing' && adaptiveColorStrength > 0 && (
+              <div className="text-[11px] text-textSecondary" data-testid="adaptive-color-loading">
+                Analyzing photo...
+              </div>
+            )}
+            {adaptiveColorStatus === 'error' && adaptiveColorError && (
+              <div className="text-[11px] text-error" role="status" data-testid="adaptive-color-error">
+                {adaptiveColorError}
+              </div>
+            )}
+          </section>
+
           {ADJUST_CONTROLS.map((ctrl) => (
             <Slider
               key={ctrl.key}

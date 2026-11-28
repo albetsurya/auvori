@@ -24,6 +24,8 @@ interface PhotoCanvasProps {
   splitMode: boolean;
   analysisResult?: AnalysisResult | null;
   adaptiveStatus?: AdaptiveStatusUi;
+  adaptiveColorStrength?: number;
+  adaptiveColorStatus?: 'idle' | 'analyzing' | 'ready' | 'error';
   onOpenPro: () => void;
 }
 
@@ -39,6 +41,8 @@ export const PhotoCanvas: React.FC<PhotoCanvasProps> = ({
   splitMode,
   analysisResult = null,
   adaptiveStatus,
+  adaptiveColorStrength = 0,
+  adaptiveColorStatus = 'idle',
   onOpenPro
 }) => {
   const editedCanvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -291,14 +295,27 @@ export const PhotoCanvas: React.FC<PhotoCanvasProps> = ({
         )}
 
         {/* Subtle idle hint */}
-        {!splitMode && !isHoldingOriginal && activePreset.id !== 'original' && zoom <= 1.05 && (
-          <span className="absolute top-3 left-3 px-2.5 py-1 rounded-[6px] bg-graphite/75 backdrop-blur-sm text-chalk text-[10px] font-medium pointer-events-none">
-            Hold to compare · Pinch to zoom
-          </span>
-        )}
+        {!splitMode &&
+          !isHoldingOriginal &&
+          (activePreset.id !== 'original' || adaptiveColorStrength > 0) &&
+          zoom <= 1.05 && (
+            <span className="absolute top-3 left-3 px-2.5 py-1 rounded-[6px] bg-graphite/75 backdrop-blur-sm text-chalk text-[10px] font-medium pointer-events-none">
+              Hold to compare · Pinch to zoom
+            </span>
+          )}
 
         {/* Top-right adaptive status + optional fit zoom reset pill */}
         <div className="absolute top-3 right-3 flex items-center gap-1.5 z-10">
+          {adaptiveColorStatus === 'analyzing' && adaptiveColorStrength > 0 && !splitMode && (
+            <span
+              data-testid="adaptive-color-status-pill"
+              className="px-2.5 py-1 rounded-[6px] bg-graphite/85 text-chalk text-[10px] font-medium inline-flex items-center gap-1.5 backdrop-blur-sm border border-stone/25 shadow-card pointer-events-none"
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-chalk animate-pulse" />
+              <span>Analyzing color &amp; light...</span>
+            </span>
+          )}
+
           {activePreset.lookType === 'adaptive' &&
             adaptiveStatus &&
             adaptiveStatus.status !== 'idle' &&
