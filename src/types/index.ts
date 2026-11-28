@@ -185,6 +185,13 @@ export interface LicenseState {
   activatedAt?: string;
 }
 
+export interface EditorSnapshot {
+  presetId: string;
+  intensity: number;
+  manual: ManualAdjustments;
+  transform: ImageTransform;
+}
+
 export const DEFAULT_ADJUSTMENTS: ManualAdjustments = {
   exposure: 0,
   contrast: 0,

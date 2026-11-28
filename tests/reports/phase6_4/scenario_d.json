@@ -1,0 +1,40 @@
+{
+  "scenario": "D",
+  "test": "IndexedDB Persistence and Recovery",
+  "timestamp": "2026-11-28T03:37:06.220Z",
+  "status": "PASSED",
+  "project": {
+    "id": "ec70d579-d3c2-4f27-95e5-bb931d1dde95",
+    "name": "qa-persistence",
+    "activePresetId": "rosy-bokeh",
+    "intensity": 60,
+    "historyLength": 45,
+    "exportCount": 0,
+    "sourceImageId": "103805b0-d34d-4575-890b-927c3251fa50",
+    "updatedAt": "2026-11-28T03:37:06.220Z",
+    "schemaVersion": 1,
+    "sourceType": "local-upload",
+    "sourceAssetId": null
+  },
+  "image": {
+    "id": "103805b0-d34d-4575-890b-927c3251fa50",
+    "projectId": "ec70d579-d3c2-4f27-95e5-bb931d1dde95",
+    "mimeType": "image/png",
+    "width": 800,
+    "height": 600,
+    "fileSize": 2789,
+    "blobSize": 2789,
+    "blobType": "image/png",
+    "contentHash": "3d61aa5a43b8c290a173b965e73d817c22a04f8ed84bf555f04f863ae824dbd9"
+  },
+  "reload_recovery": true,
+  "second_save": true,
+  "export": {
+    "filename": "auvori-rosy-bokeh.jpg",
+    "size_bytes": 13863,
+    "jpeg_magic": "ffd8",
+    "ok": true
+  },
+  "browser_restart_recovery": true,
+  "offline": true
+}

@@ -1,0 +1,80 @@
+{
+  "scenario": "E",
+  "test": "Studio Sample Offline Flow with Persistence",
+  "timestamp": "2026-11-28T03:37:06.220Z",
+  "status": "PASSED",
+  "sample_count": 9,
+  "sample_titles": [
+    "Daylight Portrait",
+    "Indoor Portrait",
+    "Studio Skin Tones",
+    "Café Interior",
+    "Food Scene",
+    "Night Street",
+    "Neon Portrait",
+    "Analog Scene",
+    "Monochrome Scene"
+  ],
+  "sample_editors_opened": 9,
+  "sample_presets_ok": 9,
+  "sample_persistence": {
+    "all_9_samples_create_project": true,
+    "source_type": "studio-sample",
+    "source_asset_id_set": true,
+    "blob_stored": true,
+    "preset_persisted": true,
+    "intensity_manual_history_persisted": true
+  },
+  "full_edits": [
+    {
+      "title": "Daylight Portrait",
+      "sample_id": "real:daylight_portrait",
+      "preset_applied": "Warm Latte",
+      "intensity": 70,
+      "before_after": true,
+      "undo_redo": true,
+      "saved": true,
+      "idb_projects_after_sample_edit": 1,
+      "idb_images_after_sample_edit": 1,
+      "offline_reload_recovery": true,
+      "second_save": true,
+      "browser_restart_recovery": true,
+      "export": {
+        "filename": "auvori-warm-latte.jpg",
+        "size_bytes": 151723,
+        "jpeg_magic": "ffd8",
+        "ok": true
+      }
+    },
+    {
+      "title": "Café Interior",
+      "sample_id": "real:cafe_interior",
+      "preset_applied": "Rosy Bokeh",
+      "intensity": 70,
+      "before_after": true,
+      "undo_redo": true,
+      "saved": true,
+      "idb_projects_after_sample_edit": 1,
+      "idb_images_after_sample_edit": 1,
+      "offline_reload_recovery": true,
+      "second_save": true,
+      "browser_restart_recovery": true,
+      "export": {
+        "filename": "auvori-rosy-bokeh.jpg",
+        "size_bytes": 81847,
+        "jpeg_magic": "ffd8",
+        "ok": true
+      }
+    }
+  ],
+  "failure_path": {
+    "test": "Delete sample asset from Cache Storage while offline",
+    "result": "Not saved — original asset unavailable + Retry shown",
+    "false_saved_never_shown": true
+  },
+  "remote_requests": 8,
+  "cache_state": {
+    "workbox-precache-v2-http://localhost:4179/": 45,
+    "auvori-static-assets-v1.0.0-timestamp": 32
+  }
+}

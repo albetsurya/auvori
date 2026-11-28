@@ -1,5 +1,5 @@
 import React from 'react';
-import { Compass, Crown, Home, ImagePlus, LucideIcon, Sliders, User } from 'lucide-react';
+import { Compass, Crown, Home, ImagePlus, LucideIcon, Sliders, User, HardDrive } from 'lucide-react';
 import { AppTab, LicenseState } from '../types';
 import { StatusBadge } from './ui/Chip';
 import { AuvoriLogo } from './AuvoriLogo';
@@ -10,6 +10,7 @@ interface TopStudioBarProps {
   onSelectTab: (tab: AppTab) => void;
   onOpenPhoto: () => void;
   onOpenPro: () => void;
+  onOpenOfflineManager: () => void;
 }
 
 const NAV_ITEMS: { tab: AppTab; label: string; icon: LucideIcon }[] = [
@@ -24,7 +25,8 @@ export const TopStudioBar: React.FC<TopStudioBarProps> = ({
   license,
   onSelectTab,
   onOpenPhoto,
-  onOpenPro
+  onOpenPro,
+  onOpenOfflineManager
 }) => {
   return (
     <header className="hidden lg:block shrink-0 w-full bg-surface/95 backdrop-blur-md border-b border-border z-30">
@@ -71,6 +73,14 @@ export const TopStudioBar: React.FC<TopStudioBarProps> = ({
             );
           })}
         </nav>
+
+        <button
+          onClick={onOpenOfflineManager}
+          className="min-h-[44px] h-11 px-3 rounded-[10px] text-textSecondary hover:text-textPrimary hover:bg-surfaceSecondary/60 transition duration-fast flex items-center justify-center"
+          aria-label="Offline Resources"
+        >
+          <HardDrive className="w-5 h-5" strokeWidth={1.75} />
+        </button>
 
         <button
           onClick={onOpenPhoto}

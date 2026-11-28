@@ -1,10 +1,18 @@
 import React, { useState } from 'react';
-import { Check, CheckCircle2, Crown, Heart, Moon, Sun, Trash2 } from 'lucide-react';
+import { Check, CheckCircle2, Crown, Heart, Moon, Sun, Trash2, HardDrive, Wifi, WifiOff, AlertCircle } from 'lucide-react';
 import { EditorBackdrop, LicenseState } from '../types';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { StatusBadge } from '../components/ui/Chip';
 import { ModalSheet } from '../components/ui/ModalSheet';
+
+interface OfflineStateInfo {
+  mandatoryPack: { status: string; progress: number };
+  aiPack: { status: string; progress: number };
+  storage: { estimate: { usage: number; quota: number } | null; persistent: boolean };
+}
+
+type OfflineStateNullable = OfflineStateInfo | null;
 
 interface ProfileScreenProps {
   license: LicenseState;
@@ -17,6 +25,7 @@ interface ProfileScreenProps {
   onOpenPro: (tab: 'buy' | 'activate') => void;
   onOpenFavorites: () => void;
   onClearRecents: () => void;
+  offlineState: OfflineStateNullable;
 }
 
 export const ProfileScreen: React.FC<ProfileScreenProps> = ({
@@ -29,7 +38,8 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
   onToggleDefaultWatermark,
   onOpenPro,
   onOpenFavorites,
-  onClearRecents
+  onClearRecents,
+  offlineState
 }) => {
   const [confirmClearOpen, setConfirmClearOpen] = useState(false);
 
@@ -257,6 +267,116 @@ export const ProfileScreen: React.FC<ProfileScreenProps> = ({
             </Button>
           </Card>
         </div>
+
+        {/* Offline Resources */}
+        {offlineState && (
+          <div className="space-y-2.5">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-textSecondary px-1">
+              Offline Readiness
+            </h2>
+            <Card variant="settings" className="divide-y divide-border">
+              <div className="p-4 flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-[8px] flex items-center justify-center ${
+                  navigator.onLine ? 'bg-success/15' : 'bg-warning/15'
+                }`}>
+                  {navigator.onLine ? <Wifi className="w-5 h-5 text-success" strokeWidth={1.8} /> : <WifiOff className="w-5 h-5 text-warning" strokeWidth={1.8} />}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-textPrimary">
+                    {navigator.onLine ? 'Online' : 'Offline'}
+                  </div>
+                  <div className="text-xs text-textSecondary">
+                    {navigator.onLine ? 'Connected to internet' : 'Using local resources only'}
+                  </div>
+                </div>
+                <StatusBadge tone={navigator.onLine ? 'success' : 'warning'}>
+                  {navigator.onLine ? 'Online' : 'Offline'}
+                </StatusBadge>
+              </div>
+
+              <div className="p-4 flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-[8px] flex items-center justify-center ${
+                  offlineState.mandatoryPack.status === 'ready' ? 'bg-success/15' : 'bg-warning/15'
+                }`}>
+                  <HardDrive className={`w-5 h-5 ${offlineState.mandatoryPack.status === 'ready' ? 'text-success' : 'text-warning'}`} strokeWidth={1.8} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-textPrimary">Mandatory Offline Pack</div>
+                  <div className="text-xs text-textSecondary">
+                    {offlineState.mandatoryPack.status === 'ready'
+                      ? 'Ready for offline use'
+                      : offlineState.mandatoryPack.status === 'downloading'
+                        ? `Downloading… ${offlineState.mandatoryPack.progress}%`
+                        : 'Not prepared — tap to prepare'}
+                  </div>
+                </div>
+                <StatusBadge tone={offlineState.mandatoryPack.status === 'ready' ? 'success' : 'neutral'}>
+                  {offlineState.mandatoryPack.status === 'ready' ? 'Ready' : offlineState.mandatoryPack.status}
+                </StatusBadge>
+              </div>
+
+              <div className="p-4 flex items-center gap-3">
+                <div className={`w-10 h-10 rounded-[8px] flex items-center justify-center ${
+                  offlineState.aiPack.status === 'ready' ? 'bg-success/15' : 'bg-info/15'
+                }`}>
+                  <HardDrive className={`w-5 h-5 ${offlineState.aiPack.status === 'ready' ? 'text-success' : 'text-info'}`} strokeWidth={1.8} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-medium text-textPrimary">AI Adaptive Models (Optional)</div>
+                  <div className="text-xs text-textSecondary">
+                    {offlineState.aiPack.status === 'ready'
+                      ? 'Ready for offline Direct Flash & Night Cinema'
+                      : offlineState.aiPack.status === 'downloading'
+                        ? `Downloading… ${offlineState.aiPack.progress}%`
+                        : offlineState.aiPack.status === 'warming-up'
+                          ? 'Warming up models…'
+                          : 'Not downloaded'}
+                  </div>
+                </div>
+                <StatusBadge tone={offlineState.aiPack.status === 'ready' ? 'success' : 'neutral'}>
+                  {offlineState.aiPack.status === 'ready' ? 'Ready' : offlineState.aiPack.status}
+                </StatusBadge>
+              </div>
+
+              <div className="p-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <HardDrive className="w-4 h-4 text-textSecondary" strokeWidth={1.8} />
+                    <span className="text-sm font-medium text-textPrimary">Local Storage</span>
+                  </div>
+                  <span className="text-xs text-textSecondary tabular-nums">
+                    {offlineState.storage.estimate
+                      ? `${(offlineState.storage.estimate.usage / 1024 / 1024).toFixed(1)} MB / ${(offlineState.storage.estimate.quota / 1024 / 1024).toFixed(0)} MB`
+                      : 'Unknown'}
+                  </span>
+                </div>
+                <div className="h-1.5 bg-surfaceSecondary rounded-[4px] overflow-hidden">
+                  <div
+                    className="h-full bg-primary transition-all duration-300"
+                    style={{
+                      width: `${offlineState.storage.estimate && offlineState.storage.estimate.quota > 0
+                        ? (offlineState.storage.estimate.usage / offlineState.storage.estimate.quota) * 100
+                        : 0}%`
+                    }}
+                  />
+                </div>
+                <p className="text-xs text-textSecondary flex items-center gap-1">
+                  {offlineState.storage.persistent ? (
+                    <>
+                      <CheckCircle2 className="w-3 h-3 text-success" strokeWidth={2} />
+                      Persistent storage granted
+                    </>
+                  ) : (
+                    <>
+                      <AlertCircle className="w-3 h-3 text-warning" strokeWidth={1.8} />
+                      Best-effort (may be cleared under pressure)
+                    </>
+                  )}
+                </p>
+              </div>
+            </Card>
+          </div>
+        )}
 
         {/* About & Photo Credits */}
         <div className="space-y-2.5">
